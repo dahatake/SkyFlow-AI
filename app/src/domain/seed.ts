@@ -5,7 +5,16 @@ import type {
 
 export const SCHEMA_VERSION = 1;
 export const SEED_VERSION = '2026.1';
-export const NOW = 8 * 60; // operational clock in minutes since midnight (08:00)
+/** Minutes since midnight in Changi (Asia/Singapore) time: the single time zone used across the whole application. */
+export function changiMinutes(d: Date = new Date()): number {
+  const p = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Singapore', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(d);
+  const g = (t: string) => Number(p.find((x) => x.type === t)?.value ?? 0);
+  return g('hour') * 60 + g('minute');
+}
+export function changiClock(d: Date = new Date()): string {
+  return d.toLocaleTimeString('en-GB', { timeZone: 'Asia/Singapore', hour12: false });
+}
+export const NOW = changiMinutes(); // operational clock at application start, in Changi time
 
 export const MILESTONE_TYPES = ['Chocks On', 'Deboarding', 'Cleaning & Catering', 'Boarding', 'Pushback Ready'];
 const TASK_TYPES: [string, string, string][] = [

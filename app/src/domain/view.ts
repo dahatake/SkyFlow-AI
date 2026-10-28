@@ -11,7 +11,7 @@ export interface Selection { kind: string; id: string }
 /** Single projection used by every component so no panel can disagree with another (FR-001). */
 export class OpsView {
   readonly impact: Impact;
-  constructor(readonly b: Baseline, readonly mode: SimMode, impact: Impact | undefined, readonly f: Filters, readonly kpiIds: string[] | null, readonly timePos: number | null = null, readonly wf: Record<string, { status: ExceptionState; ownerId?: string }> = {}) {
+  constructor(readonly b: Baseline, readonly mode: SimMode, impact: Impact | undefined, readonly f: Filters, readonly kpiIds: string[] | null, readonly timePos: number | null = null, readonly wf: Record<string, { status: ExceptionState; ownerId?: string; ackAt?: number; actAt?: number }> = {}) {
     this.impact = mode === 'baseline' || !impact ? emptyImpact() : impact;
     this.simulated = mode !== 'baseline' && !!impact;
   }

@@ -52,6 +52,13 @@ tbody tr{cursor:pointer}tr.sel,li.sel{background:rgba(15,108,189,.22)}tr.rel,li.
 .constraint{fill:rgba(135,100,184,.28);stroke:#8764b8;stroke-width:.3;stroke-dasharray:1 1}.constraint.sim{fill:rgba(135,100,184,.45)}
 .relation{stroke:#fff;stroke-width:.4;stroke-dasharray:1.2 .8}
 .asset.Available{fill:#6bb700}.asset.Engaged{fill:#ffb900}.asset.Unavailable{fill:#a4262c}.asset.Reserved{fill:#4aa3ff}.asset.Unknown{fill:#8a8886}.asset.hi{stroke:#fff;stroke-width:.3}
+.viz2d{position:relative}
+.gate rect{fill:#0f6cbd}.gate text{fill:#fff;font-size:1.3px}.ent{cursor:default}
+.ent.baggage rect{fill:#c19c00}.ent.cargo rect{fill:#8764b8}.ent.staff circle{fill:#4aa3ff}
+.hovercard{position:absolute;z-index:5;width:250px;pointer-events:none;background:#fff;color:#1b1b1b;border:1px solid #8a8886;border-radius:8px;padding:8px;box-shadow:0 4px 16px #0005;font-size:12px}
+:root[data-theme=dark] .hovercard{background:#252423;color:#f3f2f1}
+.hovercard img{width:100%;height:100px;object-fit:contain;background:#e8eef5;border-radius:4px;margin-bottom:4px}
+.hovercard dl{margin:4px 0}.hovercard dl div{display:flex;justify-content:space-between;gap:8px}.hovercard dt{opacity:.7}.hovercard dd{margin:0;text-align:right}.hovercard small{opacity:.6;font-size:10px}
 .task{fill:#107c10}.task.AtRisk{fill:#d83b01}.task.Blocked{fill:#a4262c}
 .bar{fill:#3a4a60}.bar-fill{fill:#6bb700}.bar-fill.hot{fill:#d83b01}
 .canvas-host{position:relative;height:420px;border-radius:6px;overflow:hidden}.canvas-host canvas{width:100%;height:100%;display:block}

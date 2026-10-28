@@ -18,10 +18,12 @@ import { DEMO_PACK } from './domain/demo';
 import { DecisionQueue } from './components/Decisions';
 import { TaskList } from './components/TaskList';
 import { LiveBar } from './components/LiveBar';
+import { KpiView } from './components/KpiView';
 import { fmt } from './domain/seed';
 
 const TABS: [Tab, string, string, ReactNode][] = [
   ['overview', 'Overview', 'KPIs, map and priorities', <DataBarVertical24Regular key="i" />],
+  ['kpi', 'Action KPIs', 'Manager actions vs SLA', <Gauge24Regular key="i" />],
   ['decisions', 'Decisions', 'Judgement tasks for people and Copilot', <Sparkle24Regular key="i" />],
   ['tasks', 'Task list', 'Who does what, by when (5W2H)', <ClipboardTaskListLtr24Regular key="i" />],
   ['turnaround', 'Turnarounds', 'Milestones, tasks and GSE per flight', <Timeline24Regular key="i" />],
@@ -57,31 +59,22 @@ function DemoBar() {
   );
 }
 
-function useWallClock() {
-  const [now, setNow] = useState(() => new Date());
-  useEffect(() => { const t = setInterval(() => setNow(new Date()), 1000); return () => clearInterval(t); }, []);
-  return now;
-}
-
 /** Big operational clock: time drives every judgement, so it sits at the top of the screen. */
 function ClockBar() {
   const { baseline, timePos, setTimePos, view } = useOps();
-  const wall = useWallClock();
   const t = timePos ?? baseline.now;
   const next = baseline.flights
     .map((f) => ({ f, std: f.std + view.delay(f.id) }))
     .filter((x) => x.f.status !== 'Departed' && x.f.status !== 'Cancelled' && x.std >= t)
     .sort((a, b) => a.std - b.std)[0];
-  const sgt = wall.toLocaleTimeString('en-GB', { timeZone: 'Asia/Singapore', hour12: false });
   return (
-    <div className="clock" role="timer" aria-label="Operational time">
+    <div className="clock" role="timer" aria-label="Operational time (Changi, SGT)">
       <Clock24Regular />
       <div className="clock-main">
         <span className="clock-time">{fmt(t)}</span>
-        <span className="clock-label">{timePos === null ? <b className="live">● LIVE</b> : <b className="replay">REPLAY</b>} operational time</span>
+        <span className="clock-label">{timePos === null ? <b className="live">● LIVE</b> : <b className="replay">REPLAY</b>} Changi time (SGT)</span>
       </div>
       <div className="clock-side">
-        <span>SIN local {sgt}</span>
         {next && <span>Next departure <b>{next.f.flightNo}</b> {fmt(next.std)} (in {Math.max(0, next.std - t)} min)</span>}
         {timePos !== null && <button onClick={() => setTimePos(null)}><ArrowReset24Regular /> Back to live {fmt(baseline.now)}</button>}
       </div>
@@ -243,7 +236,7 @@ function FilterBar() {
 
 function Main() {
   const { tab, setTab } = useOps();
-  const plain = tab !== 'overview' && tab !== 'scenarios' && tab !== 'diagnostics';
+  const plain = tab !== 'overview' && tab !== 'scenarios' && tab !== 'diagnostics' && tab !== 'kpi';
   return (
     <>
       <nav className="tabs" role="tablist" aria-label="Views">
@@ -252,6 +245,7 @@ function Main() {
       {tab === 'overview' && <><TimeBar /><FilterBar /><RoleLayout /></>}
       {plain && <><Kpis /><TimeBar /><FilterBar /></>}
       {tab !== 'overview' && <main className={tab === 'turnaround' ? 'grid-main' : 'single'}>
+        {tab === 'kpi' && <KpiView />}
         {tab === 'tasks' && <><TaskList /><WorkflowPanel /></>}
         {tab === 'decisions' && <><WorkflowPanel /><DecisionQueue /><VizPane /></>}
         {tab === 'turnaround' && <><div className="col"><Board /><TurnaroundWorkspace /></div><div className="col"><VizPane /><DetailPanel /></div></>}

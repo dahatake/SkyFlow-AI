@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { defaultScenario, validateParams } from '../domain/scenario';
-import { fmt } from '../domain/seed';
+import { fmt, changiClock } from '../domain/seed';
 import { SEVERITY_ORDER, SLA_ORDER, type Scenario, type ScenarioParams, type Severity } from '../domain/types';
 import { LENS, useOps } from '../storage/store';
 import { ExceptionQueue } from './Board';
@@ -200,9 +200,9 @@ export function Diagnostics() {
       <p>Schema v{baseline.schemaVersion} · seed {baseline.seedVersion}</p>
       <div className="row"><button onClick={exportData}>Export scenario / diagnostics</button><button onClick={() => { if (confirm('Reset the prototype to the seed baseline? Scenarios and logs will be cleared.')) void reset(); }}>Reset prototype</button></div>
       <h3>Client diagnostics ({diag.length})</h3>
-      <ul className="plain">{diag.slice(-30).reverse().map((d) => <li key={d.id}>{new Date(d.time).toLocaleTimeString()} [{d.kind}] {d.message}</li>)}</ul>
+      <ul className="plain">{diag.slice(-30).reverse().map((d) => <li key={d.id}>{changiClock(new Date(d.time))} [{d.kind}] {d.message}</li>)}</ul>
       <h3>Interaction audit ({audit.length})</h3>
-      <ul className="plain">{audit.slice(-30).reverse().map((a) => <li key={a.id}>{new Date(a.time).toLocaleTimeString()} {a.actor}: {a.action} {a.entityRef ?? ''} {a.scenarioRef ?? ''}</li>)}</ul>
+      <ul className="plain">{audit.slice(-30).reverse().map((a) => <li key={a.id}>{changiClock(new Date(a.time))} {a.actor}: {a.action} {a.entityRef ?? ''} {a.scenarioRef ?? ''}</li>)}</ul>
     </section>
   );
 }

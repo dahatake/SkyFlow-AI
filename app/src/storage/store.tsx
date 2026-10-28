@@ -10,8 +10,8 @@ import { noFilters, OpsView, type Filters, type Selection, type SimMode } from '
 import type { AuditEvent, Baseline, DiagEvent, ExceptionState, RoleType, Scenario, TaskStatus } from '../domain/types';
 import * as repo from '../storage/repo';
 
-export type WfMap = Record<string, { status: ExceptionState; ownerId?: string }>;
-export type Tab = 'overview' | 'decisions' | 'tasks' | 'turnaround' | 'exceptions' | 'owner' | 'scenarios' | 'diagnostics';
+export type WfMap = Record<string, { status: ExceptionState; ownerId?: string; ackAt?: number; actAt?: number }>;
+export type Tab = 'overview' | 'kpi' | 'decisions' | 'tasks' | 'turnaround' | 'exceptions' | 'owner' | 'scenarios' | 'diagnostics';
 
 export const LENS: Record<RoleType, { tab: Tab; filters: Partial<Filters>; canSimulate: boolean; blurb: string }> = {
   'Control Tower Lead': { tab: 'overview', filters: {}, canSimulate: true, blurb: 'Airport-wide risk, SLA exposure and ownership' },
@@ -58,7 +58,7 @@ export function OpsProvider({ children }: { children: ReactNode }) {
   const [role, setRoleS] = useState<RoleType>(prefs.role as RoleType);
   const [tab, setTab] = useState<Tab>(LENS[prefs.role as RoleType]?.tab ?? 'overview');
   const [vizMode, setVizMode] = useState(prefs.view);
-  const [layers, setLayers] = useState(prefs.layers);
+  const [layers, setLayers] = useState<Record<string, boolean>>({ gates: true, baggage: true, cargo: true, ...prefs.layers });
   const [theme, setTheme] = useState(prefs.theme);
   const [audit, setAudit] = useState<AuditEvent[]>([]);
   const [diag, setDiag] = useState<DiagEvent[]>([]);
@@ -84,7 +84,7 @@ export function OpsProvider({ children }: { children: ReactNode }) {
         setScenarios(await repo.loadScenarios());
         setAudit(await repo.loadAudit());
         setDiag(await repo.loadDiag());
-        setWf(Object.fromEntries((await repo.loadWorkflow()).map((e) => [e.id, { status: e.status as ExceptionState, ...('ownerId' in e ? { ownerId: e.ownerId } : {}) }])));
+        setWf(Object.fromEntries((await repo.loadWorkflow()).map((e) => [e.id, { status: e.status as ExceptionState, ...('ownerId' in e ? { ownerId: e.ownerId } : {}), ...(e.ackAt !== undefined ? { ackAt: e.ackAt } : {}), ...(e.actAt !== undefined ? { actAt: e.actAt } : {}) }])));
         if (migrated) setNotice('Stored data used an older schema/seed version and was reset to the current seed.');
         logDiag('load', `Initialised in ${Math.round(performance.now() - t0)} ms`);
       } catch (e) {
@@ -168,9 +168,12 @@ export function OpsProvider({ children }: { children: ReactNode }) {
       ids.forEach((id) => {
         const e = baseline!.exceptions.find((x) => x.id === id)!;
         const ownerId = typeof owner === 'function' ? owner(id) : owner;
-        const entry = { status: to, ...(ownerId === undefined ? ('ownerId' in (next[id] ?? {}) ? { ownerId: next[id].ownerId } : {}) : { ownerId: ownerId ?? undefined }) };
+        const prev = next[id];
+        const ackAt = prev?.ackAt ?? (to !== 'New' ? baseline!.now : undefined);
+        const actAt = prev?.actAt ?? (to === 'Assigned' || to === 'Monitoring' || to === 'Resolved' ? baseline!.now : undefined);
+        const entry = { status: to, ...(ownerId === undefined ? ('ownerId' in (next[id] ?? {}) ? { ownerId: next[id].ownerId } : {}) : { ownerId: ownerId ?? undefined }), ...(ackAt !== undefined ? { ackAt } : {}), ...(actAt !== undefined ? { actAt } : {}) };
         next[id] = entry;
-        void repo.saveWorkflow({ id, status: to, ...('ownerId' in entry ? { ownerId: entry.ownerId } : {}) });
+        void repo.saveWorkflow({ id, ...entry });
         logAudit(role, `workflow ${e.type}: ${wf[id]?.status ?? e.status} → ${to}`, id, activeId ?? undefined);
       });
       setWf(next);

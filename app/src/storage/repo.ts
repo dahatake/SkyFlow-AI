@@ -26,10 +26,11 @@ export async function loadBaseline(): Promise<{ baseline: Baseline; migrated: bo
   const db = await openDB();
   const p = getProvider();
   const stored = await idbGet<Baseline>(db, 'baseline', 'current');
-  if (stored && stored.schemaVersion === p.schemaVersion && stored.seedVersion === p.seedVersion) return { baseline: stored, migrated: false };
+  const compatible = !!stored && stored.schemaVersion === p.schemaVersion && stored.seedVersion === p.seedVersion;
+  // The seed is anchored to the current Changi time, so it is regenerated on every start.
   const baseline = await p.load();
   await idbPut(db, 'baseline', baseline, 'current');
-  return { baseline, migrated: !!stored };
+  return { baseline, migrated: !!stored && !compatible };
 }
 
 export async function resetPrototype(): Promise<Baseline> {
@@ -48,6 +49,6 @@ export const loadAudit = async () => idbGetAll<AuditEvent>(await openDB(), 'audi
 export const appendDiag = async (e: DiagEvent) => idbPut(await openDB(), 'diagnostics', e);
 export const loadDiag = async () => idbGetAll<DiagEvent>(await openDB(), 'diagnostics');
 
-export interface WfEntry { id: string; status: string; ownerId?: string }
+export interface WfEntry { id: string; status: string; ownerId?: string; ackAt?: number; actAt?: number }
 export const loadWorkflow = async () => idbGetAll<WfEntry>(await openDB(), 'workflow');
 export const saveWorkflow = async (e: WfEntry) => idbPut(await openDB(), 'workflow', e);

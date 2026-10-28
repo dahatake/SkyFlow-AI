@@ -1,0 +1,1783 @@
+{
+ "source": "https://en.wikipedia.org/wiki/Changi_Airport#Airlines_and_destinations",
+ "license": "CC BY-SA 4.0",
+ "retrieved": "2026-10-28",
+ "note": "Route-level data only (airline -> destination). Not a timetable.",
+ "airlines": [
+  {
+   "airline": "9 Air",
+   "routes": [
+    {
+     "destination": "Guangzhou",
+     "seasonal": false
+    },
+    {
+     "destination": "Yinchuan",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Aero Dili",
+   "routes": [
+    {
+     "destination": "Dili",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Air Canada",
+   "routes": [
+    {
+     "destination": "Vancouver",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Air China",
+   "routes": [
+    {
+     "destination": "Beijing–Capital",
+     "seasonal": false
+    },
+    {
+     "destination": "Chengdu–Tianfu",
+     "seasonal": false
+    },
+    {
+     "destination": "Chongqing",
+     "seasonal": false
+    },
+    {
+     "destination": "Shanghai–Pudong",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Aircalin",
+   "routes": [
+    {
+     "destination": "Noumea",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Air France",
+   "routes": [
+    {
+     "destination": "Paris–Charles de Gaulle",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Air India",
+   "routes": [
+    {
+     "destination": "Delhi–Indira Gandhi",
+     "seasonal": false
+    },
+    {
+     "destination": "Mumbai–Shivaji",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Air India Express",
+   "routes": [
+    {
+     "destination": "Chennai",
+     "seasonal": false
+    },
+    {
+     "destination": "Tiruchirappalli",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Air Macau",
+   "routes": [
+    {
+     "destination": "Macau",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Air New Zealand",
+   "routes": [
+    {
+     "destination": "Auckland",
+     "seasonal": false
+    },
+    {
+     "destination": "Christchurch",
+     "seasonal": true
+    }
+   ]
+  },
+  {
+   "airline": "Air Niugini",
+   "routes": [
+    {
+     "destination": "Port Moresby",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "AirAsia",
+   "routes": [
+    {
+     "destination": "Kota Kinabalu",
+     "seasonal": false
+    },
+    {
+     "destination": "Kuala Lumpur–International",
+     "seasonal": false
+    },
+    {
+     "destination": "Kuching",
+     "seasonal": false
+    },
+    {
+     "destination": "Langkawi",
+     "seasonal": false
+    },
+    {
+     "destination": "Penang",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "AirBorneo",
+   "routes": [
+    {
+     "destination": "Kuching",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Aircalin",
+   "routes": [
+    {
+     "destination": "Nouméa",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "All Nippon Airways",
+   "routes": [
+    {
+     "destination": "Tokyo–Haneda",
+     "seasonal": false
+    },
+    {
+     "destination": "Tokyo–Narita",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Asiana Airlines",
+   "routes": [
+    {
+     "destination": "Seoul–Incheon",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Bangkok Airways",
+   "routes": [
+    {
+     "destination": "Koh Samui",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Batik Air",
+   "routes": [
+    {
+     "destination": "Jakarta–Soekarno-Hatta",
+     "seasonal": false
+    },
+    {
+     "destination": "Medan",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Batik Air Malaysia",
+   "routes": [
+    {
+     "destination": "Ipoh",
+     "seasonal": false
+    },
+    {
+     "destination": "Kota Kinabalu",
+     "seasonal": false
+    },
+    {
+     "destination": "Kuala Lumpur–International",
+     "seasonal": false
+    },
+    {
+     "destination": "Kuala Lumpur–Subang",
+     "seasonal": false
+    },
+    {
+     "destination": "Penang",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Biman Bangladesh Airlines",
+   "routes": [
+    {
+     "destination": "Dhaka",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "British Airways",
+   "routes": [
+    {
+     "destination": "London–Heathrow",
+     "seasonal": false
+    },
+    {
+     "destination": "Sydney–Kingsford Smith",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Cambodia Airways",
+   "routes": [
+    {
+     "destination": "Sanya",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Cathay Pacific",
+   "routes": [
+    {
+     "destination": "Hong Kong",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Cebu Pacific",
+   "routes": [
+    {
+     "destination": "Cebu",
+     "seasonal": false
+    },
+    {
+     "destination": "Clark",
+     "seasonal": false
+    },
+    {
+     "destination": "Iloilo",
+     "seasonal": false
+    },
+    {
+     "destination": "Manila",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "China Airlines",
+   "routes": [
+    {
+     "destination": "Kaohsiung",
+     "seasonal": false
+    },
+    {
+     "destination": "Taipei–Taoyuan",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "China Eastern Airlines",
+   "routes": [
+    {
+     "destination": "Beijing–Daxing",
+     "seasonal": false
+    },
+    {
+     "destination": "Hangzhou",
+     "seasonal": false
+    },
+    {
+     "destination": "Hefei",
+     "seasonal": false
+    },
+    {
+     "destination": "Kunming",
+     "seasonal": false
+    },
+    {
+     "destination": "Nanchang",
+     "seasonal": false
+    },
+    {
+     "destination": "Nanjing",
+     "seasonal": false
+    },
+    {
+     "destination": "Ningbo",
+     "seasonal": false
+    },
+    {
+     "destination": "Shanghai–Pudong",
+     "seasonal": false
+    },
+    {
+     "destination": "Wuhan",
+     "seasonal": false
+    },
+    {
+     "destination": "Xi'an",
+     "seasonal": false
+    },
+    {
+     "destination": "China Southern Airlines",
+     "seasonal": false
+    },
+    {
+     "destination": "Guangzhou",
+     "seasonal": false
+    },
+    {
+     "destination": "Shenzhen",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Chongqing Airlines",
+   "routes": [
+    {
+     "destination": "Chongqing",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Citilink",
+   "routes": [
+    {
+     "destination": "Jakarta–Soekarno-Hatta",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Drukair",
+   "routes": [
+    {
+     "destination": "Guwahati",
+     "seasonal": false
+    },
+    {
+     "destination": "Paro",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Emirates",
+   "routes": [
+    {
+     "destination": "Dubai–International",
+     "seasonal": false
+    },
+    {
+     "destination": "Phnom Penh",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Ethiopian Airlines",
+   "routes": [
+    {
+     "destination": "Addis Ababa",
+     "seasonal": false
+    },
+    {
+     "destination": "Kuala Lumpur–International",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Etihad Airways",
+   "routes": [
+    {
+     "destination": "Abu Dhabi",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "EVA Air",
+   "routes": [
+    {
+     "destination": "Taipei–Taoyuan",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Fiji Airways",
+   "routes": [
+    {
+     "destination": "Nadi",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Finnair",
+   "routes": [
+    {
+     "destination": "Helsinki",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Firefly",
+   "routes": [
+    {
+     "destination": "Kuala Lumpur–International",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Garuda Indonesia",
+   "routes": [
+    {
+     "destination": "Denpasar",
+     "seasonal": false
+    },
+    {
+     "destination": "Jakarta–Soekarno-Hatta",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Gulf Air",
+   "routes": [
+    {
+     "destination": "Bahrain",
+     "seasonal": false
+    },
+    {
+     "destination": "Kuala Lumpur–International",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Hainan Airlines",
+   "routes": [
+    {
+     "destination": "Changchun",
+     "seasonal": false
+    },
+    {
+     "destination": "Haikou",
+     "seasonal": false
+    },
+    {
+     "destination": "Lanzhou",
+     "seasonal": false
+    },
+    {
+     "destination": "Yichang",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "IndiGo",
+   "routes": [
+    {
+     "destination": "Bengaluru",
+     "seasonal": false
+    },
+    {
+     "destination": "Chennai",
+     "seasonal": false
+    },
+    {
+     "destination": "Coimbatore",
+     "seasonal": false
+    },
+    {
+     "destination": "Delhi–Indira Gandhi",
+     "seasonal": false
+    },
+    {
+     "destination": "Hyderabad",
+     "seasonal": false
+    },
+    {
+     "destination": "Kolkata",
+     "seasonal": false
+    },
+    {
+     "destination": "Mumbai–Shivaji",
+     "seasonal": false
+    },
+    {
+     "destination": "Tiruchirappali",
+     "seasonal": false
+    },
+    {
+     "destination": "Vijayawada",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Japan Airlines",
+   "routes": [
+    {
+     "destination": "Tokyo–Haneda",
+     "seasonal": false
+    },
+    {
+     "destination": "Tokyo–Narita",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Jeju Air",
+   "routes": [
+    {
+     "destination": "Busan",
+     "seasonal": false
+    },
+    {
+     "destination": "Seoul–Incheon",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Jetstar",
+   "routes": [
+    {
+     "destination": "Denpasar",
+     "seasonal": false
+    },
+    {
+     "destination": "Melbourne",
+     "seasonal": false
+    },
+    {
+     "destination": "Newcastle",
+     "seasonal": false
+    },
+    {
+     "destination": "Perth",
+     "seasonal": false
+    },
+    {
+     "destination": "Sunshine Coast",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Juneyao Air",
+   "routes": [
+    {
+     "destination": "Shanghai–Pudong",
+     "seasonal": false
+    },
+    {
+     "destination": "Wuxi",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "KLM",
+   "routes": [
+    {
+     "destination": "Amsterdam",
+     "seasonal": false
+    },
+    {
+     "destination": "Denpasar",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Korean Air",
+   "routes": [
+    {
+     "destination": "Seoul–Incheon",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Loong Air",
+   "routes": [
+    {
+     "destination": "Hangzhou",
+     "seasonal": false
+    },
+    {
+     "destination": "Wenzhou",
+     "seasonal": false
+    },
+    {
+     "destination": "Zhangjiajie",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Lufthansa",
+   "routes": [
+    {
+     "destination": "Frankfurt",
+     "seasonal": false
+    },
+    {
+     "destination": "Munich",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Malaysia Airlines",
+   "routes": [
+    {
+     "destination": "Kuala Lumpur–International",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "MIAT Mongolian Airlines",
+   "routes": [
+    {
+     "destination": "Ulaanbaatar",
+     "seasonal": false
+    },
+    {
+     "destination": "Myanmar Airways International",
+     "seasonal": false
+    },
+    {
+     "destination": "Yangon",
+     "seasonal": false
+    },
+    {
+     "destination": "Myanmar National Airlines",
+     "seasonal": false
+    },
+    {
+     "destination": "Yangon",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Oman Air",
+   "routes": [
+    {
+     "destination": "Muscat",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Peach",
+   "routes": [
+    {
+     "destination": "Osaka–Kansai",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Pelita Air",
+   "routes": [
+    {
+     "destination": "Jakarta–Soekarno-Hatta",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Philippine Airlines",
+   "routes": [
+    {
+     "destination": "Manila",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Qantas",
+   "routes": [
+    {
+     "destination": "Brisbane",
+     "seasonal": false
+    },
+    {
+     "destination": "Darwin",
+     "seasonal": false
+    },
+    {
+     "destination": "London–Heathrow",
+     "seasonal": false
+    },
+    {
+     "destination": "Melbourne",
+     "seasonal": false
+    },
+    {
+     "destination": "Paris–Charles de Gaulle",
+     "seasonal": false
+    },
+    {
+     "destination": "Perth",
+     "seasonal": false
+    },
+    {
+     "destination": "Sydney–Kingsford Smith",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Qatar Airways",
+   "routes": [
+    {
+     "destination": "Doha",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Royal Brunei Airlines",
+   "routes": [
+    {
+     "destination": "Bandar Seri Begawan",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Saudia",
+   "routes": [
+    {
+     "destination": "Denpasar",
+     "seasonal": false
+    },
+    {
+     "destination": "Jeddah",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "SCAT Airlines",
+   "routes": [
+    {
+     "destination": "Sanya",
+     "seasonal": false
+    },
+    {
+     "destination": "Şymkent",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Scoot",
+   "routes": [
+    {
+     "destination": "Amritsar",
+     "seasonal": false
+    },
+    {
+     "destination": "Athens",
+     "seasonal": false
+    },
+    {
+     "destination": "Balikpapan",
+     "seasonal": false
+    },
+    {
+     "destination": "Bandung–Kertajati",
+     "seasonal": false
+    },
+    {
+     "destination": "Bangkok–Suvarnabhumi",
+     "seasonal": false
+    },
+    {
+     "destination": "Cebu",
+     "seasonal": false
+    },
+    {
+     "destination": "Changsha",
+     "seasonal": false
+    },
+    {
+     "destination": "Chennai",
+     "seasonal": false
+    },
+    {
+     "destination": "Chiang Mai",
+     "seasonal": false
+    },
+    {
+     "destination": "Chiang Rai",
+     "seasonal": false
+    },
+    {
+     "destination": "Clark",
+     "seasonal": false
+    },
+    {
+     "destination": "Coimbatore",
+     "seasonal": false
+    },
+    {
+     "destination": "Da Nang",
+     "seasonal": false
+    },
+    {
+     "destination": "Davao",
+     "seasonal": false
+    },
+    {
+     "destination": "Denpasar",
+     "seasonal": false
+    },
+    {
+     "destination": "Fuzhou",
+     "seasonal": false
+    },
+    {
+     "destination": "Guangzhou",
+     "seasonal": false
+    },
+    {
+     "destination": "Guiyang",
+     "seasonal": false
+    },
+    {
+     "destination": "Haikou",
+     "seasonal": false
+    },
+    {
+     "destination": "Hangzhou",
+     "seasonal": false
+    },
+    {
+     "destination": "Hanoi",
+     "seasonal": false
+    },
+    {
+     "destination": "Hat Yai",
+     "seasonal": false
+    },
+    {
+     "destination": "Ho Chi Minh City",
+     "seasonal": false
+    },
+    {
+     "destination": "Hong Kong",
+     "seasonal": false
+    },
+    {
+     "destination": "Iloilo",
+     "seasonal": false
+    },
+    {
+     "destination": "Ipoh",
+     "seasonal": false
+    },
+    {
+     "destination": "Jakarta–Soekarno-Hatta",
+     "seasonal": false
+    },
+    {
+     "destination": "Jeddah",
+     "seasonal": false
+    },
+    {
+     "destination": "Jeju",
+     "seasonal": false
+    },
+    {
+     "destination": "Jieyang",
+     "seasonal": false
+    },
+    {
+     "destination": "Koh Samui",
+     "seasonal": false
+    },
+    {
+     "destination": "Kota Bharu",
+     "seasonal": false
+    },
+    {
+     "destination": "Kota Kinabalu",
+     "seasonal": false
+    },
+    {
+     "destination": "Krabi",
+     "seasonal": false
+    },
+    {
+     "destination": "Kuala Lumpur–International",
+     "seasonal": false
+    },
+    {
+     "destination": "Kuala Lumpur–Subang",
+     "seasonal": false
+    },
+    {
+     "destination": "Kuantan",
+     "seasonal": false
+    },
+    {
+     "destination": "Kuching",
+     "seasonal": false
+    },
+    {
+     "destination": "Kunming",
+     "seasonal": false
+    },
+    {
+     "destination": "Labuan Bajo",
+     "seasonal": false
+    },
+    {
+     "destination": "Langkawi",
+     "seasonal": false
+    },
+    {
+     "destination": "Lombok",
+     "seasonal": false
+    },
+    {
+     "destination": "Macau",
+     "seasonal": false
+    },
+    {
+     "destination": "Majalengka",
+     "seasonal": false
+    },
+    {
+     "destination": "Makassar",
+     "seasonal": false
+    },
+    {
+     "destination": "Malacca",
+     "seasonal": false
+    },
+    {
+     "destination": "Manado",
+     "seasonal": false
+    },
+    {
+     "destination": "Manila",
+     "seasonal": false
+    },
+    {
+     "destination": "Medan",
+     "seasonal": false
+    },
+    {
+     "destination": "Melbourne",
+     "seasonal": false
+    },
+    {
+     "destination": "Miri",
+     "seasonal": false
+    },
+    {
+     "destination": "Naha",
+     "seasonal": false
+    },
+    {
+     "destination": "Nanjing",
+     "seasonal": false
+    },
+    {
+     "destination": "Nanning",
+     "seasonal": false
+    },
+    {
+     "destination": "Nha Trang",
+     "seasonal": false
+    },
+    {
+     "destination": "Osaka–Kansai",
+     "seasonal": false
+    },
+    {
+     "destination": "Padang",
+     "seasonal": false
+    },
+    {
+     "destination": "Palembang",
+     "seasonal": false
+    },
+    {
+     "destination": "Pekanbaru",
+     "seasonal": false
+    },
+    {
+     "destination": "Perth",
+     "seasonal": false
+    },
+    {
+     "destination": "Penang",
+     "seasonal": false
+    },
+    {
+     "destination": "Phu Quoc",
+     "seasonal": false
+    },
+    {
+     "destination": "Phuket",
+     "seasonal": false
+    },
+    {
+     "destination": "Pontianak",
+     "seasonal": false
+    },
+    {
+     "destination": "Qingdao",
+     "seasonal": false
+    },
+    {
+     "destination": "Sapporo–Chitose",
+     "seasonal": false
+    },
+    {
+     "destination": "Semarang",
+     "seasonal": false
+    },
+    {
+     "destination": "Seoul–Incheon",
+     "seasonal": false
+    },
+    {
+     "destination": "Shenyang",
+     "seasonal": false
+    },
+    {
+     "destination": "Sibu",
+     "seasonal": false
+    },
+    {
+     "destination": "Surabaya",
+     "seasonal": false
+    },
+    {
+     "destination": "Sydney–Kingsford Smith",
+     "seasonal": false
+    },
+    {
+     "destination": "Tanjung Pandan",
+     "seasonal": false
+    },
+    {
+     "destination": "Taipei–Taoyuan",
+     "seasonal": false
+    },
+    {
+     "destination": "Thiruvananthapuram",
+     "seasonal": false
+    },
+    {
+     "destination": "Tianjin",
+     "seasonal": false
+    },
+    {
+     "destination": "Tiruchirappalli",
+     "seasonal": false
+    },
+    {
+     "destination": "Tokyo–Haneda",
+     "seasonal": false
+    },
+    {
+     "destination": "Tokyo–Narita",
+     "seasonal": false
+    },
+    {
+     "destination": "Vienna",
+     "seasonal": false
+    },
+    {
+     "destination": "Vientiane",
+     "seasonal": false
+    },
+    {
+     "destination": "Visakhapatnam",
+     "seasonal": false
+    },
+    {
+     "destination": "Wuhan",
+     "seasonal": false
+    },
+    {
+     "destination": "Xi'an",
+     "seasonal": false
+    },
+    {
+     "destination": "Yogyakarta–International",
+     "seasonal": false
+    },
+    {
+     "destination": "Zhengzhou",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Shandong Airlines",
+   "routes": [
+    {
+     "destination": "Jinan",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Shanghai Airlines",
+   "routes": [
+    {
+     "destination": "Shanghai–Pudong",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Shenzhen Airlines",
+   "routes": [
+    {
+     "destination": "Harbin",
+     "seasonal": false
+    },
+    {
+     "destination": "Shenzhen",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Sichuan Airlines",
+   "routes": [
+    {
+     "destination": "Chengdu–Tianfu",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Singapore Airlines",
+   "routes": [
+    {
+     "destination": "Adelaide",
+     "seasonal": false
+    },
+    {
+     "destination": "Ahmedabad",
+     "seasonal": false
+    },
+    {
+     "destination": "Amsterdam",
+     "seasonal": false
+    },
+    {
+     "destination": "Auckland",
+     "seasonal": false
+    },
+    {
+     "destination": "Bandar Seri Begawan",
+     "seasonal": false
+    },
+    {
+     "destination": "Bangkok–Suvarnabhumi",
+     "seasonal": false
+    },
+    {
+     "destination": "Barcelona",
+     "seasonal": false
+    },
+    {
+     "destination": "Beijing–Capital",
+     "seasonal": false
+    },
+    {
+     "destination": "Beijing–Daxing",
+     "seasonal": false
+    },
+    {
+     "destination": "Bengaluru",
+     "seasonal": false
+    },
+    {
+     "destination": "Brisbane",
+     "seasonal": false
+    },
+    {
+     "destination": "Brussels",
+     "seasonal": false
+    },
+    {
+     "destination": "Busan",
+     "seasonal": false
+    },
+    {
+     "destination": "Cairns",
+     "seasonal": false
+    },
+    {
+     "destination": "Cape Town",
+     "seasonal": false
+    },
+    {
+     "destination": "Cebu",
+     "seasonal": false
+    },
+    {
+     "destination": "Chengdu–Tianfu",
+     "seasonal": false
+    },
+    {
+     "destination": "Chennai",
+     "seasonal": false
+    },
+    {
+     "destination": "Chongqing",
+     "seasonal": false
+    },
+    {
+     "destination": "Christchurch",
+     "seasonal": false
+    },
+    {
+     "destination": "Colombo–Bandaranaike",
+     "seasonal": false
+    },
+    {
+     "destination": "Copenhagen",
+     "seasonal": false
+    },
+    {
+     "destination": "Da Nang",
+     "seasonal": false
+    },
+    {
+     "destination": "Darwin",
+     "seasonal": false
+    },
+    {
+     "destination": "Delhi–Indira Gandhi",
+     "seasonal": false
+    },
+    {
+     "destination": "Denpasar",
+     "seasonal": false
+    },
+    {
+     "destination": "Dhaka",
+     "seasonal": false
+    },
+    {
+     "destination": "Frankfurt",
+     "seasonal": false
+    },
+    {
+     "destination": "Guangzhou",
+     "seasonal": false
+    },
+    {
+     "destination": "Hangzhou",
+     "seasonal": false
+    },
+    {
+     "destination": "Hanoi",
+     "seasonal": false
+    },
+    {
+     "destination": "Ho Chi Minh City",
+     "seasonal": false
+    },
+    {
+     "destination": "Hong Kong",
+     "seasonal": false
+    },
+    {
+     "destination": "Hyderabad",
+     "seasonal": false
+    },
+    {
+     "destination": "Istanbul",
+     "seasonal": false
+    },
+    {
+     "destination": "Jakarta–Soekarno-Hatta",
+     "seasonal": false
+    },
+    {
+     "destination": "Johannesburg–O. R. Tambo",
+     "seasonal": false
+    },
+    {
+     "destination": "Kathmandu",
+     "seasonal": false
+    },
+    {
+     "destination": "Kochi",
+     "seasonal": false
+    },
+    {
+     "destination": "Kolkata",
+     "seasonal": false
+    },
+    {
+     "destination": "Kuala Lumpur–International",
+     "seasonal": false
+    },
+    {
+     "destination": "London–Gatwick",
+     "seasonal": false
+    },
+    {
+     "destination": "London–Heathrow",
+     "seasonal": false
+    },
+    {
+     "destination": "Los Angeles",
+     "seasonal": false
+    },
+    {
+     "destination": "Madrid",
+     "seasonal": false
+    },
+    {
+     "destination": "Malé",
+     "seasonal": false
+    },
+    {
+     "destination": "Manchester",
+     "seasonal": false
+    },
+    {
+     "destination": "Manila",
+     "seasonal": false
+    },
+    {
+     "destination": "Medan",
+     "seasonal": false
+    },
+    {
+     "destination": "Melbourne",
+     "seasonal": false
+    },
+    {
+     "destination": "Milan–Malpensa",
+     "seasonal": false
+    },
+    {
+     "destination": "Mumbai–Shivaji",
+     "seasonal": false
+    },
+    {
+     "destination": "Munich",
+     "seasonal": false
+    },
+    {
+     "destination": "Nagoya–Centrair",
+     "seasonal": false
+    },
+    {
+     "destination": "New York–JFK",
+     "seasonal": false
+    },
+    {
+     "destination": "Newark",
+     "seasonal": false
+    },
+    {
+     "destination": "Osaka–Kansai",
+     "seasonal": false
+    },
+    {
+     "destination": "Paris–Charles de Gaulle",
+     "seasonal": false
+    },
+    {
+     "destination": "Penang",
+     "seasonal": false
+    },
+    {
+     "destination": "Perth",
+     "seasonal": false
+    },
+    {
+     "destination": "Phnom Penh",
+     "seasonal": false
+    },
+    {
+     "destination": "Phuket",
+     "seasonal": false
+    },
+    {
+     "destination": "Riyadh",
+     "seasonal": false
+    },
+    {
+     "destination": "Rome–Fiumicino",
+     "seasonal": false
+    },
+    {
+     "destination": "San Francisco",
+     "seasonal": false
+    },
+    {
+     "destination": "Seattle/Tacoma",
+     "seasonal": false
+    },
+    {
+     "destination": "Seoul–Incheon",
+     "seasonal": false
+    },
+    {
+     "destination": "Shanghai–Pudong",
+     "seasonal": false
+    },
+    {
+     "destination": "Shenzhen",
+     "seasonal": false
+    },
+    {
+     "destination": "Siem Reap",
+     "seasonal": false
+    },
+    {
+     "destination": "Surabaya",
+     "seasonal": false
+    },
+    {
+     "destination": "Sydney–Kingsford Smith",
+     "seasonal": false
+    },
+    {
+     "destination": "Sydney–Western",
+     "seasonal": false
+    },
+    {
+     "destination": "Taipei–Taoyuan",
+     "seasonal": false
+    },
+    {
+     "destination": "Tokyo–Haneda",
+     "seasonal": false
+    },
+    {
+     "destination": "Tokyo–Narita",
+     "seasonal": false
+    },
+    {
+     "destination": "Xiamen",
+     "seasonal": false
+    },
+    {
+     "destination": "Yangon",
+     "seasonal": false
+    },
+    {
+     "destination": "Zurich",
+     "seasonal": false
+    },
+    {
+     "destination": "Sapporo–Chitose",
+     "seasonal": true
+    }
+   ]
+  },
+  {
+   "airline": "Spring Airlines",
+   "routes": [
+    {
+     "destination": "Guangzhou",
+     "seasonal": false
+    },
+    {
+     "destination": "Shanghai–Pudong",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "SriLankan Airlines",
+   "routes": [
+    {
+     "destination": "Colombo–Bandaranaike",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Starlux Airlines",
+   "routes": [
+    {
+     "destination": "Taipei–Taoyuan",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Sun PhuQuoc Airways",
+   "routes": [
+    {
+     "destination": "Phu Quoc",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Swiss International Air Lines",
+   "routes": [
+    {
+     "destination": "Zurich",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Thai AirAsia",
+   "routes": [
+    {
+     "destination": "Bangkok–Don Mueang",
+     "seasonal": false
+    },
+    {
+     "destination": "Thai Airways International",
+     "seasonal": false
+    },
+    {
+     "destination": "Bangkok–Suvarnabhumi",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Thai Lion Air",
+   "routes": [
+    {
+     "destination": "Bangkok–Don Mueang",
+     "seasonal": false
+    },
+    {
+     "destination": "Phuket",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Tianjin Airlines",
+   "routes": [
+    {
+     "destination": "Guiyang",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "TransNusa",
+   "routes": [
+    {
+     "destination": "Denpasar",
+     "seasonal": false
+    },
+    {
+     "destination": "Jakarta–Soekarno-Hatta",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Trinity Airways",
+   "routes": [
+    {
+     "destination": "Jeju",
+     "seasonal": false
+    },
+    {
+     "destination": "Seoul–Incheon",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Turkish Airlines",
+   "routes": [
+    {
+     "destination": "Istanbul",
+     "seasonal": false
+    },
+    {
+     "destination": "Melbourne",
+     "seasonal": false
+    },
+    {
+     "destination": "Sydney–Kingsford Smith",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "United Airlines",
+   "routes": [
+    {
+     "destination": "San Francisco",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "US-Bangla Airlines",
+   "routes": [
+    {
+     "destination": "Dhaka",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "VietJet Air",
+   "routes": [
+    {
+     "destination": "Da Nang",
+     "seasonal": false
+    },
+    {
+     "destination": "Hanoi",
+     "seasonal": false
+    },
+    {
+     "destination": "Ho Chi Minh City",
+     "seasonal": false
+    },
+    {
+     "destination": "Nha Trang",
+     "seasonal": false
+    },
+    {
+     "destination": "Phu Quoc",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Vietnam Airlines",
+   "routes": [
+    {
+     "destination": "Da Nang",
+     "seasonal": false
+    },
+    {
+     "destination": "Hanoi",
+     "seasonal": false
+    },
+    {
+     "destination": "Ho Chi Minh City",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "West Air",
+   "routes": [
+    {
+     "destination": "Chongqing",
+     "seasonal": false
+    },
+    {
+     "destination": "Lhasa",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "XiamenAir",
+   "routes": [
+    {
+     "destination": "Changsha",
+     "seasonal": false
+    },
+    {
+     "destination": "Fuzhou",
+     "seasonal": false
+    },
+    {
+     "destination": "Hangzhou",
+     "seasonal": false
+    },
+    {
+     "destination": "Nanjing",
+     "seasonal": false
+    },
+    {
+     "destination": "Xiamen",
+     "seasonal": false
+    }
+   ]
+  },
+  {
+   "airline": "Zipair Tokyo",
+   "routes": [
+    {
+     "destination": "Tokyo–Narita",
+     "seasonal": false
+    }
+   ]
+  }
+ ]
+}

@@ -24,7 +24,7 @@ export function LiveBar() {
           <div role="group" aria-label="Feed speed" className="seg small">
             {SPEEDS.map(([n, l, d]) => <button key={n} aria-pressed={live.speed === n} title={d} onClick={() => live.setSpeed(n)}>{l}</button>)}
           </div>
-          <button onClick={live.restart} title="Restart the simulated feed from 08:00"><ArrowReset24Regular /> Restart feed</button>
+          <button onClick={live.restart} title="Restart the simulated feed from the current Changi time"><ArrowReset24Regular /> Restart feed</button>
         </div>
       </div>
       <ul className="ticker" aria-live="polite">

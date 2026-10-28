@@ -8,7 +8,7 @@ import { ExceptionStepper } from './Workflow';
 
 const LAYERS: [string, string][] = [
   ['flights', 'Flights'], ['stands', 'Stands'], ['milestones', 'Milestones'], ['tasks', 'Tasks'], ['staff', 'Staff / capacity'],
-  ['assets', 'GSE / assets'], ['sla', 'SLA risk'], ['weather', 'Weather / constraints'], ['relations', 'Relationships'],
+  ['assets', 'GSE / assets'], ['gates', 'Gates'], ['baggage', 'Baggage'], ['cargo', 'Cargo'], ['sla', 'SLA risk'], ['weather', 'Weather / constraints'], ['relations', 'Relationships'],
 ];
 
 export function VizPane() {
