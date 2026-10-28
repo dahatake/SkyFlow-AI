@@ -4,7 +4,7 @@ import {
 } from '@fluentui/react-icons';
 import type { RoleType } from '../domain/types';
 
-export type PanelId = 'workflow' | 'kpi' | 'decisions' | 'exceptions' | 'board' | 'viz' | 'risk' | 'resources' | 'detail' | 'owner';
+export type PanelId = 'workflow' | 'kpi' | 'decisions' | 'exceptions' | 'board' | 'viz' | 'risk' | 'resources' | 'detail' | 'owner' | 'tasks';
 export interface PanelSpec { id: PanelId; span: 1 | 2; secondary?: boolean; view?: 'table' | 'gantt' | 'pipeline' | 'list' }
 
 export interface RoleMeta { icon: ReactNode; short: string; desc: string; focus: string; layout: PanelSpec[] }
@@ -21,6 +21,7 @@ export const ROLE_META: Record<RoleType, RoleMeta> = {
     layout: [
       { id: 'workflow', span: 2 }, { id: 'kpi', span: 2 },
       { id: 'exceptions', span: 1, view: 'pipeline' }, { id: 'decisions', span: 1 },
+      { id: 'tasks', span: 2 },
       { id: 'risk', span: 1 }, { id: 'board', span: 1, view: 'pipeline' },
       { id: 'viz', span: 2, secondary: true },
     ],
@@ -31,6 +32,7 @@ export const ROLE_META: Record<RoleType, RoleMeta> = {
     layout: [
       { id: 'workflow', span: 2 }, { id: 'board', span: 2, view: 'gantt' },
       { id: 'exceptions', span: 1, view: 'list' }, { id: 'decisions', span: 1 },
+      { id: 'tasks', span: 2 },
       { id: 'kpi', span: 2 }, { id: 'detail', span: 1 }, { id: 'viz', span: 1, secondary: true },
     ],
   },
@@ -40,7 +42,7 @@ export const ROLE_META: Record<RoleType, RoleMeta> = {
     layout: [
       { id: 'kpi', span: 2 }, { id: 'resources', span: 2 },
       { id: 'board', span: 1, view: 'table' }, { id: 'exceptions', span: 1, view: 'list' },
-      { id: 'decisions', span: 1 }, { id: 'risk', span: 1 }, { id: 'workflow', span: 2 }, { id: 'viz', span: 2, secondary: true },
+      { id: 'decisions', span: 1 }, { id: 'tasks', span: 1 }, { id: 'risk', span: 1 }, { id: 'workflow', span: 2 }, { id: 'viz', span: 2, secondary: true },
     ],
   },
   'Ramp Lead': {
@@ -49,14 +51,14 @@ export const ROLE_META: Record<RoleType, RoleMeta> = {
     layout: [
       { id: 'viz', span: 2 }, { id: 'board', span: 2, view: 'gantt' },
       { id: 'resources', span: 1 }, { id: 'exceptions', span: 1, view: 'list' },
-      { id: 'workflow', span: 2 }, { id: 'kpi', span: 2, secondary: true },
+      { id: 'tasks', span: 2 }, { id: 'workflow', span: 2 }, { id: 'kpi', span: 2, secondary: true },
     ],
   },
   'Action Owner': {
     icon: <PersonBoard24Regular />, short: 'Action Owner', desc: 'What is assigned to me and what depends on it',
     focus: 'Own items, due times and downstream dependencies. Everything else is context.',
     layout: [
-      { id: 'owner', span: 2 }, { id: 'workflow', span: 2 },
+      { id: 'tasks', span: 2 }, { id: 'owner', span: 2 }, { id: 'workflow', span: 2 },
       { id: 'exceptions', span: 1, view: 'pipeline' }, { id: 'decisions', span: 1 },
       { id: 'detail', span: 1 }, { id: 'board', span: 1, view: 'table', secondary: true }, { id: 'viz', span: 2, secondary: true },
     ],

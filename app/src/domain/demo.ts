@@ -8,7 +8,10 @@ export interface DecisionOption {
   /** Relative effort/cost 0-3, used as a tie-breaker by Copilot assist. */
   cost: number;
   mitigations: Mitigation[];
+  /** 5W2H action tasks created when this option is chosen. */
+  tasks: TaskTemplate[];
 }
+export interface TaskTemplate { what: string; who: string; where: string; how: string; howMuch: string; start: number; dur: number; priority: 1 | 2 | 3 }
 export interface DecisionTask {
   id: string;
   title: string;
@@ -25,7 +28,7 @@ export interface DemoPack {
   decisions: DecisionTask[];
 }
 
-const NONE = (detail: string): DecisionOption => ({ id: 'none', label: 'No action', detail, tradeoff: 'Impact stays as simulated.', cost: 0, mitigations: [] });
+const NONE = (detail: string): DecisionOption => ({ id: 'none', label: 'No action', detail, tradeoff: 'Impact stays as simulated.', cost: 0, mitigations: [], tasks: [] });
 
 export const DEMO_PACK: DemoPack[] = [
   {
@@ -42,7 +45,7 @@ export const DEMO_PACK: DemoPack[] = [
         question: 'Piers A and B are under the stoppage. Should flights be moved to Pier C stands (C6 is closed for maintenance)?',
         options: [
           NONE('Keep flights on their allocated stands and wait out the stoppage.'),
-          { id: 'regate-c', label: 'Move Pier A/B flights to Pier C', detail: 'Tow/re-allocate affected turnarounds to open Pier C stands.', tradeoff: 'Pier C stands become crowded; towing and passenger re-routing effort.', cost: 2, mitigations: [{ kind: 'gate', fromPiers: ['A', 'B'], toPier: 'C' }] },
+          { id: 'regate-c', label: 'Move Pier A/B flights to Pier C', detail: 'Tow/re-allocate affected turnarounds to open Pier C stands.', tradeoff: 'Pier C stands become crowded; towing and passenger re-routing effort.', cost: 2, mitigations: [{ kind: 'gate', fromPiers: ['A', 'B'], toPier: 'C' }], tasks: [{ what: 'Tow and re-allocate Pier A/B flights to Pier C stands', who: 'u-sioc1', where: 'Piers A/B to Pier C', how: 'Stand swap in AODB, tug crews follow the departure-time order', howMuch: '~12 tows, about S$4.8k', start: 0, dur: 25, priority: 1 }, { what: 'Re-brief Pier C ramp crew for the added flights', who: 'u-ramp1', where: 'Pier C', how: 'Radio briefing with updated task cards', howMuch: '2 supervisors, 15 min', start: 5, dur: 15, priority: 2 }, { what: 'Notify airlines and passenger services of stand changes', who: 'u-sioc1', where: 'SIOC to airline ops', how: 'DCT notification plus airline WhatsApp groups', howMuch: 'No extra cost', start: 0, dur: 10, priority: 2 }] },
         ],
       },
       {
@@ -50,7 +53,7 @@ export const DEMO_PACK: DemoPack[] = [
         question: 'Add ramp crew at stoppage end to shorten the recovery buffer?',
         options: [
           NONE('Use the planned 45 minute recovery buffer.'),
-          { id: 'extra-ramp', label: 'Call in 6 extra ramp crew, cut buffer by 30 min', detail: 'Pre-stage standby crew so ramp work restarts at once.', tradeoff: 'Overtime cost; crew taken from rest rota.', cost: 1, mitigations: [{ kind: 'bufferCut', minutes: 30 }] },
+          { id: 'extra-ramp', label: 'Call in 6 extra ramp crew, cut buffer by 30 min', detail: 'Pre-stage standby crew so ramp work restarts at once.', tradeoff: 'Overtime cost; crew taken from rest rota.', cost: 1, mitigations: [{ kind: 'bufferCut', minutes: 30 }], tasks: [{ what: 'Call in 6 extra ramp crew', who: 'u-bu1', where: 'Ramp crew room', how: 'Standby roster call-out by SMS', howMuch: '6 crew x 3 h overtime, about S$1.1k', start: 0, dur: 20, priority: 1 }, { what: 'Pre-stage crew at Piers A/B holding area', who: 'u-ramp1', where: 'Piers A/B', how: 'Stage crew and vehicles ready for stoppage end', howMuch: '15 min of idle time', start: 20, dur: 15, priority: 2 }] },
         ],
       },
     ],
@@ -72,8 +75,8 @@ export const DEMO_PACK: DemoPack[] = [
         question: 'Flight 2 will land 60 min late. Can turnaround crews be re-timed to claw back time?',
         options: [
           NONE('Run the turnaround to the original crew plan.'),
-          { id: 'pre-stage', label: 'Pre-stage baggage and pushback crew (−30 min)', detail: 'Hold crews at the stand so offload starts at chocks-on.', tradeoff: 'Two crews idle until arrival.', cost: 1, mitigations: [{ kind: 'recover', flightId: 'fl-2', minutes: 30 }] },
-          { id: 'fast-turn', label: 'Fast-turn protocol (−50 min)', detail: 'Parallel offload, refuel and catering with extra supervisors.', tradeoff: 'Highest crew load; risk of safety shortcuts needs duty-manager sign-off.', cost: 3, mitigations: [{ kind: 'recover', flightId: 'fl-2', minutes: 50 }] },
+          { id: 'pre-stage', label: 'Pre-stage baggage and pushback crew (−30 min)', detail: 'Hold crews at the stand so offload starts at chocks-on.', tradeoff: 'Two crews idle until arrival.', cost: 1, mitigations: [{ kind: 'recover', flightId: 'fl-2', minutes: 30 }], tasks: [{ what: 'Pre-stage baggage and pushback crew at stand A2', who: 'u-bu2', where: 'Stand A2', how: 'Move crew 20 min before ATA and brief on offload order', howMuch: '2 crews idle about 30 min', start: 0, dur: 30, priority: 1 }, { what: 'Update crew roster for the late turnaround', who: 'u-ramp1', where: 'SIOC roster board', how: 'Edit shift plan and confirm breaks', howMuch: 'No extra cost', start: 0, dur: 10, priority: 3 }] },
+          { id: 'fast-turn', label: 'Fast-turn protocol (−50 min)', detail: 'Parallel offload, refuel and catering with extra supervisors.', tradeoff: 'Highest crew load; risk of safety shortcuts needs duty-manager sign-off.', cost: 3, mitigations: [{ kind: 'recover', flightId: 'fl-2', minutes: 50 }], tasks: [{ what: 'Brief fast-turn protocol and assign supervisors', who: 'u-sioc1', where: 'Stand A2', how: 'Parallel offload, refuel and catering with a named lead each', howMuch: '3 extra supervisors', start: 0, dur: 20, priority: 1 }, { what: 'Run parallel refuel, catering and offload', who: 'u-ramp1', where: 'Stand A2', how: 'Execute the fast-turn plan at chocks-on', howMuch: 'Highest crew load', start: 30, dur: 40, priority: 1 }, { what: 'Duty-manager safety sign-off for the fast turn', who: 'u-lead', where: 'SIOC', how: 'Review checklist and approve deviations', howMuch: '10 min review', start: 0, dur: 10, priority: 1 }] },
         ],
       },
       {
@@ -81,7 +84,7 @@ export const DEMO_PACK: DemoPack[] = [
         question: 'A Pier A fuel truck is unavailable. Borrow one from Pier C or wait for repair?',
         options: [
           NONE('Wait for the fuel truck to return (about 2 h).'),
-          { id: 'borrow-fuel', label: 'Borrow a fuel truck from Pier C', detail: 'Reassign a spare truck across the apron.', tradeoff: 'Pier C has one fewer truck during the window.', cost: 1, mitigations: [{ kind: 'gse', assetType: 'Fuel Truck', pier: 'A', qty: 1 }] },
+          { id: 'borrow-fuel', label: 'Borrow a fuel truck from Pier C', detail: 'Reassign a spare truck across the apron.', tradeoff: 'Pier C has one fewer truck during the window.', cost: 1, mitigations: [{ kind: 'gse', assetType: 'Fuel Truck', pier: 'A', qty: 1 }], tasks: [{ what: 'Move a spare fuel truck from Pier C to Pier A', who: 'u-own1', where: 'Pier C to Pier A', how: 'Driver reassigns truck and updates the GSE register', howMuch: '1 truck, 10 min transit', start: 0, dur: 15, priority: 1 }, { what: 'Update the GSE allocation board', who: 'u-bu1', where: 'SIOC GSE board', how: 'Mark transfer and return time', howMuch: 'No extra cost', start: 0, dur: 5, priority: 3 }] },
         ],
       },
       {
@@ -89,7 +92,7 @@ export const DEMO_PACK: DemoPack[] = [
         question: 'Move flight 2 to a free Pier C stand nearer the connection hub?',
         options: [
           NONE('Keep flight 2 on stand A2.'),
-          { id: 'regate-c', label: 'Move flight 2 to Pier C', detail: 'Shorter taxi and passenger walk to connections.', tradeoff: 'Needs a stand swap and re-briefing of Pier C crew.', cost: 1, mitigations: [{ kind: 'gate', fromPiers: [], toPier: 'C', flightIds: ['fl-2'], savesMin: 15 }] },
+          { id: 'regate-c', label: 'Move flight 2 to Pier C', detail: 'Shorter taxi and passenger walk to connections.', tradeoff: 'Needs a stand swap and re-briefing of Pier C crew.', cost: 1, mitigations: [{ kind: 'gate', fromPiers: [], toPier: 'C', flightIds: ['fl-2'], savesMin: 15 }], tasks: [{ what: 'Re-allocate flight 2 to a free Pier C stand', who: 'u-sioc1', where: 'Stand A2 to Pier C', how: 'Stand swap in AODB and tug booking', howMuch: '1 tow', start: 0, dur: 15, priority: 2 }, { what: 'Re-brief connection hub and passenger services', who: 'u-bu1', where: 'Transfer hub', how: 'Update walking route and meeting points', howMuch: '1 coordinator', start: 10, dur: 15, priority: 2 }] },
         ],
       },
     ],
@@ -108,8 +111,8 @@ export const DEMO_PACK: DemoPack[] = [
         question: 'Where do replacement ramp crew come from?',
         options: [
           NONE('Operate with the remaining 20% of the crew.'),
-          { id: 'standby', label: 'Call in 20 standby crew', detail: 'Activate the off-duty standby roster.', tradeoff: 'Overtime cost and response time of about 45 min.', cost: 2, mitigations: [{ kind: 'staff', buId: 'bu-ramp', add: 20 }] },
-          { id: 'redeploy', label: 'Redeploy 12 crew from Baggage Handling', detail: 'Cross-skilled baggage handlers support the ramp.', tradeoff: 'Baggage Handling pressure rises and may start to slip.', cost: 1, mitigations: [{ kind: 'staff', buId: 'bu-ramp', add: 12, fromBuId: 'bu-bag' }] },
+          { id: 'standby', label: 'Call in 20 standby crew', detail: 'Activate the off-duty standby roster.', tradeoff: 'Overtime cost and response time of about 45 min.', cost: 2, mitigations: [{ kind: 'staff', buId: 'bu-ramp', add: 20 }], tasks: [{ what: 'Activate the 20-person standby ramp roster', who: 'u-bu1', where: 'Ramp crew room', how: 'Call-out by SMS and phone, confirm ETA of about 45 min', howMuch: '20 crew, overtime about S$3.6k', start: 0, dur: 45, priority: 1 }, { what: 'Arrange crew transport and induction briefing', who: 'u-ramp1', where: 'Crew transport bay', how: 'Shuttle plus 10 min safety briefing', howMuch: '2 vans', start: 10, dur: 30, priority: 2 }, { what: 'Confirm certifications of called-in crew', who: 'u-own2', where: 'Training records', how: 'Check airside licence and GSE authorisations', howMuch: '1 officer', start: 0, dur: 15, priority: 2 }] },
+          { id: 'redeploy', label: 'Redeploy 12 crew from Baggage Handling', detail: 'Cross-skilled baggage handlers support the ramp.', tradeoff: 'Baggage Handling pressure rises and may start to slip.', cost: 1, mitigations: [{ kind: 'staff', buId: 'bu-ramp', add: 12, fromBuId: 'bu-bag' }], tasks: [{ what: 'Redeploy 12 cross-skilled baggage crew to the ramp', who: 'u-bu2', where: 'Baggage hall to ramp', how: 'Release crew and confirm skills matrix', howMuch: '12 crew', start: 0, dur: 20, priority: 1 }, { what: 'Re-plan baggage schedule with reduced crew', who: 'u-bu2', where: 'Baggage Handling', how: 'Prioritise departures and defer low-risk loads', howMuch: '1 planner', start: 10, dur: 25, priority: 2 }] },
         ],
       },
       {
@@ -117,7 +120,7 @@ export const DEMO_PACK: DemoPack[] = [
         question: 'Defer priority-3 tasks (for example catering loads) to protect critical work?',
         options: [
           NONE('Keep full service scope.'),
-          { id: 'defer-p3', label: 'Defer priority-3 tasks', detail: 'Catering loads move behind refuelling and pushback.', tradeoff: 'Catering delays may affect on-board service quality.', cost: 1, mitigations: [{ kind: 'deferLow' }] },
+          { id: 'defer-p3', label: 'Defer priority-3 tasks', detail: 'Catering loads move behind refuelling and pushback.', tradeoff: 'Catering delays may affect on-board service quality.', cost: 1, mitigations: [{ kind: 'deferLow' }], tasks: [{ what: 'Re-sequence priority-3 catering tasks behind critical work', who: 'u-sioc1', where: 'Ramp task board', how: 'Reorder task queue by priority', howMuch: 'No extra cost', start: 0, dur: 10, priority: 2 }, { what: 'Notify airlines of catering delays', who: 'u-sioc1', where: 'SIOC to airline ops', how: 'DCT message with revised catering times', howMuch: 'No extra cost', start: 5, dur: 10, priority: 3 }] },
         ],
       },
     ],

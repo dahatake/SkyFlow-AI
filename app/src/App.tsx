@@ -12,15 +12,18 @@ import { Resources } from './components/Resources';
 import {
   Airplane24Regular, AirplaneTakeOff24Regular, Alert24Regular, ArrowReset24Regular, Beaker24Regular, Bug24Regular, DataBarVertical24Regular,
   Eye24Regular, PersonBoard24Regular, PersonProhibited24Regular, ShieldCheckmark24Regular, Timeline24Regular, WeatherMoon24Regular,
-  WeatherSunny24Regular, WeatherThunderstorm24Regular, Sparkle24Regular, Box24Regular, Gauge24Regular, Clock24Regular, TaskListSquareLtr24Regular, Warning24Regular,
+  WeatherSunny24Regular, WeatherThunderstorm24Regular, Sparkle24Regular, ClipboardTaskListLtr24Regular, Box24Regular, Gauge24Regular, Clock24Regular, TaskListSquareLtr24Regular, Warning24Regular,
 } from '@fluentui/react-icons';
 import { DEMO_PACK } from './domain/demo';
 import { DecisionQueue } from './components/Decisions';
+import { TaskList } from './components/TaskList';
+import { LiveBar } from './components/LiveBar';
 import { fmt } from './domain/seed';
 
 const TABS: [Tab, string, string, ReactNode][] = [
   ['overview', 'Overview', 'KPIs, map and priorities', <DataBarVertical24Regular key="i" />],
   ['decisions', 'Decisions', 'Judgement tasks for people and Copilot', <Sparkle24Regular key="i" />],
+  ['tasks', 'Task list', 'Who does what, by when (5W2H)', <ClipboardTaskListLtr24Regular key="i" />],
   ['turnaround', 'Turnarounds', 'Milestones, tasks and GSE per flight', <Timeline24Regular key="i" />],
   ['exceptions', 'Exceptions', 'Severity, owner and next action', <Alert24Regular key="i" />],
   ['owner', 'Owners', 'Who is accountable for what', <PersonBoard24Regular key="i" />],
@@ -131,7 +134,7 @@ function Collapsible({ title, children }: { title: string; children: ReactNode }
 
 const PANEL_TITLE: Record<PanelId, string> = {
   workflow: 'Response workflow', kpi: 'Key indicators', decisions: 'Decision queue', exceptions: 'Exceptions', board: 'Turnaround board',
-  viz: 'Situational view (2D / 3D)', risk: 'Risk by pier / airline', resources: 'Crew & equipment', detail: 'Detail', owner: 'Owner workbench',
+  viz: 'Situational view (2D / 3D)', risk: 'Risk by pier / airline', resources: 'Crew & equipment', detail: 'Detail', owner: 'Owner workbench', tasks: 'Task list',
 };
 
 function renderPanel(p: PanelSpec): ReactNode {
@@ -146,6 +149,7 @@ function renderPanel(p: PanelSpec): ReactNode {
     case 'resources': return <Resources />;
     case 'detail': return <><DetailPanel /><ExceptionDetail /></>;
     case 'owner': return <OwnerWorkbench />;
+    case 'tasks': return <TaskList compact />;
   }
 }
 
@@ -248,6 +252,7 @@ function Main() {
       {tab === 'overview' && <><TimeBar /><FilterBar /><RoleLayout /></>}
       {plain && <><Kpis /><TimeBar /><FilterBar /></>}
       {tab !== 'overview' && <main className={tab === 'turnaround' ? 'grid-main' : 'single'}>
+        {tab === 'tasks' && <><TaskList /><WorkflowPanel /></>}
         {tab === 'decisions' && <><WorkflowPanel /><DecisionQueue /><VizPane /></>}
         {tab === 'turnaround' && <><div className="col"><Board /><TurnaroundWorkspace /></div><div className="col"><VizPane /><DetailPanel /></div></>}
         {tab === 'exceptions' && <><div className="col"><ExceptionQueue /></div><div className="col"><ExceptionDetail /><DetailPanel /></div></>}
@@ -268,7 +273,7 @@ class Boundary extends Component<{ children: ReactNode }, { err?: Error }> {
 export default function App() {
   return (
     <Boundary>
-      <OpsProvider><a href="#main" className="skip">Skip to content</a><Header /><RoleBar /><DemoBar /><Banner /><div id="main"><Main /></div></OpsProvider>
+      <OpsProvider><a href="#main" className="skip">Skip to content</a><Header /><RoleBar /><DemoBar /><Banner /><LiveBar /><div id="main"><Main /></div></OpsProvider>
     </Boundary>
   );
 }

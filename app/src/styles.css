@@ -187,3 +187,29 @@ th{font-weight:600;color:var(--mut);position:sticky;top:0;background:var(--card)
 /* Resources */
 .cap{list-style:none;padding:0;margin:0;display:grid;gap:4px}.cap li{display:grid;grid-template-columns:190px 120px 1fr;gap:8px;align-items:center}
 .cap meter{width:100%}
+
+/* Live bar */
+.livebar{padding:6px 20px;background:var(--card);border-bottom:1px solid var(--line)}
+.live-head{display:flex;flex-wrap:wrap;gap:10px;align-items:center}.live-head .row{margin-left:auto}
+.dot{width:10px;height:10px;border-radius:50%;background:#107c10;box-shadow:0 0 0 0 rgba(16,124,16,.6);animation:pulse 2s infinite}.dot.paused{background:#8a8886;animation:none}
+@keyframes pulse{70%{box-shadow:0 0 0 8px rgba(16,124,16,0)}100%{box-shadow:0 0 0 0 rgba(16,124,16,0)}}
+.ticker{list-style:none;margin:4px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px}
+.ticker li{background:rgba(15,108,189,.08);border-radius:4px;padding:1px 8px}
+/* Task list */
+.chips-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:6px 0}
+.chip{border:1px solid var(--line);border-radius:12px;padding:1px 10px}.chip.good b{color:#107c10}.chip.bad{border-color:#a4262c;color:#a4262c}
+.filters.inline{padding:0;margin-bottom:6px}
+.tasks5{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.t5{border:1px solid var(--line);border-left:5px solid var(--line);border-radius:8px;padding:8px 10px}
+.t5.p1{border-left-color:#a4262c}.t5.p2{border-left-color:#d83b01}.t5.p3{border-left-color:#107c10}
+.t5.done{opacity:.7}.t5.late{background:rgba(164,38,44,.07)}
+.t5-head{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.t5-head strong{flex:1;min-width:200px}
+.t5-status{border:1px solid var(--line);border-radius:10px;padding:0 8px;font-size:12px}
+.by svg{width:18px;height:18px;color:#8764b8}.done-mark{display:inline-flex;gap:4px;align-items:center;color:#107c10}
+.w2h{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:4px 12px;margin:6px 0}
+.w2h div{display:flex;flex-direction:column}.w2h small{font-weight:700;color:var(--mut);letter-spacing:.5px}.w2h .why{grid-column:1/-1}
+.t5 progress{width:100%;height:6px}
+.pipeline.three{grid-template-columns:repeat(3,minmax(160px,1fr))}
+.g-group{font-weight:600;background:rgba(127,127,127,.12);padding:2px 6px;font-size:12px}
+.tgantt .bar{overflow:hidden}.tgantt .fill{position:absolute;left:0;top:0;bottom:0;background:rgba(255,255,255,.45)}.tgantt .bar-t{position:relative}
+.tgantt .g-head,.tgantt .g-row{grid-template-columns:130px 1fr}

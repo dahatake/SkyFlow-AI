@@ -67,10 +67,14 @@ export type Mitigation =
   | { kind: 'bufferCut'; minutes: number }
   | { kind: 'deferLow' };
 
-export interface DecisionRecord { optionId: string; by: 'human' | 'copilot'; at: number }
+export interface DecisionRecord { optionId: string; by: 'human' | 'copilot'; at: number; opsAt?: number }
+export type TaskStatus = 'Todo' | 'Doing' | 'Done'
 export interface Scenario {
   id: string; name: string; notes: string; state: ScenarioState; createdAt: number; params: ScenarioParams;
   decisions?: Record<string, DecisionRecord>;
+  taskStatus?: Record<string, TaskStatus>;
+  /** Operational minute at which the scenario was started; keeps relative windows (e.g. weather) stable while the feed advances. */
+  anchor?: number;
 }
 
 export interface AuditEvent { id: string; time: number; actor: string; action: string; entityRef?: string; scenarioRef?: string }

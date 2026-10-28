@@ -1,6 +1,6 @@
 import { useMemo, type ReactNode } from 'react';
 import {
-  Bot24Regular, Checkmark24Filled, Person24Regular, ArrowUndo24Regular, Building24Regular, People24Regular, ArrowSwap24Regular, Wrench24Regular, CalendarClock24Regular, Sparkle24Regular,
+  Bot24Regular, Checkmark24Filled, Person24Regular, ArrowUndo24Regular, Building24Regular, ClipboardTaskListLtr24Regular, People24Regular, ArrowSwap24Regular, Wrench24Regular, CalendarClock24Regular, Sparkle24Regular,
 } from '@fluentui/react-icons';
 import { computeImpact } from '../domain/scenario';
 import { activeMitigations, demoById, type DecisionTask } from '../domain/demo';
@@ -28,6 +28,8 @@ function ScoreStrip({ label, s, vs: r }: { label: string; s: Score; vs?: Score }
     </div>
   );
 }
+
+const opt_tasks = (t: DecisionTask, optionId: string) => t.options.find((o) => o.id === optionId)?.tasks.length ?? 0;
 
 export function DecisionQueue({ compact = false }: { compact?: boolean }) {
   const { scenarios, activeId, baseline, decide, undoDecision, copilotAll, role, view, setTab } = useOps();
@@ -108,6 +110,7 @@ export function DecisionQueue({ compact = false }: { compact?: boolean }) {
                   );
                 })}
               </ul>
+              {rec && opt_tasks(t, rec.optionId) > 0 && <p className="muted"><ClipboardTaskListLtr24Regular /> {opt_tasks(t, rec.optionId)} action task(s) created <button className="link" onClick={() => setTab('tasks')}>View in Task list</button></p>}
               {rec && <button className="link" disabled={!canDecide} onClick={() => undoDecision(t.id)}><ArrowUndo24Regular /> Undo decision</button>}
             </li>
           );

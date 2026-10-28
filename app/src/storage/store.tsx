@@ -2,15 +2,16 @@ import { createContext, useRef, useCallback, useContext, useEffect, useMemo, use
 import { computeImpact, validateParams } from '../domain/scenario';
 import { activeMitigations, demoById } from '../domain/demo';
 import { advise } from '../domain/judgement';
+import { applyLive, diffLive } from '../domain/live';
 import { DEMO_PACK } from '../domain/demo';
 import { deepFreeze } from '../domain/seed';
 import { getProvider } from '../data/provider';
 import { noFilters, OpsView, type Filters, type Selection, type SimMode } from '../domain/view';
-import type { AuditEvent, Baseline, DiagEvent, ExceptionState, RoleType, Scenario } from '../domain/types';
+import type { AuditEvent, Baseline, DiagEvent, ExceptionState, RoleType, Scenario, TaskStatus } from '../domain/types';
 import * as repo from '../storage/repo';
 
 export type WfMap = Record<string, { status: ExceptionState; ownerId?: string }>;
-export type Tab = 'overview' | 'decisions' | 'turnaround' | 'exceptions' | 'owner' | 'scenarios' | 'diagnostics';
+export type Tab = 'overview' | 'decisions' | 'tasks' | 'turnaround' | 'exceptions' | 'owner' | 'scenarios' | 'diagnostics';
 
 export const LENS: Record<RoleType, { tab: Tab; filters: Partial<Filters>; canSimulate: boolean; blurb: string }> = {
   'Control Tower Lead': { tab: 'overview', filters: {}, canSimulate: true, blurb: 'Airport-wide risk, SLA exposure and ownership' },
@@ -24,7 +25,7 @@ export const LENS: Record<RoleType, { tab: Tab; filters: Partial<Filters>; canSi
 interface Ctx {
   ready: boolean; notice: string; setNotice(s: string): void;
   baseline: Baseline; view: OpsView; scenarios: Scenario[]; activeId: string | null; mode: SimMode;
-  filters: Filters; selection: Selection | null; related: Set<string>; kpiKey: string | null; timePos: number | null; setTimePos(t: number | null): void; wf: WfMap; advance(ids: string[], to: ExceptionState, ownerId?: string | null | ((id: string) => string | null | undefined)): void;
+  filters: Filters; selection: Selection | null; related: Set<string>; kpiKey: string | null; timePos: number | null; setTimePos(t: number | null): void; live: { tick: number; speed: number; paused: boolean; lastTickAt: number; feed: { at: number; text: string }[]; setSpeed(n: number): void; setPaused(p: boolean): void; restart(): void }; setTaskStatus(id: string, st: TaskStatus): void; wf: WfMap; advance(ids: string[], to: ExceptionState, ownerId?: string | null | ((id: string) => string | null | undefined)): void;
   role: RoleType; tab: Tab; vizMode: '2d' | '3d'; layers: Record<string, boolean>; theme: 'light' | 'dark'; audit: AuditEvent[]; diag: DiagEvent[];
   setFilters(f: Filters): void; select(s: Selection | null): void; setKpi(k: string | null): void;
   setRole(r: RoleType): void; setTab(t: Tab): void; setVizMode(v: '2d' | '3d'): void; toggleLayer(k: string): void; setTheme(t: 'light' | 'dark'): void;
@@ -39,7 +40,13 @@ const uid = (p: string) => `${p}-${Date.now().toString(36)}-${seq++}`;
 
 export function OpsProvider({ children }: { children: ReactNode }) {
   const prefs = useMemo(() => repo.loadPrefs(), []);
-  const [baseline, setBaseline] = useState<Baseline | null>(null);
+  const [seed, setBaseline] = useState<Baseline | null>(null);
+  const [tick, setTick] = useState(0);
+  const [speed, setSpeed] = useState(1);
+  const [paused, setPaused] = useState(false);
+  const [feed, setFeed] = useState<{ at: number; text: string }[]>([]);
+  const [lastTickAt, setLastTickAt] = useState(() => Date.now());
+  const baseline = useMemo(() => (seed ? deepFreeze(applyLive(seed, tick)) : null), [seed, tick]);
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [mode, setModeS] = useState<SimMode>('baseline');
@@ -94,6 +101,21 @@ export function OpsProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('error', h);
   }, [logDiag]);
 
+  useEffect(() => {
+    if (!seed || paused) return;
+    const id = setInterval(() => { setTick((n) => n + 1); setLastTickAt(Date.now()); }, 60000 / speed);
+    return () => clearInterval(id);
+  }, [seed, paused, speed]);
+  const prevLive = useRef<Baseline | null>(null);
+  useEffect(() => {
+    if (!baseline) return;
+    if (prevLive.current && prevLive.current !== baseline && tick > 0) {
+      const ev = diffLive(prevLive.current, baseline);
+      if (ev.length) setFeed((f) => [...ev.map((text) => ({ at: baseline.now, text })), ...f].slice(0, 60));
+    }
+    prevLive.current = baseline;
+  }, [baseline, tick]);
+
   const firstRender = useRef(true);
   useEffect(() => {
     if (firstRender.current) { firstRender.current = false; return; }
@@ -114,7 +136,7 @@ export function OpsProvider({ children }: { children: ReactNode }) {
   const related = useMemo(() => (view ? view.related(selection) : new Set<string>()), [view, selection]);
 
   const value: Ctx = {
-    ready: !!baseline, timePos, setTimePos, wf, notice, setNotice, baseline: baseline as Baseline, view, scenarios, activeId, mode, filters, selection, related, kpiKey,
+    ready: !!baseline, live: { tick, speed, paused, lastTickAt, feed, setSpeed, setPaused, restart: () => { setTick(0); setFeed([]); setLastTickAt(Date.now()); } }, setTaskStatus: (id, st) => { if (!activeId) return; const upd = (l: Scenario[]) => l.map((x) => (x.id === activeId ? { ...x, taskStatus: { ...x.taskStatus, [id]: st } } : x)); const nx = upd(scenarios).find((x) => x.id === activeId)!; setScenarios(upd); void repo.saveScenario(nx); logAudit(role, `task ${id} → ${st}`, undefined, activeId); }, timePos, setTimePos, wf, notice, setNotice, baseline: baseline as Baseline, view, scenarios, activeId, mode, filters, selection, related, kpiKey,
     role, tab, vizMode, layers, theme, audit, diag, logDiag,
     setFilters, select: (s) => { setSel(s); if (s) logAudit(role, 'select', s.id, activeId ?? undefined); }, setKpi: setKpiKey,
     setRole: (r) => { setRoleS(r); setFilters({ ...noFilters, ...LENS[r].filters }); setTab(LENS[r].tab); setKpiKey(null); logAudit(r, 'switch-role'); },
@@ -149,17 +171,17 @@ export function OpsProvider({ children }: { children: ReactNode }) {
         const entry = { status: to, ...(ownerId === undefined ? ('ownerId' in (next[id] ?? {}) ? { ownerId: next[id].ownerId } : {}) : { ownerId: ownerId ?? undefined }) };
         next[id] = entry;
         void repo.saveWorkflow({ id, status: to, ...('ownerId' in entry ? { ownerId: entry.ownerId } : {}) });
-        logAudit(role, `workflow :  → `, id, activeId ?? undefined);
+        logAudit(role, `workflow ${e.type}: ${wf[id]?.status ?? e.status} → ${to}`, id, activeId ?? undefined);
       });
       setWf(next);
     },
     decide: (taskId, optionId, by) => {
       if (!activeId) return;
-      const upd = (l: Scenario[]) => l.map((s) => (s.id === activeId ? { ...s, decisions: { ...s.decisions, [taskId]: { optionId, by, at: Date.now() } } } : s));
+      const upd = (l: Scenario[]) => l.map((s) => (s.id === activeId ? { ...s, decisions: { ...s.decisions, [taskId]: { optionId, by, at: Date.now(), opsAt: baseline!.now } } } : s));
       const next = upd(scenarios).find((s) => s.id === activeId)!;
       setScenarios(upd);
       void repo.saveScenario(next);
-      logAudit(by === 'copilot' ? 'Copilot assist (accepted by ' + role + ')' : role, `decision =`, undefined, activeId);
+      logAudit(by === 'copilot' ? 'Copilot assist (accepted by ' + role + ')' : role, `decision ${taskId}=${optionId}`, undefined, activeId);
     },
     undoDecision: (taskId) => {
       if (!activeId) return;
@@ -167,7 +189,7 @@ export function OpsProvider({ children }: { children: ReactNode }) {
       const next = upd(scenarios).find((s) => s.id === activeId)!;
       setScenarios(upd);
       void repo.saveScenario(next);
-      logAudit(role, `decision-undo `, undefined, activeId);
+      logAudit(role, `decision-undo ${taskId}`, undefined, activeId);
     },
     copilotAll: () => {
       const sc = scenarios.find((s) => s.id === activeId);
@@ -177,7 +199,7 @@ export function OpsProvider({ children }: { children: ReactNode }) {
       pack.decisions.forEach((t) => {
         if (cur.decisions?.[t.id]) return;
         const a = advise(baseline!, cur, pack.decisions, t);
-        cur = { ...cur, decisions: { ...cur.decisions, [t.id]: { optionId: a.optionId, by: 'copilot', at: Date.now() } } };
+        cur = { ...cur, decisions: { ...cur.decisions, [t.id]: { optionId: a.optionId, by: 'copilot', at: Date.now(), opsAt: baseline!.now } } };
       });
       setScenarios((l) => l.map((s) => (s.id === cur.id ? cur : s)));
       void repo.saveScenario(cur);
@@ -187,7 +209,7 @@ export function OpsProvider({ children }: { children: ReactNode }) {
       if (!id) { setActiveId(null); setModeS('baseline'); setScenarios((l) => l.map((s) => (s.state === 'Active' ? { ...s, state: 'Inactive' } : s))); logAudit(role, 'demo-baseline'); return; }
       const pack = DEMO_PACK.find((d) => d.id === id);
       if (!pack) return;
-      const sc: Scenario = { ...structuredClone(pack.scenario), state: 'Active', createdAt: Date.now() };
+      const sc: Scenario = { ...structuredClone(pack.scenario), state: 'Active', createdAt: Date.now(), anchor: baseline!.now };
       setScenarios((l) => [...l.filter((x) => x.id !== sc.id).map((s) => (s.state === 'Active' ? { ...s, state: 'Inactive' as const } : s)), sc]);
       void repo.saveScenario(sc);
       setActiveId(sc.id); setModeS('scenario'); setSel(null); setKpiKey(null);
@@ -202,7 +224,7 @@ export function OpsProvider({ children }: { children: ReactNode }) {
     },
     reset: async () => {
       const b = await repo.resetPrototype();
-      setBaseline(deepFreeze(b)); setScenarios([]); setActiveId(null); setModeS('baseline'); setAudit([]); setDiag([]); setSel(null); setFilters(noFilters); setKpiKey(null); setTimePos(null); setWf({});
+      setBaseline(deepFreeze(b)); setScenarios([]); setActiveId(null); setModeS('baseline'); setAudit([]); setDiag([]); setSel(null); setFilters(noFilters); setKpiKey(null); setTimePos(null); setWf({}); setTick(0); setFeed([]);
       setNotice('Prototype reset to the seed baseline.');
     },
     exportData: () => {

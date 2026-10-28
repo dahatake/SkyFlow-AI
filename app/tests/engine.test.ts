@@ -8,6 +8,8 @@ import { DEMO_PACK } from '../src/domain/demo';
 import { getProvider } from '../src/data/provider';
 import { activeMitigations } from '../src/domain/demo';
 import { advise, evaluate, scoreImpact } from '../src/domain/judgement';
+import { applyLive, diffLive } from '../src/domain/live';
+import { deriveTasks } from '../src/domain/tasks';
 
 const mk = () => deepFreeze(buildSeed());
 
@@ -110,6 +112,32 @@ describe('workflow and role layouts', () => {
     expect(ROLE_META['Control Tower Lead'].layout.find((p) => p.id === 'viz')!.secondary).toBe(true);
     expect(ROLE_META['Ramp Lead'].layout[0].id).toBe('viz');
   }, 30000);
+});
+
+describe('live feed and task list', () => {
+  it('tick 0 is the seed; later ticks are deterministic, evolve data and never mutate the seed', () => {
+    const b = mk();
+    const before = JSON.stringify(b);
+    expect(applyLive(b, 0)).toBe(b);
+    const a = applyLive(b, 20), c = applyLive(b, 20);
+    expect(JSON.stringify(a)).toBe(JSON.stringify(c));
+    expect(a.now).toBe(b.now + 20);
+    expect(a.flights.map((f) => f.status).join()).not.toBe(b.flights.map((f) => f.status).join());
+    expect(a.tasks.filter((t) => t.status === 'Complete').length).toBeGreaterThan(b.tasks.filter((t) => t.status === 'Complete').length);
+    expect(a.exceptions.length).toBeGreaterThan(b.exceptions.length);
+    expect(diffLive(applyLive(b, 5), applyLive(b, 6)).length + diffLive(applyLive(b, 19), a).length).toBeGreaterThan(0);
+    expect(JSON.stringify(b)).toBe(before);
+  });
+  it('decisions create 5W2H tasks with times anchored to the decision', () => {
+    const b = mk();
+    const d = DEMO_PACK[2];
+    const sc: any = { ...d.scenario, state: 'Active', createdAt: 0, decisions: { 'ns-source': { optionId: 'standby', by: 'human', at: 0, opsAt: 490 } }, taskStatus: { 'ns-source:standby:0': 'Doing' } };
+    const tasks = deriveTasks(sc, b.now);
+    expect(tasks.length).toBe(3);
+    tasks.forEach((t) => { ['what', 'why', 'who', 'where', 'how', 'howMuch'].forEach((k) => expect((t as any)[k]).toBeTruthy()); expect(t.when.start).toBeGreaterThanOrEqual(490); });
+    expect(tasks.find((t) => t.id === 'ns-source:standby:0')!.progress).toBe(50);
+    expect(deriveTasks({ ...sc, decisions: {} }, b.now)).toEqual([]);
+  });
 });
 
 describe('provider and time position', () => {

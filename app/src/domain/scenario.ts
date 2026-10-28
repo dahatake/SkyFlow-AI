@@ -141,7 +141,7 @@ export function computeImpact(b: Baseline, sc: Scenario, mit: Mitigation[] = [])
 
   if (p.weather && p.weather.durationMin > 0) {
     const w = p.weather;
-    const start = b.now + w.startOffsetMin;
+    const start = (sc.anchor ?? b.now) + w.startOffsetMin;
     const hardEnd = start + w.durationMin;
     const bufferMin = Math.max(0, w.recoveryBufferMin - bufferCut);
     const end = hardEnd + bufferMin;

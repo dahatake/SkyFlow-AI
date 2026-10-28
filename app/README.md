@@ -27,3 +27,6 @@ npm run build
 - **Clock and roles:** big operational clock (live/replay) and next-departure hint in the header; role lenses are buttons whose panel order follows each role's priorities (`src/components/roles.tsx`).
 - **Response workflow:** Detect → Acknowledge → Assign → Decide → Monitor → Resolve stepper with bulk actions; progress is a local IndexedDB overlay (`workflow` store), never written to the baseline.
 - **Alternative views:** turnaround board as Table / Gantt / Pipeline; exceptions as List / Pipeline (`src/components/Views.tsx`).
+
+- **Task list:** every decision option expands into 5W2H action tasks (What, Why, Who, When, Where, How, How much) shown as List / Gantt / Board with priority and status (`src/domain/tasks.ts`, `components/TaskList.tsx`). Choosing a decision in the Decision queue creates them.
+- **Live feed:** the seed stays immutable; `src/domain/live.ts` derives the observed state at operational minute 08:00 + tick (flight status, milestones, tasks, SLA risk, GSE, crew, new exceptions). One tick per real minute by default (x15 / x60 for demos), with pause, restart and a change ticker.
