@@ -4,6 +4,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { useOps } from '../storage/store';
 import { RISK_COLOR } from './ui';
 import { AIRCRAFT, LIVERY, apronTexture, buildAircraft, buildGse, buildJetBridge, buildPier, buildTower, markSelectable, worldScale } from './models3d';
+import { tr, useLang } from '../i18n';
 
 const S = 0.5; // 2D->3D scale
 const pos = (x: number, y: number) => new THREE.Vector3((x - 45) * S, 0, (y - 30) * S);
@@ -15,6 +16,7 @@ const STATUS_COLOR: Record<string, string> = { Available: '#2ea043', Engaged: '#
 export function Scene3D() {
   const host = useRef<HTMLDivElement>(null);
   const { view, layers, selection, related, select, logDiag } = useOps();
+  const { lang } = useLang();
   const api = useRef<{ fit(ids: THREE.Vector3[]): void; reset(): void; follow: boolean } | null>(null);
   const world = useRef<THREE.Group>(new THREE.Group());
   const labelsRef = useRef<HTMLDivElement>(null);
@@ -30,7 +32,7 @@ export function Scene3D() {
     try {
       renderer = new THREE.WebGLRenderer({ antialias: true });
     } catch (e) {
-      setErr('WebGL is not available in this browser; use the 2D view.');
+      setErr(tr('WebGL is not available in this browser; use the 2D view.'));
       logDiag('render-error', `WebGL init failed: ${(e as Error).message}`);
       return;
     }
@@ -166,7 +168,7 @@ export function Scene3D() {
       const c = pos((st[0].x + st[st.length - 1].x) / 2, st[0].y);
       const pierObj = buildPier(46, 2.4, pier);
       add(pierObj, new THREE.Vector3(c.x, 0, c.z - 4.6));
-      labels.push({ p: new THREE.Vector3(c.x - 21, 3.4, c.z - 4.6), t: `Changi · Pier ${pier}`, id: `pier-${pier}`, hi: false, always: true });
+      labels.push({ p: new THREE.Vector3(c.x - 21, 3.4, c.z - 4.6), t: tr('Changi · Pier {p}', { p: pier }), id: `pier-${pier}`, hi: false, always: true });
     });
     if (layers.stands) b.stands.forEach((s) => {
       const p = pos(s.x, s.y);
@@ -177,7 +179,7 @@ export function Scene3D() {
     });
     const tower = buildTower();
     add(tower, new THREE.Vector3(-38, 0, -20));
-    labels.push({ p: new THREE.Vector3(-38, 12.4, -20), t: 'SIOC Control Tower', id: 'tower', hi: false, always: true });
+    labels.push({ p: new THREE.Vector3(-38, 12.4, -20), t: tr('SIOC Control Tower'), id: 'tower', hi: false, always: true });
 
     const visible = new Set(view.flights.map((f) => f.id));
     let follow: THREE.Vector3 | undefined;
@@ -207,7 +209,7 @@ export function Scene3D() {
             if (hi) mk(new THREE.RingGeometry(len * 0.55, len * 0.55 + 0.25, 40).rotateX(-Math.PI / 2), '#ffffff', p.clone().add(new THREE.Vector3(0, 0.1, -1.2 + len / 2)), 0.9);
             if (selection?.id === f.id) follow = p.clone().add(new THREE.Vector3(0, 1, len / 2));
             const moved = view.moved(f);
-            labels.push({ p: p.clone().add(new THREE.Vector3(0, spec.tailH * worldScale + 2.6, -1.2 + len * 0.82)), t: `${f.flightNo} · ${spec.type.replace('Airbus ', '').replace('Boeing ', '')} · ${risk}${moved ? ' · re-gated' : ''}`, id: f.id, hi });
+            labels.push({ p: p.clone().add(new THREE.Vector3(0, spec.tailH * worldScale + 2.6, -1.2 + len * 0.82)), t: `${f.flightNo} · ${spec.type.replace('Airbus ', '').replace('Boeing ', '')} · ${tr(risk)}${moved ? ` · ${tr('re-gated')}` : ''}`, id: f.id, hi });
             if (moved) {
               const from = b.stands.find((x) => x.id === f.standId)!;
               const fp = pos(from.x, from.y).setY(0.3);
@@ -216,7 +218,7 @@ export function Scene3D() {
           } else {
             const ghost = mk(new THREE.ConeGeometry(0.5, 1.1, 12).rotateX(Math.PI), RISK_COLOR[risk], p.clone().add(new THREE.Vector3(0, 6.6 + idx * 1.2, 1.4)), 0.75);
             ghost.userData.sel = sel;
-            labels.push({ p: p.clone().add(new THREE.Vector3(0, 7.5 + idx * 1.2, 1.4)), t: `next: ${f.flightNo} · ${risk}`, id: f.id, hi });
+            labels.push({ p: p.clone().add(new THREE.Vector3(0, 7.5 + idx * 1.2, 1.4)), t: tr('next: {no} · {risk}', { no: f.flightNo, risk: tr(risk) }), id: f.id, hi });
           }
         });
       });
@@ -231,7 +233,7 @@ export function Scene3D() {
       add(veh, p.clone().add(new THREE.Vector3(dx, 0, dz)), { kind: 'asset', id: a.id });
       const light = mk(new THREE.SphereGeometry(0.22, 10, 8), STATUS_COLOR[st], p.clone().add(new THREE.Vector3(dx, 1.5, dz)));
       light.userData.sel = { kind: 'asset', id: a.id };
-      if (related.has(a.id) || st === 'Unavailable') labels.push({ p: p.clone().add(new THREE.Vector3(dx, 2.2, dz)), t: `${a.type} · ${st}`, id: a.id, hi: related.has(a.id) });
+      if (related.has(a.id) || st === 'Unavailable') labels.push({ p: p.clone().add(new THREE.Vector3(dx, 2.2, dz)), t: `${tr(a.type)} · ${tr(st)}`, id: a.id, hi: related.has(a.id) });
     });
     if (layers.weather) [...b.constraints, ...view.impact.constraints].forEach((c) => {
       const st = b.stands.filter((s) => s.pier === c.scope || s.id === c.scope);
@@ -253,7 +255,7 @@ export function Scene3D() {
     }
     g.userData.followPos = follow;
     labelDefs.current = labels;
-  }, [view, layers, related, selection]);
+  }, [view, layers, related, selection, lang]);
 
   const fit = () => {
     const pts = view.b.stands.filter((s) => related.has(s.id)).map((s) => pos(s.x, s.y));
@@ -262,15 +264,15 @@ export function Scene3D() {
 
   return (
     <div className="viz3d">
-      <div className="toolbar" role="toolbar" aria-label="3D camera controls">
-        <button onClick={() => api.current?.reset()}>Reset overview</button>
-        <button onClick={fit} disabled={!selection}>Fit selected</button>
-        <button onClick={fit} disabled={!selection}>Focus stand</button>
-        <label><input type="checkbox" checked={follow} onChange={(e) => { setFollow(e.target.checked); if (api.current) api.current.follow = e.target.checked; }} /> Follow selected</label>
-        <span className="muted">Drag to orbit · right-drag to pan · wheel to dolly · aircraft types and liveries follow each airline; ground vehicles are exaggerated for legibility</span>
+      <div className="toolbar" role="toolbar" aria-label={tr('3D camera controls')}>
+        <button onClick={() => api.current?.reset()}>{tr('Reset overview')}</button>
+        <button onClick={fit} disabled={!selection}>{tr('Fit selected')}</button>
+        <button onClick={fit} disabled={!selection}>{tr('Focus stand')}</button>
+        <label><input type="checkbox" checked={follow} onChange={(e) => { setFollow(e.target.checked); if (api.current) api.current.follow = e.target.checked; }} /> {tr('Follow selected')}</label>
+        <span className="muted">{tr('Drag to orbit · right-drag to pan · wheel to dolly · aircraft types and liveries follow each airline; ground vehicles are exaggerated for legibility')}</span>
       </div>
       {err && <p role="alert" className="muted">{err}</p>}
-      <div className="canvas-host" ref={host} role="img" aria-label="3D airport operational scene synchronised with the 2D map">
+      <div className="canvas-host" ref={host} role="img" aria-label={tr('3D airport operational scene synchronised with the 2D map')}>
         <div className="labels" ref={labelsRef} aria-hidden="true" />
       </div>
     </div>

@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="CIO / CTO technical briefing: AI Operations Control Tower architecture for SATS Project SPEAR." />
+  <link rel="icon" href="data:," />
+  <title>CIO / CTO briefing · AI Operations Control Tower · SATS Project SPEAR</title>
+  <link rel="stylesheet" href="./deck.css" />
+</head>
+<body>
+  <canvas id="scene" aria-label="Animated 3D airport backdrop. Drag to rotate the camera." role="img"></canvas>
+  <div id="labels" aria-hidden="true"></div>
+  <div class="flash" id="flash" aria-hidden="true"></div>
+
+  <header class="hud">
+    <a class="brand" href="../">‹ Back to prototype</a>
+    <span class="deck-title">SATS Project SPEAR · CIO / CTO technical briefing</span>
+    <div class="hud-r">
+      <div class="seg" role="group" aria-label="Camera mode">
+        <button data-mode="auto" aria-pressed="true" title="Camera follows the story (0)">Auto</button>
+        <button data-mode="2d" aria-pressed="false" title="Top-down 2D view (2)">2D</button>
+        <button data-mode="3d" aria-pressed="false" title="Perspective 3D view (3)">3D</button>
+      </div>
+      <a class="pill" href="./executive-briefing.html">Executive briefing →</a>
+      <button class="pill" id="fs" type="button">Full screen</button>
+    </div>
+  </header>
+
+  <main id="deck">
+    <!-- 1 -->
+    <section class="slide layout-hero" data-cam="wide" data-fx="flow" data-act="CIO / CTO briefing" data-labels="off" aria-label="Title">
+      <div class="content">
+        <p class="eyebrow reveal">SATS Project SPEAR · Technical briefing</p>
+        <h1 class="mega reveal">One platform.<br /><span class="grad">Every decision.</span></h1>
+        <p class="lede reveal">The architecture behind the AI Operations Control Tower, and a <b>low-risk path from prototype to production</b>.</p>
+        <div class="chips reveal"><span>Business Envisioning</span><span>Solution Envisioning</span><span>Architecture Design Session</span><span>Prototype in Azure</span></div>
+      </div>
+    </section>
+
+    <!-- 2 -->
+    <section class="slide layout-left" data-cam="top" data-fx="gse" data-act="The problem" aria-label="Fragmented systems">
+      <div class="content">
+        <p class="eyebrow red reveal">The architecture problem behind the business problem</p>
+        <h2 class="big reveal">Seven systems. <span class="grad-warm">No shared picture.</span></h2>
+        <div class="chips reveal"><span>GroundStar</span><span>G-Ops</span><span>Mosaic</span><span>DSM</span><span>iFleet</span><span>BRS</span><span>TOMS</span><span>CAG feeds</span><span>Airline CPM</span><span>Weather</span></div>
+        <ul class="list reveal">
+          <li><b>Point-to-point interfaces</b>; EDH / DataNexus is still being established as the hub.</li>
+          <li><b>Analog gaps</b>: radio, WhatsApp and paper never reach the data.</li>
+          <li><b>Manual consolidation</b> by duty managers for decisions and reports.</li>
+        </ul>
+        <p class="quote reveal">Every new AI or dashboard initiative <span class="grad-warm">rebuilds its own integrations.</span></p>
+      </div>
+    </section>
+
+    <!-- 3 -->
+    <section class="slide layout-hero" data-cam="low" data-act="The problem" data-labels="off" aria-label="Platform first">
+      <div class="content">
+        <p class="eyebrow reveal">The control tower is the first consumer of an operational data platform</p>
+        <h2 class="mega reveal">Get the platform right.<br /><span class="grad">The rest gets cheaper.</span></h2>
+        <p class="lede reveal">The copilot, disruption prediction and connected GSE all reuse the same governed data, so there is no new integration for each use case.</p>
+      </div>
+    </section>
+
+    <!-- 4 -->
+    <section class="slide layout-right" data-cam="top" data-act="Act 1 · Business Envisioning" aria-label="Technical scope">
+      <div class="content">
+        <p class="eyebrow reveal">Act 1 · From BXT to technical scope</p>
+        <h2 class="big reveal">Feasible <span class="grad">by design.</span></h2>
+        <div class="stats reveal">
+          <div class="stat"><b class="grad">4.1</b><span>control tower feasibility</span></div>
+          <div class="stat"><b class="grad-cool">3.8</b><span>technical viability</span></div>
+          <div class="stat"><b class="grad-green">2–3</b><span>feeds needed for the MVP</span></div>
+        </div>
+        <ul class="list reveal">
+          <li><b>In place</b>: Power BI skills, DSM and Digital Control Tower concepts.</li>
+          <li><b>New skills</b>: Fabric Real-Time Intelligence and Activator, enabled with a partner.</li>
+          <li><b>Sequence</b>: data foundation and control tower together; copilot in parallel; prediction once 12–24 months of history exists; GSE pilot at one pier.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 5 -->
+    <section class="slide layout-wide" data-cam="layers" data-fx="layers" data-act="Act 2 · Solution Envisioning" aria-label="Target architecture">
+      <div class="content">
+        <p class="eyebrow purple reveal">Act 2 · Solution Envisioning · target architecture</p>
+        <h2 class="big reveal">Five layers. <span class="grad">One governance.</span></h2>
+        <div class="cards reveal" style="grid-template-columns:repeat(5,minmax(0,1fr))">
+          <div class="card"><span class="tag" style="color:#8e8e93">Sources</span><p>GroundStar tasks and rosters · G-Ops, Mosaic, DSM · CAG turnaround events · iFleet and GSE · BRS baggage · weather and airline SLAs</p></div>
+          <div class="card"><span class="tag" style="color:var(--teal)">Ingest</span><p><b>Eventstreams</b> for real-time feeds · <b>Data Factory</b> and mirroring for batch · <b>OneLake shortcuts</b> to EDH, no copy</p></div>
+          <div class="card hl"><span class="tag">Microsoft Fabric</span><p><b>Eventhouse (KQL)</b> live events · <b>Lakehouse / OneLake</b> history · <b>Ops model</b> (ontology and semantic model) · <b>Activator</b> exception rules</p></div>
+          <div class="card"><span class="tag" style="color:var(--purple)">Experiences</span><p>Control tower web app · <b>Power BI in DSM</b> with RLS · Real-Time Dashboard and Maps · <b>Teams Adaptive Cards</b> · Copilot Studio agent (phase 2)</p></div>
+          <div class="card"><span class="tag" style="color:#64d2ff">Users</span><p>Executives: scorecard · SIOC: board and exceptions · BU Ops: my flights · Ramp and baggage leads: mobile, Teams cards</p></div>
+        </div>
+        <div class="band reveal"><b>Governed by</b> Microsoft Entra ID · row-level security by BU and airline · Microsoft Purview lineage · capacity monitoring</div>
+      </div>
+    </section>
+
+    <!-- 6 -->
+    <section class="slide layout-left" data-cam="wide" data-fx="flow" data-act="Act 2 · Solution Envisioning" aria-label="Surround not replace at the data layer">
+      <div class="content">
+        <p class="eyebrow purple reveal">Principle, applied at the data layer</p>
+        <h2 class="big reveal">Surround, <span class="grad">not replace.</span></h2>
+        <ul class="list reveal">
+          <li><b>OneLake shortcuts and mirroring</b> extend EDH / DataNexus without copying or migrating it.</li>
+          <li><b>Eventstreams</b> ingest flight, turnaround, task, GSE and weather events in seconds.</li>
+          <li><b>One common model</b>: flight → turnaround → task → asset.</li>
+          <li><b>Existing systems stay systems of record</b>. Write-back is phase 2; prediction and optimiser are phase 3.</li>
+        </ul>
+        <div class="stats reveal">
+          <div class="stat"><b class="grad-cool">≥ 90%</b><span>priority sources streaming to one platform</span></div>
+          <div class="stat"><b class="grad-cool">&lt; 1 min</b><span>event-to-dashboard latency</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7 -->
+    <section class="slide layout-wide" data-cam="top" data-act="Act 3 · Architecture Design" aria-label="One UI two data horizons">
+      <div class="content">
+        <p class="eyebrow teal reveal">Act 3 · Architecture Design Session</p>
+        <h2 class="big reveal">One UI. <span class="grad">Two data horizons.</span></h2>
+        <div class="split reveal">
+          <div class="card"><span class="tag">Horizon 1 · Prototype · now</span><h3>Browser-only control tower</h3><p>React + TypeScript SPA with a Fluent-style UI · IndexedDB seed data, no backend · view-only what-if simulator · linked 2D and 3D views</p></div>
+          <div class="bridge"><span class="tag" style="color:var(--teal);font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:700">Bridge</span><b>Data-provider interface</b><span>Seed provider → Fabric adapter.<br />No rewrite of the screens.</span></div>
+          <div class="card hl"><span class="tag" style="color:var(--purple)">Horizon 2 · MVP · Jan 2027</span><h3>Fabric Real-Time Intelligence</h3><p>Eventstreams live feeds · Eventhouse and OneLake ops model · Activator rules → Teams owners · existing systems stay systems of record</p></div>
+        </div>
+        <div class="timeline reveal">
+          <div><b>Nov–Dec 2026</b>Architecture design and prototype</div>
+          <div><b>Jan–Mar 2027</b>MVP: one terminal, three feeds, five rules</div>
+          <div><b>Apr–Jun 2027</b>All terminals, write-back, ops copilot</div>
+          <div><b>H2 2027</b>Prediction and recovery options</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8 -->
+    <section class="slide layout-wide" data-cam="tower" data-fx="conflicts resolve" data-act="Act 3 · Architecture Design" aria-label="Runtime flow">
+      <div class="content">
+        <p class="eyebrow teal reveal">Runtime flow · exceptions reach an owner in minutes</p>
+        <h2 class="big reveal">Sense to audit, <span class="grad">no custom middleware.</span></h2>
+        <div class="steps reveal">
+          <div class="step" style="--c:var(--blue)"><h4>Sense</h4><b>Eventstreams</b><p>Flight, turnaround, task, GSE and weather events stream in.</p></div>
+          <div class="step" style="--c:var(--teal)"><h4>Detect</h4><b>Fabric Activator</b><p>Rules flag deviations and SLA risk, ranked by priority.</p></div>
+          <div class="step" style="--c:var(--purple)"><h4>Route</h4><b>Power Automate</b><p>Owner assigned by BU and role.</p></div>
+          <div class="step" style="--c:var(--amber)"><h4>Notify</h4><b>Adaptive Card</b><p>Teams card to the owner in the BU channel.</p></div>
+          <div class="step" style="--c:#64d2ff"><h4>Act</h4><b>Owner on mobile</b><p>Acknowledge, assign, close. Write-back in phase 2.</p></div>
+          <div class="step" style="--c:var(--green)"><h4>Audit</h4><b>OneLake</b><p>Outcome logged to tune rules and models.</p></div>
+        </div>
+        <div class="stats reveal">
+          <div class="stat"><b class="grad-green">&lt; 2 min</b><span>exception acknowledged by its owner</span></div>
+          <div class="stat"><b class="grad-green">&lt; 5 min</b><span>detection-to-action · MVP exit criterion</span></div>
+          <div class="stat"><b class="grad">5</b><span>priority exception rules · release 1</span></div>
+          <div class="stat"><b class="grad-cool">&lt; 1 min</b><span>event-to-dashboard latency</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9 -->
+    <section class="slide layout-left" data-cam="pier" data-fx="whatif" data-act="Act 3 · Architecture Design" aria-label="Prototype component architecture">
+      <div class="content">
+        <p class="eyebrow teal reveal">Prototype component architecture</p>
+        <h2 class="big reveal">One shared <span class="grad">view context.</span></h2>
+        <p class="lede reveal">Role, filters, selection, time position and active scenario drive every panel (FR-001, FR-006, VIZ-001).</p>
+        <div class="cards c2 reveal">
+          <div class="card"><h3>Domain store</h3><p>Normalised entities, read-only baseline.</p></div>
+          <div class="card"><h3>Scenario engine</h3><p>Pure functions: baseline + parameters → derived overlay. Baseline byte-equivalent after apply, refresh or delete.</p></div>
+          <div class="card"><h3>2D and 3D renderers</h3><p>Layers, clustering, stable hit-testing; WebGL scene with level of detail and a camera controller.</p></div>
+          <div class="card"><h3>Persistence and diagnostics</h3><p>IndexedDB with schemaVersion + seedVersion; payload-free, exportable diagnostics.</p></div>
+        </div>
+        <div class="band reveal"><b>Data-provider interface</b>: seed provider now → Fabric adapter in Horizon 2 · <b>No network mutation endpoint</b> (NFR-005)</div>
+      </div>
+    </section>
+
+    <!-- 10 -->
+    <section class="slide layout-right" data-cam="pier" data-fx="gse" data-act="Act 3 · Architecture Design" aria-label="Optimiser">
+      <div class="content">
+        <p class="eyebrow amber reveal">Resource and task optimiser</p>
+        <h2 class="big reveal">One click. <span class="grad-warm">Every reason shown.</span></h2>
+        <ul class="list reveal">
+          <li><b>Deterministic</b>, priority-ordered heuristic with a rolling horizon and frozen window.</li>
+          <li><b>Hard limits</b>: stand buffers, closures, weather, GSE travel distance, crew seats per stand.</li>
+          <li><b>Weights</b> for SLA, distance, time and resources; presets for Balanced, SLA first, Resource saving and Time critical.</li>
+          <li><b>Explainable</b>: before/after measures, every change with its reason, unresolved items left for a person.</li>
+          <li><b>Non-destructive</b>: audit entry per run; baseline untouched (OPT-001 to OPT-004).</li>
+        </ul>
+        <div class="band reveal">Production path: an exact or metaheuristic solver (MIP / CP-SAT) on Azure, <b>behind the same interface</b>.</div>
+      </div>
+    </section>
+
+    <!-- 11 -->
+    <section class="slide layout-wide" data-cam="top" data-act="Act 3 · Architecture Design" aria-label="Non-functional requirements">
+      <div class="content">
+        <p class="eyebrow teal reveal">Non-functional requirements</p>
+        <h2 class="big reveal">Every quality target <span class="grad">has an answer.</span></h2>
+        <div class="cards c4 reveal">
+          <div class="card"><span class="tag">NFR-001 · Performance</span><p>Normalised store, memoised selectors, viewport and layer simplification, 3D level of detail. Fabric Well-Architected in production.</p></div>
+          <div class="card"><span class="tag" style="color:var(--teal)">NFR-002 · Accessibility</span><p>Keyboard paths, visible focus, icon plus text status, reduced-motion camera, Fluent design.</p></div>
+          <div class="card"><span class="tag" style="color:var(--purple)">NFR-003 · Responsive</span><p>Control-room, laptop/tablet and compact ramp layouts; Teams cards for ramp leads.</p></div>
+          <div class="card"><span class="tag" style="color:var(--amber)">NFR-004 · Explainability</span><p>Every derived value tagged Baseline or Simulated, with parameters, rule ID and cause.</p></div>
+          <div class="card"><span class="tag" style="color:#64d2ff">NFR-005 · Safety boundary</span><p>Static hosting, no mutation endpoint, frozen baseline; write-back only in phase 2.</p></div>
+          <div class="card"><span class="tag" style="color:var(--green)">NFR-006 · Observability</span><p>Payload-free, exportable client diagnostics; Eventhouse metrics and logs in production.</p></div>
+          <div class="card"><span class="tag">Security · Identity</span><p>Microsoft Entra ID, row-level security by BU and airline, Purview lineage.</p></div>
+          <div class="card warn"><span class="tag" style="color:var(--amber)">Check before phase 2 · Residency</span><p>Fabric data agent answers used in Copilot Studio may leave the Fabric boundary or region. Validate against the Singapore decision.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12 -->
+    <section class="slide layout-left" data-cam="hero" data-fx="gse" data-act="Act 4 · Prototype" aria-label="What is real today">
+      <div class="content">
+        <p class="eyebrow green reveal">Act 4 · Prototyping</p>
+        <h2 class="big reveal">Running code. <span class="grad">Not mock-ups.</span></h2>
+        <div class="chips reveal"><span>React 19</span><span>TypeScript</span><span>Vite</span><span>Three.js</span><span>Fluent UI icons</span><span>Vitest</span><span>GitHub Actions CI/CD</span><span>Bicep</span><span>Azure Developer CLI</span><span>Azure Static Web Apps</span></div>
+        <ul class="list reveal">
+          <li><b>Six role lenses</b>, KPI strip with drill-through, turnaround board, exception and ownership queue.</li>
+          <li><b>Linked 2D map and 3D scene</b> with dynamic camera.</li>
+          <li><b>Five-case what-if simulator</b>: Baseline / Scenario / Difference.</li>
+          <li><b>One-click optimiser</b> and <b>day / week resource planning</b> on a Changi-modelled sample week.</li>
+          <li><b>Traceable</b>: every screen maps to FR, VIZ, SIM, DATA, NFR, OPT and PLAN requirements.</li>
+        </ul>
+        <p class="quote reveal">The prototype is a working specification, and it shows <span class="grad">exactly where Fabric plugs in.</span></p>
+      </div>
+    </section>
+
+    <!-- 13 -->
+    <section class="slide layout-wide" data-cam="storm" data-fx="storm delays conflicts" data-act="Act 4 · Prototype" aria-label="Demo script">
+      <div class="content">
+        <p class="eyebrow green reveal">Demo · Thunderstorm over the apron</p>
+        <h2 class="big reveal">Watch the architecture <span class="grad">work.</span></h2>
+        <table class="tbl reveal">
+          <thead><tr><th>#</th><th>Action in the prototype</th><th>What it proves</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Overview as Control Tower Lead</td><td>One domain store; every panel bound to the shared view context</td></tr>
+            <tr><td>2</td><td>Switch the lens to Ramp Lead</td><td>Role changes projection and emphasis, not data (FR-002, AT-01)</td></tr>
+            <tr><td>3</td><td>Select a delayed flight, toggle 2D ↔ 3D</td><td>Selection, filters and time position preserved (VIZ-001, AT-02)</td></tr>
+            <tr><td>4</td><td>Late inbound 45 min, then weather stoppage</td><td>Pure-function overlay; baseline byte-equivalent (SIM-001, AT-03)</td></tr>
+            <tr><td>5</td><td>Enter an invalid duration</td><td>Validation blocks apply; view unchanged (SIM-002, AT-04)</td></tr>
+            <tr><td>6</td><td>Optimize all, “SLA first” preset</td><td>Hard limits respected; solver swappable (OPT-001 to OPT-004, AT-08)</td></tr>
+            <tr><td>7</td><td>Planning, week view</td><td>Gantt and table over the same model; conflicts flagged (PLAN-001/002)</td></tr>
+          </tbody>
+        </table>
+        <div class="cta reveal"><a class="btn" href="../" target="_blank" rel="noopener">Open the prototype</a></div>
+      </div>
+    </section>
+
+    <!-- 14 -->
+    <section class="slide layout-wide" data-cam="wide" data-act="Design decisions" aria-label="Decisions and risks">
+      <div class="content">
+        <p class="eyebrow reveal">Design sessions and the decisions to close</p>
+        <h2 class="big reveal">Known risks. <span class="grad">Named mitigations.</span></h2>
+        <div class="cards c3 reveal">
+          <div class="card"><span class="tag">1 · Data and integration</span><p>Source interfaces and freshness · Eventhouse retention and capacity · SLA definitions per airline · spatial model and 3D asset rights</p></div>
+          <div class="card"><span class="tag" style="color:var(--purple)">2 · Experience and alerting</span><p>DSM embedding and sign-in · write-back path to GroundStar and G-Ops · role and accountability matrix, named owners</p></div>
+          <div class="card"><span class="tag" style="color:var(--teal)">3 · Security and operations</span><p>Access by BU and airline, lineage · Singapore data residency · 24×7 support model</p></div>
+        </div>
+        <table class="tbl reveal">
+          <thead><tr><th>Risk</th><th>Mitigation</th></tr></thead>
+          <tbody>
+            <tr><td>Legacy interfaces and data quality</td><td>Early sample access, data contracts per source, EDH shortcuts before new pipelines</td></tr>
+            <tr><td>Feed latency</td><td>Eventstreams → Eventhouse hot path, measured against &lt; 1 min</td></tr>
+            <tr><td>CAG and airline data-sharing terms</td><td>Design session 1; sharing terms enforced through Purview</td></tr>
+            <tr><td>24×7 uptime</td><td>Fabric capacity monitoring, defined support model, manual fallback</td></tr>
+            <tr><td>Model drift, solver run time (phase 3)</td><td>Model monitoring, human approval, solver behind the optimiser interface</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 15 -->
+    <section class="slide layout-wide" data-cam="hero" data-act="Questions we expect" aria-label="Objection handling">
+      <div class="content">
+        <p class="eyebrow reveal">Questions we expect</p>
+        <h2 class="big reveal">Straight <span class="grad">answers.</span></h2>
+        <table class="tbl reveal">
+          <thead><tr><th>Question</th><th>Answer</th></tr></thead>
+          <tbody>
+            <tr><td>“We already have DSM and a Digital Control Tower concept.”</td><td>Power BI in DSM, with RLS, on Fabric. It extends existing concepts and does not compete with them.</td></tr>
+            <tr><td>“Another platform to run?”</td><td>Fabric is SaaS with one capacity; EDH is surrounded through shortcuts, not migrated.</td></tr>
+            <tr><td>“Can we trust AI recommendations?”</td><td>Explainability (NFR-004), an audit entry per run, and unresolved items left for a person.</td></tr>
+            <tr><td>“Data residency?”</td><td>Azure Singapore region; the Copilot Studio / data agent boundary is validated before phase 2.</td></tr>
+            <tr><td>“What if GroundStar integration is hard?”</td><td>Read-only MVP; write-back designed in session 2 and delivered in phase 2.</td></tr>
+            <tr><td>“Vendor lock-in?”</td><td>Open formats, KQL and SQL, a React app in SATS's repo, and a solver behind an interface.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 16 -->
+    <section class="slide layout-hero" data-cam="wide" data-fx="flow" data-act="Why Microsoft" data-labels="off" aria-label="Why Microsoft">
+      <div class="content">
+        <p class="eyebrow reveal">Why Microsoft</p>
+        <h2 class="mega reveal">Unified data.<br /><span class="grad">Native action.</span></h2>
+        <p class="lede reveal">One governed platform from real-time events to AI, reaching people in the tools they already use.</p>
+      </div>
+    </section>
+
+    <!-- 17 -->
+    <section class="slide layout-wide" data-cam="layers" data-fx="layers" data-act="Why Microsoft" aria-label="Seven technical reasons">
+      <div class="content">
+        <p class="eyebrow reveal">Why Microsoft · the technical view</p>
+        <h2 class="big reveal">Seven reasons it <span class="grad">de-risks delivery.</span></h2>
+        <div class="cards c4 reveal">
+          <div class="card"><div class="num">1</div><h3>One SaaS data platform</h3><p>Fabric unifies Eventstreams, Eventhouse, Activator, Data Factory, OneLake, semantic models and BI: one capacity, one security model.</p></div>
+          <div class="card"><div class="num">2</div><h3>Real-time to action</h3><p>Activator → Power Automate → Teams Adaptive Cards. Configuration, not middleware.</p></div>
+          <div class="card"><div class="num">3</div><h3>AI on the same foundation</h3><p>Copilot Studio and Fabric data agents, Azure AI Foundry and Azure ML, IoT Hub and Azure Maps all read one OneLake model.</p></div>
+          <div class="card"><div class="num">4</div><h3>Security by design</h3><p>Entra ID SSO and conditional access, RLS by BU and airline, Purview lineage, labels and DLP, Singapore region.</p></div>
+          <div class="card"><div class="num">5</div><h3>Open and portable</h3><p>Delta / Parquet in OneLake, KQL, standard connectors, React/TypeScript, Bicep, azd and GitHub Actions. SATS owns the code.</p></div>
+          <div class="card"><div class="num">6</div><h3>Builds on the estate</h3><p>Power BI skills and Microsoft 365 / Teams already in place; embeds in DSM. Less new infrastructure to run.</p></div>
+          <div class="card"><div class="num">7</div><h3>Delivery assurance</h3><p>Innovation Hub architects, CSAM, Data and AI specialists, certified partners, and explicit exit criteria per horizon.</p></div>
+          <div class="card hl"><h3>Surround, not replace</h3><p>Shortcuts and mirroring extend EDH / DataNexus. Existing systems stay the systems of record.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 18 -->
+    <section class="slide layout-wide" data-cam="top" data-fx="resolve" data-act="The ask" aria-label="The ask">
+      <div class="content">
+        <p class="eyebrow green reveal">The ask</p>
+        <h2 class="big reveal">Owners, dates, <span class="grad">and a start.</span></h2>
+        <table class="tbl reveal">
+          <thead><tr><th>Owner</th><th>Ask</th><th>Date</th></tr></thead>
+          <tbody>
+            <tr class="hl"><td>SATS Control Tower Lead</td><td>Confirm MVP scope (terminal, feeds, five rules) and name owners</td><td>13 Nov</td></tr>
+            <tr><td>SATS Data Lead</td><td>Grant access to CAG, GroundStar and iFleet samples; confirm the EDH route</td><td>20 Nov</td></tr>
+            <tr><td>SATS IT architecture and security</td><td>Join design sessions; decide residency, sign-in and DSM embedding</td><td>4 and 11 Dec</td></tr>
+            <tr><td>SATS COO + Microsoft AE</td><td>Select partner and agree the MVP statement of work</td><td>18 Dec</td></tr>
+            <tr><td>Partner + SATS SIOC</td><td>Start the MVP build and pilot with one SIOC shift</td><td>11 Jan 2027</td></tr>
+          </tbody>
+        </table>
+        <div class="cta reveal"><a class="btn" href="../" target="_blank" rel="noopener">Open the prototype</a><a class="btn ghost" href="./executive-briefing.html">Executive briefing</a></div>
+        <p class="note reveal">Dates and targets are proposals to confirm with SATS. Fabric ontology and digital twin builder were in preview at the time of the ADS.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="nav">
+    <span id="act"></span>
+    <span class="spacer"></span>
+    <span class="hint">← → to navigate · 2 / 3 / 0 camera · drag to orbit</span>
+    <button id="prev" type="button" aria-label="Previous slide">‹</button>
+    <span id="count" aria-live="polite"></span>
+    <button id="next" type="button" aria-label="Next slide">›</button>
+  </footer>
+  <div class="progress" aria-hidden="true"><i id="bar"></i></div>
+  <script type="module" src="./deck.ts"></script>
+</body>
+</html>

@@ -345,6 +345,54 @@ Optimization approach (practice-aligned): a priority-ordered greedy heuristic wi
 | --- | --- |
 | AT-08 | Given the live baseline or any active scenario, when the user selects Optimize all, then a plan with before/after measures is shown, no limit is exceeded, unresolved items are flagged, and baseline entity values remain unchanged. |
 
+# 18. Resource planning (day / week schedule)
+
+|  |  |
+| --- | --- |
+| **PLAN-001 Day and week resource schedule [Must]** | |
+| A Planning tab shall show what each resource (gates, staff teams and shifts, GSE units, baggage belts, check-in rows) is scheduled for in a selected day or the whole week, as a Gantt chart and as a table. | Acceptance: Switching Day/Week and Gantt/Table keeps the same filters; each row shows its capacity number, utilization and conflicts. |
+
+|  |  |
+| --- | --- |
+| **PLAN-002 Filters, drill-down and conflicts [Must]** | |
+| Users shall filter by resource type, terminal and free-text search, open any bar for its detail, and see overlapping bookings or over-capacity loads flagged. | Acceptance: A double-booked gate is highlighted in both views and counted in the conflict total. |
+
+|  |  |
+| --- | --- |
+| **PLAN-003 Sample data when no roster feed exists [Should]** | |
+| Without a real roster/AODB feed the prototype shall generate a deterministic sample week modelled on Changi (four terminals, about 100 gates, 3-shift SATS / dnata style ground handling, about 1,000 movements a day). | Acceptance: Data is labelled simulated and identical on every fresh profile. Sources: [Singapore Changi Airport (SIN) terminal map](https://worldairportmap.com/airport/SIN); [Infrastructure of Changi Airport](https://en.wikipedia.org/wiki/Infrastructure_of_Changi_Airport). |
+
+# 19. Language switching
+
+|  |  |
+| --- | --- |
+| **I18N-001 Four-language UI [Must]** | |
+| A header toggle shall switch the whole UI between English, Chinese (Simplified), Korean and Japanese, including labels, tooltips, messages, tables, charts, 2D/3D labels and generated explanations (seed, demo, optimizer and planning text). | Acceptance: Switching language changes all visible text without losing selection, filters or scenario state; the choice persists across reloads; missing translations fall back to English. |
+
+# 20. GPS tracking map
+
+|  |  |
+| --- | --- |
+| **GPS-001 Entity tracking every 5 minutes [Must]** | |
+| The Situational view shall offer a GPS mode that tracks aircraft (ADS-B / A-SMGCS), GSE vehicles (vehicle telematics) and staff (handheld GNSS, indoor BLE / Wi-Fi) with one position fix per entity every 5 operational minutes (latitude, longitude, level, speed, heading, accuracy, source, state). | Acceptance: New fixes appear every 5 minutes of operational time; each fix is stored in IndexedDB and exportable as CSV. |
+
+|  |  |
+| --- | --- |
+| **GPS-002 Map layers [Must]** | |
+| Users shall choose a map layer: Overview, Apron / airside, Level 1 arrivals, Level 2 departures or Level 3 transit / gates. Only entities on the chosen level are shown. A Go-to selector jumps to Terminal 1-4 or Jewel. The map layout follows the public Changi map (T3 north, T2 with two south piers, T1 east with angled piers, Jewel in the middle, T4 south-west) and gates are labelled like the public map (e.g. D30). | Acceptance: Switching layers changes the floor features (belts, check-in rows, gate lounges, stands) and the visible entities. |
+
+|  |  |
+| --- | --- |
+| **GPS-003 Google-Maps-style navigation [Must]** | |
+| The map shall support wheel / trackpad zoom around the cursor, drag to pan, pinch zoom, double-click zoom, +/- buttons, reset, zoom to selection, keyboard control, a scale bar and cursor coordinates, with labels revealed as the user zooms in. | Acceptance: Zoom keeps the point under the cursor fixed and is bounded between overview and stand level. |
+
+|  |  |
+| --- | --- |
+| **GPS-004 History and replay [Should]** | |
+| Users shall replay the last 3 hours of fixes with a time slider, see movement trails, search and follow an entity. | Acceptance: Replay shows each entity at its last fix at or before the chosen time; Live returns to the newest fix. |
+
+The map geometry is a schematic of the public [Changi Airport map](https://www.changiairport.com/en/at-changi/map.html) (terminals T1-T4, Jewel, apron, runways), not a survey; production would load the official floor plans / GeoJSON and a real positioning feed.
+
 # Appendix A - Source grounding
 
 Primary reference: SATS Project SPEAR - Business Envisioning Output.pptx, especially slides 3, 4, 7, 8 and 15-17. Supporting architectural reference: SkyFlowAI\_Solution\_Envisioning\_EN.pptx, especially the read-only evidence, coordinated data model, authority, state, reliability and human-control concepts. Requirements not explicitly present in those sources, including browser-only persistence, detailed simulator parameter ranges, normalized prototype state enums, and 2D/3D camera behavior, are design proposals added to satisfy the requested prototype scope.

@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Executive briefing: AI Operations Control Tower for SATS Project SPEAR, business benefit view." />
+  <link rel="icon" href="data:," />
+  <title>Executive briefing · AI Operations Control Tower · SATS Project SPEAR</title>
+  <link rel="stylesheet" href="./deck.css" />
+</head>
+<body>
+  <canvas id="scene" aria-label="Animated 3D airport backdrop. Drag to rotate the camera." role="img"></canvas>
+  <div id="labels" aria-hidden="true"></div>
+  <div class="flash" id="flash" aria-hidden="true"></div>
+
+  <header class="hud">
+    <a class="brand" href="../">‹ Back to prototype</a>
+    <span class="deck-title">SATS Project SPEAR · Executive briefing</span>
+    <div class="hud-r">
+      <div class="seg" role="group" aria-label="Camera mode">
+        <button data-mode="auto" aria-pressed="true" title="Camera follows the story (0)">Auto</button>
+        <button data-mode="2d" aria-pressed="false" title="Top-down 2D view (2)">2D</button>
+        <button data-mode="3d" aria-pressed="false" title="Perspective 3D view (3)">3D</button>
+      </div>
+      <a class="pill" href="./cio-cto-briefing.html">CIO / CTO briefing →</a>
+      <button class="pill" id="fs" type="button">Full screen</button>
+    </div>
+  </header>
+
+  <main id="deck">
+    <!-- 1 -->
+    <section class="slide layout-hero" data-cam="hero" data-fx="gse" data-act="Executive briefing" data-labels="off" aria-label="Title">
+      <div class="content">
+        <p class="eyebrow reveal">SATS Project SPEAR · AI Operations Control Tower</p>
+        <h1 class="mega reveal">One airport.<br /><span class="grad">One picture.</span></h1>
+        <p class="lede reveal">From swivel-chair screens to <b>proactive operations</b>. Your best people get a better view, and more time.</p>
+        <div class="chips reveal"><span>Business Envisioning</span><span>Solution Envisioning</span><span>Architecture Design</span><span>Working prototype</span></div>
+      </div>
+    </section>
+
+    <!-- 2 -->
+    <section class="slide layout-left" data-cam="wide" data-act="Why act" aria-label="How do we improve on great">
+      <div class="content">
+        <p class="eyebrow reveal">The question SPEAR asks</p>
+        <h2 class="big reveal">How do we improve on <span class="grad">great?</span></h2>
+        <p class="lede reveal">SATS already runs world-class ground handling at Changi. Project SPEAR asks what must be true for that to hold in <b>2028</b>.</p>
+        <div class="cards reveal">
+          <div class="card"><h3>Evolutionary</h3><p>Not revolutionary. Build on what works.</p></div>
+          <div class="card"><h3>Analytics-driven</h3><p>Decisions grounded in live operational data.</p></div>
+          <div class="card hl"><h3>Surround, not replace</h3><p>Today's systems stay the systems of record.</p></div>
+        </div>
+        <p class="quote reveal">“This is not about replacing what works.”</p>
+      </div>
+    </section>
+
+    <!-- 3 -->
+    <section class="slide layout-wide" data-cam="top" data-fx="gse" data-act="Why act" aria-label="Five pressures">
+      <div class="content">
+        <p class="eyebrow amber reveal">Five SPEAR problem statements</p>
+        <h2 class="big reveal">Five pressures. <span class="grad-warm">One apron.</span></h2>
+        <div class="cards reveal" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">
+          <div class="card"><span class="tag">01 · Manpower</span><h3>Demand outgrows the workforce</h3><p>Volumes grow faster than the people available.</p></div>
+          <div class="card"><span class="tag">02 · Cost & time</span><h3>Disruption is expensive</h3><p>Overtime, delays and SLA penalties.</p></div>
+          <div class="card"><span class="tag">03 · Expectations</span><h3>Customers expect foresight</h3><p>Airlines, CAG and passengers want proactive updates.</p></div>
+          <div class="card"><span class="tag">04 · Throughput</span><h3>Same apron, more flights</h3><p>Bays, stands and fleet are fixed constraints.</p></div>
+          <div class="card"><span class="tag">05 · Experience</span><h3>Know-how is concentrated</h3><p>An ageing workforce; expertise held by a few controllers.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 -->
+    <section class="slide layout-hero" data-cam="low" data-act="Why act" data-labels="off" aria-label="Cost of doing nothing">
+      <div class="content">
+        <p class="eyebrow red reveal">The cost of doing nothing</p>
+        <h2 class="mega reveal">Experts become<br /><span class="grad-warm">the bottleneck.</span></h2>
+        <p class="lede reveal">Disruption keeps cascading into delays and SLA misses, while scarce, experienced staff carry the whole load.</p>
+      </div>
+    </section>
+
+    <!-- 5 -->
+    <section class="slide layout-left" data-cam="storm" data-fx="storm delays conflicts" data-act="A day today" aria-label="Thunderstorm over the apron today">
+      <div class="content">
+        <p class="eyebrow red reveal">A day today · Thunderstorm over the apron</p>
+        <h2 class="big reveal">The storm hits. <span class="grad-warm">Who knows?</span></h2>
+        <div class="stats reveal">
+          <div class="stat"><b class="grad-warm">12</b><span>delayed arrivals</span></div>
+          <div class="stat"><b class="grad-warm">4</b><span>gate conflicts</span></div>
+          <div class="stat"><b>0</b><span>shared picture</span></div>
+        </div>
+        <ul class="list reveal">
+          <li><b>SIOC, BU Ops and Ground Ops</b> each see part of the picture.</li>
+          <li>DSM, DCT, G-Ops and Mosaic are watched <b>side by side</b>.</li>
+          <li>Coordination runs on <b>walkies, WhatsApp and phones</b>.</li>
+          <li>Exceptions are spotted late, and <b>ownership is unclear</b>.</li>
+        </ul>
+        <p class="quote reveal">How long before the right person knows, and acts?</p>
+      </div>
+    </section>
+
+    <!-- 6 -->
+    <section class="slide layout-wide" data-cam="top" data-act="Act 1 · Business Envisioning" aria-label="Business envisioning use cases">
+      <div class="content">
+        <p class="eyebrow reveal">Act 1 · Business Envisioning at the Innovation Hub</p>
+        <h2 class="big reveal">Five use cases. <span class="grad">Scored together.</span></h2>
+        <p class="lede reveal" style="max-width:80ch">The COO, Control Tower Lead, Customer Service, Fleet / Asset and Data leads wrote a <b>2028 cover story</b>, then scored each idea for <b>B</b>usiness value, e<b>X</b>perience and <b>T</b>echnical feasibility.</p>
+        <table class="tbl reveal">
+          <thead><tr><th>Use case</th><th>Value</th><th>Feasibility</th><th>Quadrant</th><th>Lead</th></tr></thead>
+          <tbody>
+            <tr><td>1 · Unified operational data foundation</td><td><span class="meter" style="--v:3.2"><i></i>3.2</span></td><td><span class="meter" style="--v:3.6"><i></i>3.6</span></td><td><span class="q win">Quick win</span></td><td>Data Lead</td></tr>
+            <tr class="hl"><td>2 · AI operations control tower</td><td><span class="meter" style="--v:4.2"><i></i>4.2</span></td><td><span class="meter" style="--v:4.1"><i></i>4.1</span></td><td><span class="q win">Quick win</span></td><td>Control Tower Lead</td></tr>
+            <tr><td>3 · Disruption prediction and recovery</td><td><span class="meter" style="--v:4.0"><i></i>4.0</span></td><td><span class="meter" style="--v:2.9"><i></i>2.9</span></td><td><span class="q inv">Invest</span></td><td>COO</td></tr>
+            <tr><td>4 · Ops copilot and proactive airline updates</td><td><span class="meter" style="--v:3.6"><i></i>3.6</span></td><td><span class="meter" style="--v:3.8"><i></i>3.8</span></td><td><span class="q win">Quick win</span></td><td>Customer Service Lead</td></tr>
+            <tr><td>5 · Connected GSE and assets</td><td><span class="meter" style="--v:2.8"><i></i>2.8</span></td><td><span class="meter" style="--v:3.4"><i></i>3.4</span></td><td><span class="q tl">Test and learn</span></td><td>Fleet / Asset Lead</td></tr>
+          </tbody>
+        </table>
+        <p class="note reveal">BXT scores 1–5 are proposals to validate with SATS.</p>
+      </div>
+    </section>
+
+    <!-- 7 -->
+    <section class="slide layout-hero" data-cam="tower" data-act="Act 1 · Business Envisioning" aria-label="Start with the control tower">
+      <div class="content">
+        <p class="eyebrow reveal">Highest value · most feasible</p>
+        <p class="stat-hero grad reveal">4.2 · 4.1</p>
+        <h2 class="mid reveal">The control tower is where we start.</h2>
+        <p class="lede reveal">The data foundation behind it also unlocks the copilot, disruption prediction and connected GSE.</p>
+      </div>
+    </section>
+
+    <!-- 8 -->
+    <section class="slide layout-left" data-cam="pier" data-fx="gse" data-act="Act 2 · Solution Envisioning" aria-label="Top floor to shop floor">
+      <div class="content">
+        <p class="eyebrow purple reveal">Act 2 · Solution Envisioning</p>
+        <h2 class="big reveal">Top floor to <span class="grad">shop floor.</span></h2>
+        <p class="lede reveal">One live view of flights, turnarounds, staff, equipment and SLA risk, shaped for each level of the operation.</p>
+        <div class="cards reveal">
+          <div class="card"><span class="tag">COO</span><h3>Executive scorecard</h3><p>Where risk concentrates, and the KPIs that matter.</p></div>
+          <div class="card"><span class="tag">SIOC</span><h3>Board and exceptions</h3><p>What needs intervention now, and who owns it.</p></div>
+          <div class="card"><span class="tag">BU Ops · Ramp</span><h3>My flights, my exceptions</h3><p>On mobile, in Teams, at the stand.</p></div>
+        </div>
+        <p class="quote reveal">Exceptions go to <span class="grad">people</span>, not screens.</p>
+      </div>
+    </section>
+
+    <!-- 9 -->
+    <section class="slide layout-right" data-cam="wide" data-fx="flow" data-act="Act 2 · Solution Envisioning" aria-label="Surround, not replace">
+      <div class="content">
+        <p class="eyebrow purple reveal">Design principle</p>
+        <h2 class="big reveal">Surround, <span class="grad">not replace.</span></h2>
+        <p class="lede reveal">GroundStar, G-Ops, Mosaic, DSM, iFleet, BRS and the CAG feeds <b>stay the systems of record</b>. The control tower reads from them first, and writes back later.</p>
+        <ul class="list reveal">
+          <li><b>Protects existing investment</b> and the people who run it.</li>
+          <li><b>One trusted source of operational truth</b> for every view, prediction and report.</li>
+          <li><b>Integrate once</b>, instead of rebuilding for every new initiative.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 10 -->
+    <section class="slide layout-wide" data-cam="hero" data-fx="resolve" data-act="Act 2 · Outcomes" aria-label="Outcomes we commit to measure">
+      <div class="content">
+        <p class="eyebrow green reveal">Outcomes we commit to measure</p>
+        <h2 class="big reveal">Minutes, <span class="grad-green">not hours.</span></h2>
+        <div class="stats reveal">
+          <div class="stat"><b class="grad-green">&lt; 5 min</b><span>exception detection-to-action<br />MVP exit criterion</span></div>
+          <div class="stat"><b class="grad-green">&lt; 2 min</b><span>exception acknowledged by its owner</span></div>
+          <div class="stat"><b class="grad">100%</b><span>priority exceptions tracked to closure in one flow</span></div>
+          <div class="stat"><b class="grad">−40%</b><span>status calls and messages between SIOC and BU Ops</span></div>
+          <div class="stat"><b class="grad-cool">−50%</b><span>manual data consolidation for daily reports</span></div>
+        </div>
+        <div class="chips reveal"><span>Fewer delays and SLA penalties</span><span>Less disruption overtime</span><span>Scarce experts used where they matter</span><span>More throughput, same apron</span><span>Better airline experience</span></div>
+        <p class="note reveal">Proposed key results. Baselines to be confirmed with SATS; SLA adherence uplift for priority airlines is [x] pts.</p>
+      </div>
+    </section>
+
+    <!-- 11 -->
+    <section class="slide layout-left" data-cam="layers" data-fx="layers" data-act="Act 3 · Architecture Design" aria-label="Two safe steps">
+      <div class="content">
+        <p class="eyebrow teal reveal">Act 3 · Architecture Design Session</p>
+        <h2 class="big reveal">Built in <span class="grad">two safe steps.</span></h2>
+        <div class="cards c2 reveal">
+          <div class="card"><span class="tag">Horizon 1 · Now</span><h3>Prototype in a browser</h3><p>Realistic Changi-like data, no connection to live operations, so no operational risk.</p></div>
+          <div class="card hl"><span class="tag">Horizon 2 · Jan 2027</span><h3>Live MVP</h3><p>Same screens on live feeds: one terminal, three feeds, five exception rules, one SIOC shift.</p></div>
+        </div>
+        <div class="timeline reveal">
+          <div><b>Nov–Dec 2026</b>Design and prototype</div>
+          <div><b>Jan–Mar 2027</b>MVP</div>
+          <div><b>Apr–Jun 2027</b>All terminals, write-back, ops copilot</div>
+          <div><b>H2 2027</b>Prediction and recovery options</div>
+        </div>
+        <p class="quote reveal">Every step is reversible, and earns the next.</p>
+      </div>
+    </section>
+
+    <!-- 12 -->
+    <section class="slide layout-right" data-cam="pier" data-fx="whatif delays" data-act="Act 4 · Prototype" aria-label="Working prototype">
+      <div class="content">
+        <p class="eyebrow green reveal">Act 4 · Prototyping</p>
+        <h2 class="big reveal">Not a slide. <span class="grad">Working software.</span></h2>
+        <ul class="list reveal">
+          <li><b>Role lenses</b>: Control Tower Lead to Ramp Lead, same facts, different focus.</li>
+          <li><b>Linked 2D and 3D</b>: select one delayed flight, and its stand, tasks, GSE and exceptions light up everywhere.</li>
+          <li><b>What-if</b>: a 45-minute late inbound and a weather stoppage, compared with the untouched baseline.</li>
+          <li><b>One-click optimiser</b>: re-plans stands, GSE and crew within SLA priorities and limits, and shows its reasons.</li>
+          <li><b>Day and week planning</b>: gates, teams, GSE and belts, with conflicts flagged.</li>
+        </ul>
+        <div class="cta reveal"><a class="btn" href="../" target="_blank" rel="noopener">Open the prototype</a></div>
+        <p class="quote reveal">Your controllers can try it next week.</p>
+      </div>
+    </section>
+
+    <!-- 13 -->
+    <section class="slide layout-left" data-cam="stand" data-fx="conflicts resolve" data-act="Act 4 · Prototype" aria-label="The thunderstorm handled">
+      <div class="content">
+        <p class="eyebrow green reveal">Same storm · with the control tower</p>
+        <h2 class="big reveal">The thunderstorm, <span class="grad-green">handled.</span></h2>
+        <ul class="list reveal">
+          <li><b>Sense</b>: flight, turnaround, task, GSE and weather events stream in.</li>
+          <li><b>Detect</b>: the 4 gate conflicts are flagged and ranked by SLA and connection time.</li>
+          <li><b>Route and notify</b>: each owner receives a card in Teams, on mobile.</li>
+          <li><b>Act and audit</b>: acknowledged, assigned, closed and logged to improve the rules.</li>
+        </ul>
+        <div class="stats reveal">
+          <div class="stat"><b class="grad-green">&lt; 5 min</b><span>from detection to action</span></div>
+          <div class="stat"><b class="grad-green">4 / 4</b><span>conflicts with a named owner</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 14 -->
+    <section class="slide layout-wide" data-cam="wide" data-act="Confidence" aria-label="Risks we are managing">
+      <div class="content">
+        <p class="eyebrow reveal">Risks we are managing for you</p>
+        <h2 class="big reveal">Confidence, <span class="grad">by design.</span></h2>
+        <table class="tbl reveal">
+          <thead><tr><th>Concern</th><th>How it is addressed</th></tr></thead>
+          <tbody>
+            <tr><td>“AI will make decisions for us.”</td><td>People approve every action. Recommendations are explainable and editable, with a manual fallback.</td></tr>
+            <tr><td>Alert fatigue</td><td>Only five priority rules in release 1, ranked by SLA, with owners named by BU and role.</td></tr>
+            <tr><td>Workforce trust</td><td>Assets are tracked, not people. The design builds in the controllers' expertise.</td></tr>
+            <tr><td>Disruption to running operations</td><td>Read-only first. Write-back to GroundStar and G-Ops only in phase 2, after the pilot.</td></tr>
+            <tr><td>Data leaving Singapore</td><td>Data stays in-region; residency is validated before phase 2.</td></tr>
+            <tr><td>“We already have DSM.”</td><td>This improves DSM and is embedded in it, rather than competing with it.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 15 -->
+    <section class="slide layout-hero" data-cam="hero" data-fx="flow" data-act="Why Microsoft" data-labels="off" aria-label="Why Microsoft">
+      <div class="content">
+        <p class="eyebrow reveal">Why Microsoft</p>
+        <h2 class="mega reveal">Where your people<br /><span class="grad">already work.</span></h2>
+        <p class="lede reveal">One partner and one platform, from the first quick win to AI at scale.</p>
+      </div>
+    </section>
+
+    <!-- 16 -->
+    <section class="slide layout-wide" data-cam="tower" data-fx="flow" data-act="Why Microsoft" aria-label="Six reasons">
+      <div class="content">
+        <p class="eyebrow reveal">Why Microsoft · the business view</p>
+        <h2 class="big reveal">Six reasons to <span class="grad">move now.</span></h2>
+        <div class="cards c3 reveal">
+          <div class="card"><div class="num">1</div><h3>Adoption without friction</h3><p>Alerts and actions arrive in Microsoft Teams; dashboards sit inside DSM through Power BI. Little new to learn.</p></div>
+          <div class="card"><div class="num">2</div><h3>One platform, quick win to AI</h3><p>Microsoft Fabric powers the control tower, the copilot, prediction and connected GSE. Pay for integration once.</p></div>
+          <div class="card"><div class="num">3</div><h3>Speed to value, with proof</h3><p>From workshop to scored use cases, architecture and a working prototype in weeks. MVP value in months.</p></div>
+          <div class="card"><div class="num">4</div><h3>AI you can trust</h3><p>Human-in-the-loop, Responsible AI practices, Entra ID and Purview, with data in Azure's Singapore region.</p></div>
+          <div class="card"><div class="num">5</div><h3>A partner for the journey</h3><p>Innovation Hub, account team, CSAM, Data and AI specialists, and a partner ecosystem. Proven aviation patterns from SPEAR.</p></div>
+          <div class="card"><div class="num">6</div><h3>Evolution, not a bet</h3><p>Surrounds SATS's existing systems, protecting today's investment while adding new capability.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 17 -->
+    <section class="slide layout-hero" data-cam="top" data-fx="resolve" data-act="The ask" aria-label="The ask">
+      <div class="content">
+        <p class="eyebrow green reveal">The ask</p>
+        <h2 class="big reveal">Three decisions. <span class="grad">One start date.</span></h2>
+        <div class="cards c3 reveal">
+          <div class="card hl"><span class="tag">By 13 Nov · Control Tower Lead</span><h3>Confirm MVP scope</h3><p>Terminal, feeds and five rules, plus named owners. This unlocks everything else.</p></div>
+          <div class="card"><span class="tag">By 18 Dec · COO + Microsoft AE</span><h3>Sponsor the MVP</h3><p>Agree the partner and the statement of work.</p></div>
+          <div class="card"><span class="tag">11 Jan 2027 · Partner + SIOC</span><h3>Start the build</h3><p>Pilot with one SIOC shift.</p></div>
+        </div>
+        <p class="quote reveal">Let's make the thunderstorm a <span class="grad-green">5-minute event</span>, not a 50-call event.</p>
+        <div class="cta reveal"><a class="btn" href="../" target="_blank" rel="noopener">Open the prototype</a><a class="btn ghost" href="./cio-cto-briefing.html">CIO / CTO briefing</a></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="nav">
+    <span id="act"></span>
+    <span class="spacer"></span>
+    <span class="hint">← → to navigate · 2 / 3 / 0 camera · drag to orbit</span>
+    <button id="prev" type="button" aria-label="Previous slide">‹</button>
+    <span id="count" aria-live="polite"></span>
+    <button id="next" type="button" aria-label="Next slide">›</button>
+  </footer>
+  <div class="progress" aria-hidden="true"><i id="bar"></i></div>
+  <script type="module" src="./deck.ts"></script>
+</body>
+</html>

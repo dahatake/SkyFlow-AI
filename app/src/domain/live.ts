@@ -1,4 +1,6 @@
 import { fmt } from './seed';
+import { tr } from '../i18n';
+import { trData } from '../i18n/data';
 import type { ActionItem, Baseline, FlightStatus, OpException, Severity, SlaLevel, TaskState } from './types';
 
 /**
@@ -128,11 +130,11 @@ export function applyLive(seed: Baseline, tick: number): Baseline {
     const task = b.tasks.find((x) => x.turnaroundId === ta.id && x.status !== 'Complete') ?? b.tasks.find((x) => x.turnaroundId === ta.id)!;
     const type = EX_TYPES[h('type', k) % EX_TYPES.length];
     const ex: OpException = {
-      id: `ex-live-${k + 1}`, type, severity: sevOf(ta.slaRisk), detectedAt: at, source: `${SOURCES[h('src', k) % 4]} (live feed)`, status: 'New',
+      id: `ex-live-${k + 1}`, type, severity: sevOf(ta.slaRisk), detectedAt: at, source: tr('{src} (live feed)', { src: SOURCES[h('src', k) % 4] }), status: 'New',
       affectedEntityIds: [f.id, ta.id, task.id, f.standId, ...(task.assetId ? [task.assetId] : [])],
-      explanation: `${type} on ${f.flightNo}: detected by live feed at ${fmt(at)}.`, nextAction: 'Assign an owner', targetTime: at + 20,
+      explanation: tr('{type} on {flight}: detected by live feed at {time}.', { type: trData(type), flight: f.flightNo, time: fmt(at) }), nextAction: trData('Assign an owner'), targetTime: at + 20,
     };
-    const act: ActionItem = { id: `ac-live-${k + 1}`, exceptionId: ex.id, taskId: task.id, leadStakeholderId: 'u-lead', status: 'New', targetTime: ex.targetTime, audit: [`${fmt(at)} detected by ${ex.source}`] };
+    const act: ActionItem = { id: `ac-live-${k + 1}`, exceptionId: ex.id, taskId: task.id, leadStakeholderId: 'u-lead', status: 'New', targetTime: ex.targetTime, audit: [tr('{time} detected by {source}', { time: fmt(at), source: ex.source })] };
     b.exceptions.push(ex);
     b.actions.push(act);
   }
@@ -144,21 +146,21 @@ export function diffLive(prev: Baseline, next: Baseline): string[] {
   const out: string[] = [];
   next.flights.forEach((f) => {
     const p = prev.flights.find((x) => x.id === f.id);
-    if (p && p.status !== f.status) out.push(`${f.flightNo} ${p.status} → ${f.status}`);
+    if (p && p.status !== f.status) out.push(tr('{flight} {from} → {to}', { flight: f.flightNo, from: tr(p.status), to: tr(f.status) }));
   });
   next.turnarounds.forEach((ta) => {
     const p = prev.turnarounds.find((x) => x.id === ta.id);
-    if (p && p.slaRisk !== ta.slaRisk) out.push(`${next.flights.find((f) => f.id === ta.flightId)!.flightNo} SLA risk ${p.slaRisk} → ${ta.slaRisk}`);
+    if (p && p.slaRisk !== ta.slaRisk) out.push(tr('{flight} SLA risk {from} → {to}', { flight: next.flights.find((f) => f.id === ta.flightId)!.flightNo, from: tr(p.slaRisk), to: tr(ta.slaRisk) }));
   });
   const blockedNow = next.tasks.filter((k) => k.status === 'Blocked').length, blockedBefore = prev.tasks.filter((k) => k.status === 'Blocked').length;
-  if (blockedNow !== blockedBefore) out.push(`Blocked tasks ${blockedBefore} → ${blockedNow}`);
+  if (blockedNow !== blockedBefore) out.push(tr('Blocked tasks {from} → {to}', { from: blockedBefore, to: blockedNow }));
   const doneNow = next.tasks.filter((k) => k.status === 'Complete').length, doneBefore = prev.tasks.filter((k) => k.status === 'Complete').length;
-  if (doneNow !== doneBefore) out.push(`${doneNow - doneBefore} task(s) completed (${doneNow}/${next.tasks.length})`);
+  if (doneNow !== doneBefore) out.push(tr('{n} task(s) completed ({done}/{total})', { n: doneNow - doneBefore, done: doneNow, total: next.tasks.length }));
   next.assets.forEach((a) => {
     const p = prev.assets.find((x) => x.id === a.id);
-    if (p && p.status !== a.status && (a.status === 'Unavailable' || p.status === 'Unavailable')) out.push(`${a.type} ${a.id} ${p.status} → ${a.status}`);
+    if (p && p.status !== a.status && (a.status === 'Unavailable' || p.status === 'Unavailable')) out.push(tr('{type} {id} {from} → {to}', { type: a.type, id: a.id, from: tr(p.status), to: tr(a.status) }));
   });
-  next.exceptions.filter((e) => !prev.exceptions.some((x) => x.id === e.id)).forEach((e) => out.push(`New exception: ${e.type} (${e.severity}) from ${e.source}`));
+  next.exceptions.filter((e) => !prev.exceptions.some((x) => x.id === e.id)).forEach((e) => out.push(tr('New exception: {type} ({severity}) from {source}', { type: trData(e.type), severity: trData(e.severity), source: e.source })));
   return out;
 }
 

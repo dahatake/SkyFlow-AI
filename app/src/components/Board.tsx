@@ -2,6 +2,8 @@ import { fmt } from '../domain/seed';
 import { useState } from 'react';
 import { useOps } from '../storage/store';
 import { Badge, Tag } from './ui';
+import { tr } from '../i18n';
+import { trData } from '../i18n/data';
 import { ExceptionPipeline, Gantt, TurnaroundPipeline, ViewSwitch, type ViewMode } from './Views';
 
 export function Board({ defaultView = 'table' }: { defaultView?: ViewMode }) {
@@ -11,14 +13,14 @@ export function Board({ defaultView = 'table' }: { defaultView?: ViewMode }) {
     .slice()
     .sort((a, b) => a.sta - b.sta);
   return (
-    <section className="card" aria-label="Live turnaround board">
-      <div className="row between"><h2>Live turnaround board <small>({rows.length})</small></h2><ViewSwitch value={mode} onChange={setMode} modes={['table', 'gantt', 'pipeline']} /></div>
+    <section className="card"     aria-label={tr('Live turnaround board')}>
+          <div className="row between"><h2>{tr('Live turnaround board')} <small>({rows.length})</small></h2><ViewSwitch value={mode} onChange={setMode} modes={['table', 'gantt', 'pipeline']} /></div>
       {mode === 'gantt' && <Gantt />}
       {mode === 'pipeline' && <TurnaroundPipeline />}
       {mode === 'table' && <div className="scroll">
         <table>
           <thead>
-            <tr><th>Flight</th><th>Airline</th><th>Stand</th><th>Status</th><th>Turnaround</th><th>SLA risk</th><th>Milestone</th><th>Owner</th><th>Exc.</th></tr>
+            <tr><th>{tr('Flight')}</th><th>{tr('Airline')}</th><th>{tr('Stand')}</th><th>{tr('Status')}</th><th>{tr('Turnaround')}</th><th>{tr('SLA risk')}</th><th>{tr('Milestone')}</th><th>{tr('Owner')}</th><th>{tr('Exc.')}</th></tr>
           </thead>
           <tbody>
             {rows.map((f) => {
@@ -34,18 +36,18 @@ export function Board({ defaultView = 'table' }: { defaultView?: ViewMode }) {
                   <td><strong>{f.flightNo}</strong> <small>{f.origin}→{f.destination}</small></td>
                   <td>{view.airlineOf(f.id)?.code}</td>
                   <td>{view.standOf(f)}{view.moved(f) && <> <Tag simulated />↔{f.standId}</>}</td>
-                  <td>{f.status}{delay ? <> <Tag simulated />+{delay}m</> : null}</td>
-                  <td>{ta.phase}</td>
+                  <td>{tr(f.status)}{delay ? <> <Tag simulated />+{delay}m</> : null}</td>
+                                    <td>{tr(ta.phase)}</td>
                   <td><Badge level={view.turnRisk(ta.id)} /></td>
-                  <td>{ms ? `${ms.type} ${fmt(ms.forecastTime + (view.impact.milestoneShift[ms.id] ?? 0))}` : '—'}</td>
+                                    <td>{ms ? `${trData(ms.type)} ${fmt(ms.forecastTime + (view.impact.milestoneShift[ms.id] ?? 0))}` : '—'}</td>
                   <td>{view.ownerName(task?.ownerId)}</td>
-                  <td>{ex.length ? <span title={ex.map((e) => e.type).join(', ')}>⚠ {ex.length}</span> : '–'}</td>
+                                    <td>{ex.length ? <span title={ex.map((e) => trData(e.type)).join(', ')}>⚠ {ex.length}</span> : '–'}</td>
                 </tr>
               );
             })}
           </tbody>
         </table>
-        {!rows.length && <p className="muted">No flights match the current filters.</p>}
+        {!rows.length && <p className="muted">{tr('No flights match the current filters.')}</p>}
       </div>}
     </section>
   );
@@ -56,8 +58,8 @@ export function ExceptionQueue({ compact = false, defaultView = 'list' }: { comp
   const [mode, setMode] = useState<ViewMode>(defaultView);
   const list = view.exceptions;
   return (
-    <section className="card" aria-label="Exception and ownership queue">
-      <div className="row between"><h2>Exceptions &amp; ownership <small>({list.length})</small></h2><ViewSwitch value={mode} onChange={setMode} modes={['list', 'pipeline']} /></div>
+    <section className="card"     aria-label={tr('Exception and ownership queue')}>
+          <div className="row between"><h2>{tr('Exceptions & ownership')} <small>({list.length})</small></h2><ViewSwitch value={mode} onChange={setMode} modes={['list', 'pipeline']} /></div>
       {mode === 'pipeline' && <ExceptionPipeline />}
       {mode === 'list' && <ul className="list">
         {list.slice(0, compact ? 6 : 99).map((e) => {
@@ -65,18 +67,18 @@ export function ExceptionQueue({ compact = false, defaultView = 'list' }: { comp
           return (
             <li key={e.id} tabIndex={0} className={selection?.id === e.id ? 'sel' : related.has(e.id) ? 'rel' : ''}
               onClick={() => select({ kind: 'exception', id: e.id })} onKeyDown={(ev) => ev.key === 'Enter' && select({ kind: 'exception', id: e.id })}>
-              <div><Badge level={sev} kind="sev" /> <strong>{e.type}</strong> {view.changed(e.id) && <Tag simulated />}</div>
-              <div className="muted">{e.explanation}</div>
+              <div><Badge level={sev} kind="sev" />               <strong>{trData(e.type)}</strong> {view.changed(e.id) && <Tag simulated />}</div>
+              <div className="muted">{trData(e.explanation)}</div>
               <div className="muted">
-                Owner: <strong className={view.ownerIdOf(e) ? '' : 'unassigned'}>{view.ownerName(view.ownerIdOf(e))}</strong> · {view.statusOf(e)} · detected {fmt(e.detectedAt)} ({e.source}) · next: {e.nextAction} by {fmt(e.targetTime)}
+                              {tr('Owner:')} <strong className={view.ownerIdOf(e) ? '' : 'unassigned'}>{view.ownerName(view.ownerIdOf(e))}</strong> · {tr(view.statusOf(e))} · {tr('detected {time} ({source}) · next: {action} by {target}', { time: fmt(e.detectedAt), source: trData(e.source), action: trData(e.nextAction), target: fmt(e.targetTime) })}
               </div>
-              <div className="muted">Affects: {e.affectedEntityIds.slice(0, 4).join(', ')}</div>
+                            <div className="muted">{tr('Affects:')} {e.affectedEntityIds.slice(0, 4).join(', ')}</div>
             </li>
           );
         })}
       </ul>}
-      {!list.length && <p className="muted">No exceptions match.</p>}
-      {role === 'Observer' && <p className="muted">Read-only lens.</p>}
+                    {!list.length && <p className="muted">{tr('No exceptions match.')}</p>}
+                    {role === 'Observer' && <p className="muted">{tr('Read-only lens.')}</p>}
     </section>
   );
 }

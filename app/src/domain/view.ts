@@ -1,6 +1,8 @@
 import type { AssetState, Baseline, ExceptionState, Impact, OpException, Scenario, Severity, SlaLevel, TaskState } from './types';
 import { SEVERITY_ORDER, SLA_ORDER } from './types';
 import { emptyImpact } from './scenario';
+import { tr } from '../i18n';
+import { trData } from '../i18n/data';
 
 export type SimMode = 'baseline' | 'scenario' | 'difference';
 
@@ -36,7 +38,7 @@ export class OpsView {
   statusOf(e: OpException): ExceptionState { return this.wf[e.id]?.status ?? e.status; }
   ownerIdOf(e: OpException): string | undefined { const w = this.wf[e.id]; return w && 'ownerId' in w ? w.ownerId : e.ownerId; }
 
-  ownerName(id?: string) { return id ? this.b.stakeholders.find((s) => s.id === id)?.displayName ?? id : 'Unassigned'; }
+  ownerName(id?: string) { return id ? trData(this.b.stakeholders.find((s) => s.id === id)?.displayName ?? id) : tr('Unassigned'); }
   airlineOf(flightId: string) { return this.b.airlines.find((a) => a.id === this.b.flights.find((f) => f.id === flightId)?.airlineId); }
 
   flightMatches = (id: string): boolean => {
@@ -117,13 +119,13 @@ export class OpsView {
     const ex = this.exceptions;
     const open = this.b.actions.filter((a) => ex.some((e) => e.id === a.exceptionId));
     return [
-      { key: 'volume', label: 'Operational volume', value: flights.length, ids: flights.map((f) => f.id) },
-      { key: 'risk', label: 'Flights at risk', value: atRisk.length, ids: atRisk.map((f) => f.id) },
-      { key: 'exceptions', label: 'Active exceptions', value: ex.length, ids: ex.flatMap((e) => e.affectedEntityIds.filter((i) => i.startsWith('fl-'))) },
-      { key: 'sla', label: 'SLA risk', value: slaRisk.length, ids: slaRisk.map((t) => t.flightId) },
-      { key: 'milestones', label: 'Delayed milestones', value: delayed.length, ids: [...new Set(delayed.map((m) => this.b.turnarounds.find((t) => t.id === m.turnaroundId)!.flightId))] },
-      { key: 'gse', label: 'GSE avail / engaged', value: `${avail.length} / ${engaged.length}`, ids: [] as string[] },
-      { key: 'actions', label: 'Open owner actions', value: open.length, ids: open.flatMap((a) => this.b.exceptions.find((e) => e.id === a.exceptionId)!.affectedEntityIds.filter((i) => i.startsWith('fl-'))) },
+      { key: 'volume', label: tr('Operational volume'), value: flights.length, ids: flights.map((f) => f.id) },
+      { key: 'risk', label: tr('Flights at risk'), value: atRisk.length, ids: atRisk.map((f) => f.id) },
+      { key: 'exceptions', label: tr('Active exceptions'), value: ex.length, ids: ex.flatMap((e) => e.affectedEntityIds.filter((i) => i.startsWith('fl-'))) },
+      { key: 'sla', label: tr('SLA risk'), value: slaRisk.length, ids: slaRisk.map((t) => t.flightId) },
+      { key: 'milestones', label: tr('Delayed milestones'), value: delayed.length, ids: [...new Set(delayed.map((m) => this.b.turnarounds.find((t) => t.id === m.turnaroundId)!.flightId))] },
+      { key: 'gse', label: tr('GSE avail / engaged'), value: `${avail.length} / ${engaged.length}`, ids: [] as string[] },
+      { key: 'actions', label: tr('Open owner actions'), value: open.length, ids: open.flatMap((a) => this.b.exceptions.find((e) => e.id === a.exceptionId)!.affectedEntityIds.filter((i) => i.startsWith('fl-'))) },
     ];
   }
 }

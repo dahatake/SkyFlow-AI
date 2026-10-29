@@ -1,3 +1,5 @@
+import { tr } from '../i18n/core';
+import { trData } from '../i18n/data';
 import { demoById } from './demo';
 import type { Scenario, TaskStatus } from './types';
 
@@ -31,9 +33,9 @@ export function deriveTasks(sc: Scenario | null | undefined, fallbackNow: number
       const id = `${d.id}:${opt.id}:${i}`;
       const status = sc.taskStatus?.[id] ?? 'Todo';
       out.push({
-        id, decisionId: d.id, optionId: opt.id, decisionTitle: d.title,
-        what: t.what, who: t.who, where: t.where, how: t.how, howMuch: t.howMuch,
-        why: `${d.title}: ${opt.detail} Trade-off: ${opt.tradeoff}`,
+        id, decisionId: d.id, optionId: opt.id,         decisionTitle: trData(d.title),
+                what: trData(t.what), who: t.who, where: trData(t.where), how: trData(t.how), howMuch: trData(t.howMuch),
+                why: tr('{title}: {detail} Trade-off: {tradeoff}', { title: trData(d.title), detail: trData(opt.detail), tradeoff: trData(opt.tradeoff) }),
         when: { start: base + t.start, due: base + t.start + t.dur },
         priority: t.priority, status, progress: PROGRESS[status], by: rec.by,
       });

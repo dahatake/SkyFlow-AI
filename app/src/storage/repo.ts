@@ -1,10 +1,11 @@
-import { openDB, idbGetAll, idbPut, idbDelete, idbClear, idbGet } from './idb';
+import { openDB, idbGetAll, idbPut, idbPutMany, idbDelete, idbClear, idbGet } from './idb';
 import { getProvider } from '../data/provider';
+import type { GpsFix } from '../domain/gps';
 import type { AuditEvent, Baseline, DiagEvent, Scenario } from '../domain/types';
 
 const PREF_KEY = 'aoct.prefs';
 
-export interface Prefs { role: string; theme: 'light' | 'dark'; view: '2d' | '3d'; layers: Record<string, boolean>; panel: boolean }
+export interface Prefs { role: string; theme: 'light' | 'dark'; view: '2d' | '3d' | 'gps'; layers: Record<string, boolean>; panel: boolean }
 export const defaultPrefs: Prefs = {
   role: 'Control Tower Lead', theme: 'light', view: '2d', panel: true,
   layers: { flights: true, stands: true, milestones: true, tasks: true, staff: true, assets: true, sla: true, weather: true, relations: true },
@@ -35,7 +36,7 @@ export async function loadBaseline(): Promise<{ baseline: Baseline; migrated: bo
 
 export async function resetPrototype(): Promise<Baseline> {
   const db = await openDB();
-  await Promise.all(['baseline', 'scenarios', 'audit', 'diagnostics', 'workflow'].map((s) => idbClear(db, s)));
+  await Promise.all(['baseline', 'scenarios', 'audit', 'diagnostics', 'workflow', 'gps'].map((s) => idbClear(db, s)));
   const baseline = await getProvider().load();
   await idbPut(db, 'baseline', baseline, 'current');
   return baseline;
@@ -52,3 +53,8 @@ export const loadDiag = async () => idbGetAll<DiagEvent>(await openDB(), 'diagno
 export interface WfEntry { id: string; status: string; ownerId?: string; ackAt?: number; actAt?: number }
 export const loadWorkflow = async () => idbGetAll<WfEntry>(await openDB(), 'workflow');
 export const saveWorkflow = async (e: WfEntry) => idbPut(await openDB(), 'workflow', e);
+
+/** GPS fixes (one per entity every 5 minutes) are persisted for replay and export; the store is reset together with the regenerated seed. */
+export const loadGps = async () => idbGetAll<GpsFix>(await openDB(), 'gps');
+export const saveGps = async (f: GpsFix[]) => idbPutMany(await openDB(), 'gps', f);
+export const clearGps = async () => idbClear(await openDB(), 'gps');

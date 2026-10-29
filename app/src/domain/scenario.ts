@@ -2,6 +2,8 @@ import {
   SEVERITY_ORDER, SLA_ORDER,
   type AssetState, type Baseline, type Impact, type Mitigation, type Scenario, type ScenarioParams, type Severity, type SlaLevel, type TaskState,
 } from './types';
+import { tr } from '../i18n/core';
+import { trData } from '../i18n/data';
 
 const raise = (l: SlaLevel, by: number): SlaLevel => SLA_ORDER[Math.min(3, SLA_ORDER.indexOf(l) + by)];
 const maxLevel = (a: SlaLevel, b: SlaLevel): SlaLevel => (SLA_ORDER.indexOf(a) >= SLA_ORDER.indexOf(b) ? a : b);
@@ -18,40 +20,40 @@ const inRange = (v: unknown, lo: number, hi: number) => typeof v === 'number' &&
 /** SIM-002: range, type, required scope and cross-parameter compatibility. */
 export function validateParams(p: ScenarioParams, b: Baseline): string[] {
   const e: string[] = [];
-  if (!Object.values(p).some(Boolean)) e.push('Enable at least one disruption case.');
+  if (!Object.values(p).some(Boolean)) e.push(tr('Enable at least one disruption case.'));
   const l = p.lateInbound;
   if (l) {
-    if (!b.flights.some((f) => f.id === l.flightId)) e.push('Late inbound: select a flight.');
-    if (!inRange(l.delayMin, 0, 240)) e.push('Late inbound: delay must be a number between 0 and 240 minutes.');
-    if (!b.stands.some((s) => s.id === l.standId)) e.push('Late inbound: select an affected stand.');
+    if (!b.flights.some((f) => f.id === l.flightId)) e.push(tr('Late inbound: select a flight.'));
+    if (!inRange(l.delayMin, 0, 240)) e.push(tr('Late inbound: delay must be a number between 0 and 240 minutes.'));
+    if (!b.stands.some((s) => s.id === l.standId)) e.push(tr('Late inbound: select an affected stand.'));
   }
   const w = p.weather;
   if (w) {
-    if (!inRange(w.startOffsetMin, 0, 720)) e.push('Weather: start offset must be 0-720 minutes.');
-    if (!inRange(w.durationMin, 0, 180)) e.push('Weather: stoppage duration must be between 0 and 180 minutes.');
-    if (!inRange(w.recoveryBufferMin, 0, 120)) e.push('Weather: recovery buffer must be 0-120 minutes.');
-    if (!w.piers.length) e.push('Weather: choose at least one affected zone.');
+    if (!inRange(w.startOffsetMin, 0, 720)) e.push(tr('Weather: start offset must be 0-720 minutes.'));
+    if (!inRange(w.durationMin, 0, 180)) e.push(tr('Weather: stoppage duration must be between 0 and 180 minutes.'));
+    if (!inRange(w.recoveryBufferMin, 0, 120)) e.push(tr('Weather: recovery buffer must be 0-120 minutes.'));
+    if (!w.piers.length) e.push(tr('Weather: choose at least one affected zone.'));
   }
   const g = p.gse;
   if (g) {
     const count = b.assets.filter((a) => a.type === g.assetType && a.standId.startsWith(g.pier)).length;
-    if (!g.assetType) e.push('GSE: choose an asset type.');
-    if (!inRange(g.quantityUnavailable, 0, count)) e.push(`GSE: unavailable quantity must be 0..${count} (available ${g.assetType || 'assets'} on pier ${g.pier}).`);
-    if (!inRange(g.durationMin, 1, 720)) e.push('GSE: duration must be 1-720 minutes.');
+    if (!g.assetType) e.push(tr('GSE: choose an asset type.'));
+    if (!inRange(g.quantityUnavailable, 0, count)) e.push(tr('GSE: unavailable quantity must be 0..{count} (available {assets} on pier {pier}).', { count, assets: g.assetType || tr('assets'), pier: g.pier }));
+    if (!inRange(g.durationMin, 1, 720)) e.push(tr('GSE: duration must be 1-720 minutes.'));
   }
   const s = p.staff;
   if (s) {
-    if (!b.bus.some((x) => x.id === s.buId)) e.push('Staff: select a BU/team.');
-    if (!inRange(s.capacityDeltaPct, 0, 100)) e.push('Staff: capacity reduction must be 0-100%.');
-    if (!inRange(s.windowMin, 1, 720)) e.push('Staff: effective window must be 1-720 minutes.');
+    if (!b.bus.some((x) => x.id === s.buId)) e.push(tr('Staff: select a BU/team.'));
+    if (!inRange(s.capacityDeltaPct, 0, 100)) e.push(tr('Staff: capacity reduction must be 0-100%.'));
+    if (!inRange(s.windowMin, 1, 720)) e.push(tr('Staff: effective window must be 1-720 minutes.'));
   }
   const t = p.slaStress;
   if (t) {
-    if (!b.airlines.some((x) => x.id === t.airlineId)) e.push('SLA stress: select an airline.');
-    if (!inRange(t.thresholdDeltaMin, 0, 60)) e.push('SLA stress: threshold delta must be 0-60 minutes.');
-    if (!inRange(t.windowMin, 1, 720)) e.push('SLA stress: time window must be 1-720 minutes.');
+    if (!b.airlines.some((x) => x.id === t.airlineId)) e.push(tr('SLA stress: select an airline.'));
+    if (!inRange(t.thresholdDeltaMin, 0, 60)) e.push(tr('SLA stress: threshold delta must be 0-60 minutes.'));
+    if (!inRange(t.windowMin, 1, 720)) e.push(tr('SLA stress: time window must be 1-720 minutes.'));
   }
-  if (g && w && w.piers.includes(g.pier) && w.durationMin === 0) e.push('Combined: weather zone includes the GSE pier but stoppage duration is 0.');
+  if (g && w && w.piers.includes(g.pier) && w.durationMin === 0) e.push(tr('Combined: weather zone includes the GSE pier but stoppage duration is 0.'));
   return e;
 }
 
@@ -63,7 +65,7 @@ export function computeImpact(b: Baseline, sc: Scenario, mit: Mitigation[] = [])
   const im = emptyImpact();
   const p = sc.params;
   const impacted = new Set<string>();
-  const why = (id: string, msg: string) => ((im.factors[id] ??= []).push(`${sc.name}: ${msg}`), impacted.add(id));
+  const why = (id: string, msg: string) => ((im.factors[id] ??= []).push(`${trData(sc.name)}: ${msg}`), impacted.add(id));
   const taOf = (flightId: string) => b.turnarounds.find((t) => t.flightId === flightId);
   const raiseTurn = (taId: string, lvl: SlaLevel) => (im.turnaroundRisk[taId] = maxLevel(im.turnaroundRisk[taId] ?? 'Normal', lvl));
   const hitTask = (taskId: string, st: TaskState) => {
@@ -104,7 +106,7 @@ export function computeImpact(b: Baseline, sc: Scenario, mit: Mitigation[] = [])
       load.set(t.id, load.get(t.id)! + 1);
       im.standOverride[f.id] = t.id;
       if (m.savesMin) saves[f.id] = (saves[f.id] ?? 0) + m.savesMin;
-      why(f.id, `re-gated ${f.standId} → ${t.id}${m.savesMin ? ` (saves ${m.savesMin} min)` : ''}`);
+      why(f.id, m.savesMin ? tr('re-gated {from} → {to} (saves {min} min)', { from: f.standId, to: t.id, min: m.savesMin }) : tr('re-gated {from} → {to}', { from: f.standId, to: t.id }));
     });
   });
   const pierOf = (flightId: string) => {
@@ -124,16 +126,16 @@ export function computeImpact(b: Baseline, sc: Scenario, mit: Mitigation[] = [])
       const residual = Math.max(0, l.delayMin - rec);
       const eff = residual * mult;
       im.flightDelay[f.id] = (im.flightDelay[f.id] ?? 0) + l.delayMin;
-      why(f.id, `late inbound +${l.delayMin} min (${l.sensitivity} connection sensitivity)${rec ? `; ${rec} min recovered by decisions` : ''}`);
+      why(f.id, tr('late inbound +{min} min ({sens} connection sensitivity)', { min: l.delayMin, sens: trData(l.sensitivity) }) + (rec ? tr('; {rec} min recovered by decisions', { rec }) : ''));
       raiseTurn(ta.id, eff >= 60 ? 'Breach' : eff >= 30 ? 'AtRisk' : eff >= 10 ? 'Watch' : 'Normal');
-      why(ta.id, `residual delay ${residual} × ${mult} = ${eff.toFixed(0)} effective min`);
+      why(ta.id, tr('residual delay {residual} × {mult} = {eff} effective min', { residual, mult, eff: eff.toFixed(0) }));
       b.milestones.filter((m) => m.turnaroundId === ta.id).forEach((m) => {
         im.milestoneShift[m.id] = (im.milestoneShift[m.id] ?? 0) + residual;
         impacted.add(m.id);
       });
       b.tasks.filter((t) => t.turnaroundId === ta.id && t.status !== 'Complete').forEach((t) => {
         hitTask(t.id, eff >= 30 ? 'AtRisk' : t.status);
-        why(t.id, `forecast shifted +${residual} min`);
+        why(t.id, tr('forecast shifted +{min} min', { min: residual }));
       });
       if (eff >= 30) escalate([f.id, ta.id]);
     }
@@ -154,10 +156,10 @@ export function computeImpact(b: Baseline, sc: Scenario, mit: Mitigation[] = [])
       if (!w.piers.includes(pier) || ta.plannedEnd < start || ta.plannedStart > end || ta.phase === 'Complete') return;
       const hard = ta.plannedStart <= hardEnd;
       raiseTurn(ta.id, !hard ? 'Watch' : w.severity === 'Critical' ? 'Breach' : w.severity === 'High' ? 'AtRisk' : 'Watch');
-      why(ta.id, hard ? `ramp stoppage ${w.durationMin} min on pier ${pier}` : `recovery buffer ${bufferMin} min on pier ${pier}`);
+      why(ta.id, hard ? tr('ramp stoppage {min} min on pier {pier}', { min: w.durationMin, pier }) : tr('recovery buffer {min} min on pier {pier}', { min: bufferMin, pier }));
       b.tasks.filter((t) => t.turnaroundId === ta.id && t.status !== 'Complete').forEach((t) => {
         hitTask(t.id, !hard || w.severity === 'Low' ? 'AtRisk' : 'Blocked');
-        why(t.id, hard ? 'ramp work suspended' : 'ramp work restarting');
+        why(t.id, hard ? tr('ramp work suspended') : tr('ramp work restarting'));
       });
       escalate([f.id, ta.id]);
     });
@@ -169,16 +171,16 @@ export function computeImpact(b: Baseline, sc: Scenario, mit: Mitigation[] = [])
     const pool = b.assets.filter((a) => a.type === g.assetType && a.standId.startsWith(g.pier));
     pool.slice(0, qty).forEach((a) => {
       im.assetState[a.id] = 'Unavailable' as AssetState;
-      why(a.id, `${g.assetType} unavailable for ${g.durationMin} min`);
+      why(a.id, tr('{type} unavailable for {min} min', { type: trData(g.assetType), min: g.durationMin }));
       b.tasks.filter((t) => t.assetId === a.id && t.status !== 'Complete').forEach((t) => {
         hitTask(t.id, 'Blocked');
-        why(t.id, `dependent asset ${a.id} unavailable`);
+        why(t.id, tr('dependent asset {id} unavailable', { id: a.id }));
         raiseTurn(t.turnaroundId, 'AtRisk');
-        why(t.turnaroundId, `task ${t.taskType} lacks ${g.assetType}`);
+        why(t.turnaroundId, tr('task {task} lacks {type}', { task: trData(t.taskType), type: trData(g.assetType) }));
       });
       escalate([a.id]);
     });
-    if (qty < g.quantityUnavailable) pool.slice(qty, g.quantityUnavailable).forEach((a) => why(a.id, `${g.assetType} restored by decision`));
+    if (qty < g.quantityUnavailable) pool.slice(qty, g.quantityUnavailable).forEach((a) => why(a.id, tr('{type} restored by decision', { type: trData(g.assetType) })));
   }
 
   const windowFor = p.staff?.windowMin ?? 240;
@@ -191,12 +193,12 @@ export function computeImpact(b: Baseline, sc: Scenario, mit: Mitigation[] = [])
     const eff = x.available * (1 - delta / 100) + adj;
     const pressure = eff <= 0 ? 9.99 : x.engaged / eff;
     im.capacityPressure[x.id] = pressure;
-    why(x.id, `capacity ${x.available} → ${eff.toFixed(1)}${delta ? ` (−${delta}%)` : ''}${adj ? `, crew ${adj > 0 ? '+' : ''}${adj.toFixed(1)} by decisions` : ''}, pressure ${pressure.toFixed(2)}`);
+    why(x.id, tr('capacity {from} → {to}', { from: x.available, to: eff.toFixed(1) }) + (delta ? tr(' (−{pct}%)', { pct: delta }) : '') + (adj ? tr(', crew {adj} by decisions', { adj: `${adj > 0 ? '+' : ''}${adj.toFixed(1)}` }) : '') + tr(', pressure {p}', { p: pressure.toFixed(2) }));
     if (pressure > 1) {
       b.tasks.filter((t) => t.buId === x.buId && t.status !== 'Complete' && t.plannedTime <= b.now + windowFor).forEach((t) => {
-        if (deferLow && t.priority === 3) { why(t.id, 'deferred (priority 3) by decision'); return; }
+        if (deferLow && t.priority === 3) { why(t.id, tr('deferred (priority 3) by decision')); return; }
         hitTask(t.id, pressure > 1.3 ? 'Blocked' : 'AtRisk');
-        why(t.id, `staff pressure ${pressure.toFixed(2)} on ${x.skillGroup}`);
+        why(t.id, tr('staff pressure {p} on {skill}', { p: pressure.toFixed(2), skill: trData(x.skillGroup) }));
         raiseTurn(t.turnaroundId, pressure > 1.3 ? 'AtRisk' : 'Watch');
       });
     }
@@ -209,7 +211,7 @@ export function computeImpact(b: Baseline, sc: Scenario, mit: Mitigation[] = [])
       const f = b.flights.find((x) => x.id === ta.flightId)!;
       if (f.airlineId !== t.airlineId || ta.plannedStart > b.now + t.windowMin || ta.phase === 'Complete') return;
       raiseTurn(ta.id, raise(ta.slaRisk, steps));
-      why(ta.id, `${t.milestoneType} threshold tightened by ${t.thresholdDeltaMin} min (+${steps} SLA step${steps > 1 ? 's' : ''})`);
+      why(ta.id, tr(steps > 1 ? '{milestone} threshold tightened by {min} min (+{steps} SLA steps)' : '{milestone} threshold tightened by {min} min (+{steps} SLA step)', { milestone: trData(t.milestoneType), min: t.thresholdDeltaMin, steps }));
     });
   }
 
@@ -222,5 +224,5 @@ export function computeImpact(b: Baseline, sc: Scenario, mit: Mitigation[] = [])
 }
 
 export function defaultScenario(): Scenario {
-  return { id: `sc-${Date.now().toString(36)}`, name: 'New scenario', notes: '', state: 'Draft', createdAt: Date.now(), params: {} };
+  return { id: `sc-${Date.now().toString(36)}`, name: tr('New scenario'), notes: '', state: 'Draft', createdAt: Date.now(), params: {} };
 }

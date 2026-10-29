@@ -3,6 +3,7 @@ import { useOps } from '../storage/store';
 import { aircraftFor, changiRoutes, flightLoad, staffAtStand, type HoverInfo } from '../domain/entities';
 import { fmt } from '../domain/seed';
 import { RISK_COLOR, SLA_GLYPH } from './ui';
+import { tr } from '../i18n';
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -85,14 +86,14 @@ export function Map2D() {
     const rc = changiRoutes(al.name);
     return {
       kind: 'flight', title: `${f.flightNo} · ${al.name}`, image: BASE + ac.image, credit: ac.credit,
-      rows: [['Aircraft', ac.type], ['Route', `${f.origin} → ${f.destination}`], ['Stand', view.standOf(f)], ['Status', f.status + (d ? ` (+${d} min)` : '')],
-        ['STA / STD', `${fmt(f.sta)} / ${fmt(f.std)}`], ['Turnaround risk', view.turnRisk(ta.id)], ...(rc ? [['Changi routes (real)', String(rc)] as [string, string]] : [])],
+      rows: [[tr('Aircraft'), ac.type], [tr('Route'), `${f.origin} → ${f.destination}`], [tr('Stand'), view.standOf(f)], [tr('Status'), tr(f.status) + (d ? ` (+${d} min)` : '')],
+        [tr('STA / STD'), `${fmt(f.sta)} / ${fmt(f.std)}`], [tr('Turnaround risk'), tr(view.turnRisk(ta.id))], ...(rc ? [[tr('Changi routes (real)'), String(rc)] as [string, string]] : [])],
     };
   };
   const standInfo = (id: string): HoverInfo => {
     const s = standById(id);
     const fl = flightsAt(id);
-    return { kind: 'gate', title: `Gate / stand ${s.stand}`, rows: [['Pier', s.pier], ['Status', s.status], ['Flights', fl.length ? fl.map((f) => f.flightNo).join(', ') : 'none'], ['Risk', standRisk(id) ?? 'Normal']] };
+    return { kind: 'gate', title: tr('Gate / stand {s}', { s: s.stand }), rows: [[tr('Pier'), s.pier], [tr('Status'), tr(s.status)], [tr('Flights'), fl.length ? fl.map((f) => f.flightNo).join(', ') : tr('none')], [tr('Risk'), tr(standRisk(id) ?? 'Normal')]] };
   };
   const loadAt = (id: string) => flightsAt(id).reduce((a, f) => { const l = flightLoad(f); return { bags: a.bags + l.bags, cargoKg: a.cargoKg + l.cargoKg }; }, { bags: 0, cargoKg: 0 });
 
@@ -102,38 +103,38 @@ export function Map2D() {
         <div className="hovercard" role="tooltip" style={{ left: hover.x, top: hover.y }}>
           {hover.info.image && <img src={hover.info.image} alt="" />}
           <strong>{hover.info.title}</strong>
-          <dl>{hover.info.rows.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}</dl>
-          {hover.info.credit && <small>Image: {hover.info.credit}</small>}
+          <dl>{hover.info.rows.map(([k, v]) => <div key={k}><dt>{tr(k)}</dt><dd>{v}</dd></div>)}</dl>
+          {hover.info.credit && <small>{tr('Image: {credit}', { credit: hover.info.credit })}</small>}
         </div>
       )}
-      <div className="toolbar" role="toolbar" aria-label="2D map controls">
-        <button onClick={() => zoomBy(1.3)} aria-label="Zoom in">＋</button>
-        <button onClick={() => zoomBy(1 / 1.3)} aria-label="Zoom out">－</button>
-        <button onClick={() => setVb(FULL)}>Fit airport</button>
-        <button onClick={fitSelected} disabled={!selection}>Fit selected</button>
-        <span className="muted">zoom ×{zoom.toFixed(1)}{cluster ? ' · clustered' : ''}</span>
+      <div className="toolbar" role="toolbar" aria-label={tr('2D map controls')}>
+        <button onClick={() => zoomBy(1.3)} aria-label={tr('Zoom in')}>＋</button>
+        <button onClick={() => zoomBy(1 / 1.3)} aria-label={tr('Zoom out')}>－</button>
+        <button onClick={() => setVb(FULL)}>{tr('Fit airport')}</button>
+        <button onClick={fitSelected} disabled={!selection}>{tr('Fit selected')}</button>
+        <span className="muted">{tr('zoom ×{z}', { z: zoom.toFixed(1) })}{cluster ? ` · ${tr('clustered')}` : ''}</span>
       </div>
-      <svg ref={svg} viewBox={`${vb.x} ${vb.y} ${vb.w} ${vb.h}`} tabIndex={0} role="application" aria-label="2D airport operational map. Arrow keys pan, plus and minus zoom, 0 resets."
+      <svg ref={svg} viewBox={`${vb.x} ${vb.y} ${vb.w} ${vb.h}`} tabIndex={0} role="application" aria-label={tr('2D airport operational map. Arrow keys pan, plus and minus zoom, 0 resets.')}
         onWheel={onWheel} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={() => (drag.current = null)} onKeyDown={keys}>
         {['A', 'B', 'C'].map((p) => (
           <g key={p}>
             <rect x={2} y={pierY(p) - 6} width={90} height={22} className="pier" />
-            <text x={3} y={pierY(p) - 2} className="lbl">Pier {p}</text>
+            <text x={3} y={pierY(p) - 2} className="lbl">{tr('Pier {p}', { p })}</text>
           </g>
         ))}
         {layers.weather && cons.map((c) => {
           const s = standById(c.scope) ?? null;
           const sim = c.source === 'Simulation';
           return s
-            ? <g key={c.id}><rect x={s.x - 6} y={s.y - 5} width={12} height={16} className="constraint" /><text x={s.x - 5} y={s.y + 12} className="lbl">✕ {c.type.slice(0, 14)}</text></g>
-            : <g key={c.id}><rect x={2} y={pierY(c.scope) - 6} width={90} height={22} className={sim ? 'constraint sim' : 'constraint'} /><text x={40} y={pierY(c.scope) + 14} className="lbl">☂ {c.type}{sim ? ' (Simulated)' : ''}</text></g>;
+            ? <g key={c.id}><rect x={s.x - 6} y={s.y - 5} width={12} height={16} className="constraint" /><text x={s.x - 5} y={s.y + 12} className="lbl">✕ {tr(c.type).slice(0, 14)}</text></g>
+            : <g key={c.id}><rect x={2} y={pierY(c.scope) - 6} width={90} height={22} className={sim ? 'constraint sim' : 'constraint'} /><text x={40} y={pierY(c.scope) + 14} className="lbl">☂ {tr(c.type)}{sim ? ` (${tr('Simulated')})` : ''}</text></g>;
         })}
         {relLines.length > 1 && layers.relations && relLines.slice(1).map((s) => <line key={s.id} x1={relLines[0].x} y1={relLines[0].y + 4} x2={s.x} y2={s.y + 4} className="relation" />)}
         {layers.stands && b.stands.map((s) => {
           const risk = standRisk(s.id);
           const nf = b.flights.filter((f) => view.standOf(f) === s.id && visibleFlights.has(f.id));
           return (
-            <g key={s.id} className={`stand ${hi(s.id)}`} tabIndex={0} role="button" aria-label={`Stand ${s.stand}, ${nf.length} flights${risk ? ', risk ' + risk : ''}`} {...hv(standInfo(s.id))}
+            <g key={s.id} className={`stand ${hi(s.id)}`} tabIndex={0} role="button" aria-label={tr('Stand {s}, {n} flights', { s: s.stand, n: nf.length }) + (risk ? ', ' + tr('risk {r}', { r: tr(risk) }) : '')} {...hv(standInfo(s.id))}
               onClick={(e) => { e.stopPropagation(); select({ kind: 'stand', id: s.id }); }} onKeyDown={(e) => e.key === 'Enter' && select({ kind: 'stand', id: s.id })}>
               <rect x={s.x - 5} y={s.y - 4} width={10} height={10} rx={1} stroke={risk && layers.sla ? RISK_COLOR[risk] : undefined} strokeWidth={layers.sla && risk ? 0.8 : 0.3} />
               <text x={s.x - 4} y={s.y + 9} className="lbl">{s.stand}</text>
@@ -144,7 +145,7 @@ export function Map2D() {
         {layers.gates && b.stands.map((s) => (
           <g key={`g-${s.id}`} className="gate" {...hv(standInfo(s.id))}>
             <rect x={s.x - 2.2} y={s.y - 7.2} width={4.4} height={2.6} rx={0.5} />
-            <text x={s.x - 1.8} y={s.y - 5.3} className="tiny">GATE</text>
+            <text x={s.x - 1.8} y={s.y - 5.3} className="tiny">{tr('GATE')}</text>
           </g>
         ))}
         {b.stands.map((s) => {
@@ -155,17 +156,17 @@ export function Map2D() {
           return (
             <g key={`e-${s.id}`}>
               {layers.baggage && (
-                <g className="ent baggage" {...hv({ kind: 'baggage', title: `Baggage · stand ${s.stand}`, rows: [['Bags (simulated)', String(ld.bags)], ['Flights', fl.map((f) => f.flightNo).join(', ')], ['Baggage tasks', String(tasks.filter((t) => t.taskType.startsWith('Baggage')).length)]] })}>
+                <g className="ent baggage" {...hv({ kind: 'baggage', title: tr('Baggage · stand {s}', { s: s.stand }), rows: [[tr('Bags (simulated)'), String(ld.bags)], [tr('Flights'), fl.map((f) => f.flightNo).join(', ')], [tr('Baggage tasks'), String(tasks.filter((t) => t.taskType.startsWith('Baggage')).length)]] })}>
                   <rect x={s.x - 5} y={s.y + 10.2} width={2.4} height={1.8} rx={0.3} /><text x={s.x - 2.2} y={s.y + 11.7} className="tiny">{ld.bags}</text>
                 </g>
               )}
               {layers.cargo && (
-                <g className="ent cargo" {...hv({ kind: 'cargo', title: `Cargo · stand ${s.stand}`, rows: [['Cargo (simulated)', `${(ld.cargoKg / 1000).toFixed(1)} t`], ['Flights', fl.map((f) => f.flightNo).join(', ')]] })}>
+                <g className="ent cargo" {...hv({ kind: 'cargo', title: tr('Cargo · stand {s}', { s: s.stand }), rows: [[tr('Cargo (simulated)'), `${(ld.cargoKg / 1000).toFixed(1)} t`], [tr('Flights'), fl.map((f) => f.flightNo).join(', ')]] })}>
                   <rect x={s.x - 0.5} y={s.y + 10.2} width={2.2} height={1.8} /><text x={s.x + 2} y={s.y + 11.7} className="tiny">{(ld.cargoKg / 1000).toFixed(1)}t</text>
                 </g>
               )}
               {layers.staff && (
-                <g className="ent staff" {...hv({ kind: 'staff', title: `Ground staff · stand ${s.stand}`, rows: [['Assigned owners', String(owners)], ['Active tasks', String(tasks.filter((t) => ['InProgress', 'AtRisk', 'Blocked'].includes(view.taskState(t.id))).length)], ['Total tasks', String(tasks.length)]] })}>
+                <g className="ent staff" {...hv({ kind: 'staff', title: tr('Ground staff · stand {s}', { s: s.stand }), rows: [[tr('Assigned owners'), String(owners)], [tr('Active tasks'), String(tasks.filter((t) => ['InProgress', 'AtRisk', 'Blocked'].includes(view.taskState(t.id))).length)], [tr('Total tasks'), String(tasks.length)]] })}>
                   <circle cx={s.x + 5} cy={s.y + 10.6} r={0.8} /><text x={s.x + 6} y={s.y + 11.7} className="tiny">{owners}</text>
                 </g>
               )}
@@ -180,7 +181,7 @@ export function Map2D() {
           if (cluster && idx > 0) return null;
           const n = cluster ? b.flights.filter((x) => view.standOf(x) === s.id && visibleFlights.has(x.id)).length : 1;
           return (
-            <g key={f.id} className={`flight ${hi(f.id)}`} tabIndex={0} role="button" aria-label={`Flight ${f.flightNo} risk ${risk}`} {...hv(flightInfo(f))}
+            <g key={f.id} className={`flight ${hi(f.id)}`} tabIndex={0} role="button" aria-label={tr('Flight {no} risk {r}', { no: f.flightNo, r: tr(risk) })} {...hv(flightInfo(f))}
               onClick={(e) => { e.stopPropagation(); select({ kind: 'flight', id: f.id }); }} onKeyDown={(e) => e.key === 'Enter' && select({ kind: 'flight', id: f.id })}
               transform={`translate(${s.x} ${s.y + 1 + (cluster ? 0 : idx * 3.2)})`}>
               <path d="M0 -2.6 L0.35 -0.8 L3 0.6 L3 1.1 L0.35 0.5 L0.25 1.9 L1.2 2.5 L1.2 2.9 L0 2.6 L-1.2 2.9 L-1.2 2.5 L-0.25 1.9 L-0.35 0.5 L-3 1.1 L-3 0.6 L-0.35 -0.8 Z" fill={RISK_COLOR[risk]} stroke="none" />
@@ -191,23 +192,23 @@ export function Map2D() {
         {!cluster && layers.assets && b.assets.map((a) => {
           const s = standById(a.standId);
           const st = view.assetState(a.id);
-          return <rect key={a.id} x={s.x + 3} y={s.y - 3} width={1.8} height={1.8} className={`asset ${st} ${hi(a.id)}`} {...hv({ kind: 'staff', title: `${a.type} ${a.id}`, rows: [['State', st + (view.changed(a.id) ? ' (Simulated)' : '')], ['Stand', a.standId], ['Available', `${fmt(a.availFrom)}–${fmt(a.availTo)}`]] })} />;
+          return <rect key={a.id} x={s.x + 3} y={s.y - 3} width={1.8} height={1.8} className={`asset ${st} ${hi(a.id)}`} {...hv({ kind: 'staff', title: `${tr(a.type)} ${a.id}`, rows: [[tr('State'), tr(st) + (view.changed(a.id) ? ` (${tr('Simulated')})` : '')], [tr('Stand'), a.standId], [tr('Available'), `${fmt(a.availFrom)}–${fmt(a.availTo)}`]] })} />;
         })}
         {!cluster && layers.tasks && b.tasks.filter((t) => related.has(t.id)).map((t, i) => {
           const f = b.flights.find((x) => x.id === b.turnarounds.find((ta) => ta.id === t.turnaroundId)!.flightId)!;
           const s = standById(view.standOf(f));
-          return <circle key={t.id} cx={s.x - 4 + i * 1.6} cy={s.y + 5} r={0.7} className={`task ${view.taskState(t.id)}`}><title>{t.taskType}: {view.taskState(t.id)}</title></circle>;
+          return <circle key={t.id} cx={s.x - 4 + i * 1.6} cy={s.y + 5} r={0.7} className={`task ${view.taskState(t.id)}`}><title>{tr(t.taskType)}: {tr(view.taskState(t.id))}</title></circle>;
         })}
         {!cluster && layers.milestones && b.milestones.filter((m) => related.has(m.id) && m.status !== 'Complete').map((m, i) => {
           const f = b.flights.find((x) => x.id === b.turnarounds.find((ta) => ta.id === m.turnaroundId)!.flightId)!;
           const s = standById(view.standOf(f));
-          return <text key={m.id} x={s.x + 5.5} y={s.y + i * 2.2 - 2} className="tiny">◆{m.type.slice(0, 6)}</text>;
+          return <text key={m.id} x={s.x + 5.5} y={s.y + i * 2.2 - 2} className="tiny">◆{tr(m.type).slice(0, 6)}</text>;
         })}
         {layers.staff && b.bus.map((bu, i) => {
           const sc = b.staff.filter((x) => x.buId === bu.id);
           const avail = sc.reduce((a, x) => a + x.available, 0), eng = sc.reduce((a, x) => a + x.engaged, 0);
           const pressure = Math.max(0, ...sc.map((x) => view.impact.capacityPressure[x.id] ?? 0));
-          return <g key={bu.id}><rect x={2 + i * 31} y={74} width={29} height={4} className="bar" /><rect x={2 + i * 31} y={74} width={29 * Math.min(1, eng / Math.max(1, avail))} height={4} className={pressure > 1 ? 'bar-fill hot' : 'bar-fill'} /><text x={3 + i * 31} y={73.5} className="tiny">{bu.name} {eng}/{avail}{pressure ? ' (Simulated)' : ''}</text></g>;
+          return <g key={bu.id}><rect x={2 + i * 31} y={74} width={29} height={4} className="bar" /><rect x={2 + i * 31} y={74} width={29 * Math.min(1, eng / Math.max(1, avail))} height={4} className={pressure > 1 ? 'bar-fill hot' : 'bar-fill'} /><text x={3 + i * 31} y={73.5} className="tiny">{tr(bu.name)} {eng}/{avail}{pressure ? ` (${tr('Simulated')})` : ''}</text></g>;
         })}
       </svg>
     </div>

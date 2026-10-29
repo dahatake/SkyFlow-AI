@@ -1,3 +1,4 @@
+import { tr } from '../i18n';
 import type { SlaLevel, Severity } from '../domain/types';
 
 export const SLA_GLYPH: Record<string, string> = { Normal: '✓', Watch: '!', AtRisk: '▲', Breach: '✖' };
@@ -11,11 +12,11 @@ export function Badge({ level, kind = 'sla' }: { level: SlaLevel | Severity | st
   const color = (kind === 'sev' ? SEV_COLOR : RISK_COLOR)[level] ?? '#605e5c';
   return (
     <span className="badge" style={{ borderColor: color, color }}>
-      <span aria-hidden="true">{glyph}</span> {level}
+      <span aria-hidden="true">{glyph}</span> {tr(level)}
     </span>
   );
 }
 
 export function Tag({ simulated }: { simulated: boolean }) {
-  return <span className={simulated ? 'tag sim' : 'tag base'}>{simulated ? 'Simulated' : 'Baseline'}</span>;
+  return <span className={simulated ? 'tag sim' : 'tag base'}>{simulated ? tr('Simulated') : tr('Baseline')}</span>;
 }

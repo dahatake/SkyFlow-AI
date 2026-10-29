@@ -1,3 +1,5 @@
+import { tr } from '../i18n/core';
+import { trData } from '../i18n/data';
 import { computeImpact } from './scenario';
 import { activeMitigations, type DecisionOption, type DecisionTask } from './demo';
 import { SLA_ORDER, type Baseline, type Impact, type Scenario } from './types';
@@ -37,7 +39,7 @@ export function advise(b: Baseline, sc: Scenario, pack: DecisionTask[], task: De
   const base = scores['none'] ?? scores[task.options[0].id];
   const s = scores[best.id];
   const rationale = best.id === 'none'
-    ? 'No option improves the weighted risk score enough to justify its cost; monitor and revisit if conditions change.'
-    : `Cuts flights at risk ${base.atRisk} → ${s.atRisk}, blocked tasks ${base.blocked} → ${s.blocked} and escalated exceptions ${base.escalated} → ${s.escalated}. Trade-off: ${best.tradeoff}`;
+    ? tr('No option improves the weighted risk score enough to justify its cost; monitor and revisit if conditions change.')
+    : tr('Cuts flights at risk {a0} → {a1}, blocked tasks {b0} → {b1} and escalated exceptions {e0} → {e1}. Trade-off: {tradeoff}', { a0: base.atRisk, a1: s.atRisk, b0: base.blocked, b1: s.blocked, e0: base.escalated, e1: s.escalated, tradeoff: trData(best.tradeoff) });
   return { optionId: best.id, rationale, scores };
 }

@@ -1,3 +1,4 @@
+import { tr } from '../i18n';
 import type { ExceptionState, OpException, Severity } from './types';
 import type { OpsView } from './view';
 
@@ -53,8 +54,8 @@ function kpi(key: string, label: string, target: string, rows: ActionRow[], pick
 
 export function slaKpis(rows: ActionRow[]): SlaKpi[] {
   return [
-    kpi('ack', 'Acknowledged by owner', `≤ ${SLA.ack} min from detection`, rows, (r) => r.ackState),
-    kpi('action', 'Detection-to-action', `≤ ${SLA.action} min from detection`, rows, (r) => r.actState),
-    kpi('priority', 'Priority exceptions actioned', `Critical / High, ≤ ${SLA.action} min`, rows.filter((r) => r.priority), (r) => r.actState),
+    kpi('ack', tr('Acknowledged by owner'), tr('≤ {n} min from detection', { n: SLA.ack }), rows, (r) => r.ackState),
+    kpi('action', tr('Detection-to-action'), tr('≤ {n} min from detection', { n: SLA.action }), rows, (r) => r.actState),
+    kpi('priority', tr('Priority exceptions actioned'), tr('Critical / High, ≤ {n} min', { n: SLA.action }), rows.filter((r) => r.priority), (r) => r.actState),
   ];
 }

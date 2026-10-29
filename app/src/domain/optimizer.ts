@@ -2,6 +2,7 @@ import type { Asset, Baseline, Flight, Impact, SlaLevel, Stand, Task } from './t
 import { emptyImpact } from './scenario';
 import { SEVERITY_ORDER, SLA_ORDER } from './types';
 import type { OpsView } from './view';
+import { tr } from '../i18n';
 
 /**
  * One-click resource optimizer ("autopilot" for planners). A pure, deterministic, priority-driven heuristic that follows
@@ -127,10 +128,10 @@ export function optimize(view: OpsView, cfg: OptConfig, now: number): OptPlan {
       + (s.id === cur.id ? 0 : 1.5 + (10 - w.resource) / 4); // re-gating penalty
     const cands = b.stands.filter((s) => !blocked(s, start(f), end(f)) && free(s.id, f)).sort((a, c) => cost(a) - cost(c) || a.id.localeCompare(c.id));
     const pick = cands.find((s) => s.id === cur.id && cost(s) <= cost(cands[0]) + 0.5) ?? cands[0];
-    if (!pick) { finalStand.set(f.id, cur.id); unresolved.push({ kind: 'stand', ref: f.flightNo, reason: 'No stand free for the full occupancy window including buffer' }); return; }
+    if (!pick) { finalStand.set(f.id, cur.id); unresolved.push({ kind: 'stand', ref: f.flightNo, reason: tr('No stand free for the full occupancy window including buffer') }); return; }
     finalStand.set(f.id, pick.id); book(pick.id, f);
     if (pick.id !== cur.id) {
-      const why = blocked(cur, start(f), end(f)) ? 'current stand closed' : !free(cur.id, f) || (occupancy.get(cur.id) ?? []).length ? 'avoids overlap / buffer breach or reduces equipment travel' : 'shorter equipment travel';
+      const why = blocked(cur, start(f), end(f)) ? tr('current stand closed') : !free(cur.id, f) || (occupancy.get(cur.id) ?? []).length ? tr('avoids overlap / buffer breach or reduces equipment travel') : tr('shorter equipment travel');
       standMoves.push({ flightNo: f.flightNo, flightId: f.id, from: cur.id, to: pick.id, reason: why });
     }
   });
@@ -161,13 +162,13 @@ export function optimize(view: OpsView, cfg: OptConfig, now: number): OptPlan {
     const near = timeOk.filter((a) => dist(standById.get(a.standId)!, st) <= L.maxGseDistance).sort((a, c) => dist(standById.get(a.standId)!, st) - dist(standById.get(c.standId)!, st) || a.id.localeCompare(c.id));
     const a = near[0];
     if (!a) {
-      unresolved.push({ kind: 'gse', ref: `${f.flightNo} ${t.taskType}`, reason: !pool.length ? `No usable ${type}` : !timeOk.length ? `All ${type} units busy or outside availability window` : `Nearest ${type} is beyond ${L.maxGseDistance} units` });
+      unresolved.push({ kind: 'gse', ref: `${f.flightNo} ${t.taskType}`, reason: !pool.length ? tr('No usable {type}', { type }) : !timeOk.length ? tr('All {type} units busy or outside availability window', { type }) : tr('Nearest {type} is beyond {n} units', { type, n: L.maxGseDistance }) });
       return;
     }
     const d = round1(dist(standById.get(a.standId)!, st));
     travelAfter += d;
     booked.set(a.id, [...(booked.get(a.id) ?? []), [t0, t1]]);
-    gse.push({ taskId: t.id, taskType: t.taskType, flightNo: f.flightNo, assetId: a.id, assetType: a.type, fromStand: a.standId, toStand: st.id, distance: d, start: t0, end: t1, reason: `nearest free ${type} (${near.length} eligible of ${pool.length} usable); priority ${scores.get(f.id)}` });
+    gse.push({ taskId: t.id, taskType: t.taskType, flightNo: f.flightNo, assetId: a.id, assetType: a.type, fromStand: a.standId, toStand: st.id, distance: d, start: t0, end: t1, reason: tr('nearest free {type} ({eligible} eligible of {usable} usable); priority {score}', { type, eligible: near.length, usable: pool.length, score: scores.get(f.id)! }) });
   });
 
   // --- 3. Crew seats per stand: stagger tasks that exceed the seat limit --------------------------------------
@@ -197,7 +198,7 @@ export function optimize(view: OpsView, cfg: OptConfig, now: number): OptPlan {
       const conc = () => sorted.filter((o) => o !== t && shiftOf.has(o.id) && overlaps(taskStart(t) + shift, taskStart(t) + shift + L.taskMinutes, taskStart(o) + (shiftOf.get(o.id) ?? 0), taskStart(o) + (shiftOf.get(o.id) ?? 0) + L.taskMinutes)).length;
       while (conc() >= L.seatsPerStand && shift < 60) shift += 5;
       shiftOf.set(t.id, shift); shiftMap.set(t.id, shift);
-      if (shift > 0) shifts.push({ taskId: t.id, taskType: t.taskType, flightNo: flightOf(t).flightNo, standId, shiftMin: shift, reason: `Stand ${standId} crew seats (${L.seatsPerStand}) exceeded` });
+      if (shift > 0) shifts.push({ taskId: t.id, taskType: t.taskType, flightNo: flightOf(t).flightNo, standId, shiftMin: shift, reason: tr('Stand {stand} crew seats ({n}) exceeded', { stand: standId, n: L.seatsPerStand }) });
     });
     seatAfter += seatLoad(sorted, (t) => shiftOf.get(t.id) ?? 0);
   });
@@ -216,10 +217,10 @@ export function optimize(view: OpsView, cfg: OptConfig, now: number): OptPlan {
       if (give <= 0) continue;
       spare.set(d.id, (spare.get(d.id) ?? 0) - give);
       want -= give;
-      staff.push({ fromBuId: d.buId, fromSkill: d.skillGroup, toBuId: n.buId, toSkill: n.skillGroup, qty: give, reason: `pressure ${pressure(n.id).toFixed(2)} → target ≤ 0.95; donor at ${pressure(d.id).toFixed(2)}` });
+      staff.push({ fromBuId: d.buId, fromSkill: d.skillGroup, toBuId: n.buId, toSkill: n.skillGroup, qty: give, reason: tr('pressure {p} → target ≤ 0.95; donor at {d}', { p: pressure(n.id).toFixed(2), d: pressure(d.id).toFixed(2) }) });
       if (want <= 0) break;
     }
-    if (want > 0) { overloadedAfter++; unresolved.push({ kind: 'staff', ref: `${b.bus.find((x) => x.id === n.buId)?.name ?? n.buId} · ${n.skillGroup}`, reason: `${want} short with no donor pool spare` }); }
+    if (want > 0) { overloadedAfter++; unresolved.push({ kind: 'staff', ref: `${b.bus.find((x) => x.id === n.buId)?.name ?? n.buId} · ${n.skillGroup}`, reason: tr('{n} short with no donor pool spare', { n: want }) }); }
   });
 
   // --- 5. Capacity per resource and plain-language summary -------------------------------------------------------
@@ -242,12 +243,12 @@ export function optimize(view: OpsView, cfg: OptConfig, now: number): OptPlan {
     return { buId: s.buId, skill: s.skillGroup, available: s.available, engaged: s.engaged, availableAfter, pressureBefore: round1(pressure(s.id) * 100) / 100, pressureAfter: round1((s.engaged / Math.max(1, availableAfter)) * 100) / 100 };
   });
   const summary = [
-    `Replanned ${flights.length} flights and ${tasks.length} equipment tasks inside the next ${L.horizonMin} min (aircraft already on stand were kept in place).`,
-    standMoves.length ? `${standMoves.length} flight(s) move stand; stand overlaps fall from ${conflictsBefore} to ${conflictsAfter}.` : `No stand moves were needed; stand overlaps stay at ${conflictsAfter}.`,
-    `${gse.length} of ${tasks.length} equipment tasks have a unit assigned (before: ${tasks.length - unassignedBefore}); total travel ${round1(travelBefore)} → ${round1(travelAfter)} map units.`,
-    staff.length ? `${staff.reduce((n, x) => n + x.qty, 0)} crew member(s) are shifted between pools; overloaded pools ${overloadedBefore} → ${overloadedAfter}.` : `Crew pools needed no transfer (${overloadedBefore} overloaded).`,
-    shifts.length ? `${shifts.length} task(s) start later so no stand exceeds ${L.seatsPerStand} crew seats.` : `All stands stay within ${L.seatsPerStand} crew seats.`,
-    unresolved.length ? `${unresolved.length} item(s) could not be solved within the limits and need a human decision.` : 'Everything was solved within the limits.',
+    tr('Replanned {flights} flights and {tasks} equipment tasks inside the next {min} min (aircraft already on stand were kept in place).', { flights: flights.length, tasks: tasks.length, min: L.horizonMin }),
+    standMoves.length ? tr('{n} flight(s) move stand; stand overlaps fall from {a} to {b}.', { n: standMoves.length, a: conflictsBefore, b: conflictsAfter }) : tr('No stand moves were needed; stand overlaps stay at {n}.', { n: conflictsAfter }),
+    tr('{n} of {total} equipment tasks have a unit assigned (before: {before}); total travel {tb} → {ta} map units.', { n: gse.length, total: tasks.length, before: tasks.length - unassignedBefore, tb: round1(travelBefore), ta: round1(travelAfter) }),
+    staff.length ? tr('{n} crew member(s) are shifted between pools; overloaded pools {a} → {b}.', { n: staff.reduce((n, x) => n + x.qty, 0), a: overloadedBefore, b: overloadedAfter }) : tr('Crew pools needed no transfer ({n} overloaded).', { n: overloadedBefore }),
+    shifts.length ? tr('{n} task(s) start later so no stand exceeds {seats} crew seats.', { n: shifts.length, seats: L.seatsPerStand }) : tr('All stands stay within {seats} crew seats.', { seats: L.seatsPerStand }),
+    unresolved.length ? tr('{n} item(s) could not be solved within the limits and need a human decision.', { n: unresolved.length }) : tr('Everything was solved within the limits.'),
   ];
 
   const metrics = (m: Omit<OptMetrics, 'weightedScore'>): OptMetrics => ({
@@ -276,6 +277,6 @@ export function overlayPlan(base: Impact | undefined, plan: OptPlan, b: Baseline
   return {
     ...im, standOverride, assetState,
     impactedIds: [...new Set([...im.impactedIds, ...moved])],
-    mitigations: [...im.mitigations, `Optimizer: ${plan.standMoves.length} stand moves, ${plan.gse.length} equipment assignments, ${plan.staff.length} crew transfers`],
+    mitigations: [...im.mitigations, tr('Optimizer: {a} stand moves, {b} equipment assignments, {c} crew transfers', { a: plan.standMoves.length, b: plan.gse.length, c: plan.staff.length })],
   };
 }

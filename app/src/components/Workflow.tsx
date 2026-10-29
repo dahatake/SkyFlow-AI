@@ -4,6 +4,7 @@ import { demoById } from '../domain/demo';
 import { fmt } from '../domain/seed';
 import type { ExceptionState } from '../domain/types';
 import { useOps } from '../storage/store';
+import { tr } from '../i18n';
 import { EX_STAGES, nextState } from './Views';
 
 interface Step { key: string; n: number; label: string; desc: string; count: number; todo: string; cta?: { label: string; run(): void } }
@@ -30,33 +31,33 @@ export function WorkflowPanel() {
   const ids = (s: ExceptionState) => data.by(s).map((e) => e.id);
 
   const steps: Step[] = [
-    { key: 'detect', n: 1, label: 'Detect', desc: 'Exceptions surfaced from DSM, DCT, G-Ops, Mosaic', count: data.by('New').length,
-      todo: `${data.by('New').length} new exception(s) need acknowledgement`,
-      cta: data.by('New').length ? { label: 'Acknowledge all', run: () => advance(ids('New'), 'Acknowledged') } : undefined },
-    { key: 'ack', n: 2, label: 'Acknowledge', desc: 'Confirm someone has seen it', count: data.by('Acknowledged').length,
-      todo: `${data.by('Acknowledged').length} acknowledged without an owner plan`,
-      cta: data.by('Acknowledged').length ? { label: 'Assign suggested owners', run: () => advance(ids('Acknowledged'), 'Assigned', suggestOwner) } : undefined },
-    { key: 'assign', n: 3, label: 'Assign owner', desc: 'Named owner and target time for each exception', count: data.by('Assigned').length,
-      todo: `${data.by('Assigned').length} assigned and waiting for a decision`,
-      cta: data.by('Assigned').length ? { label: 'Start recovery', run: () => advance(ids('Assigned'), 'Monitoring') } : undefined },
-    { key: 'decide', n: 4, label: 'Decide', desc: 'People and Copilot assist judge options in the simulator', count: data.pack ? data.pack.decisions.length - data.decided : 0,
-      todo: data.pack ? `${data.decided}/${data.pack.decisions.length} judgement tasks decided` : 'Pick a demo scenario to get judgement tasks',
-      cta: data.pack ? { label: data.decided < data.pack.decisions.length ? 'Let Copilot assist all' : 'Review decisions', run: () => (data.decided < data.pack!.decisions.length ? copilotAll() : setTab('decisions')) } : undefined },
-    { key: 'monitor', n: 5, label: 'Monitor', desc: 'Track recovery against target times', count: data.by('Monitoring').length,
-      todo: `${data.by('Monitoring').length} under recovery`,
-      cta: data.by('Monitoring').length ? { label: 'Mark resolved', run: () => advance(ids('Monitoring'), 'Resolved') } : undefined },
-    { key: 'resolve', n: 6, label: 'Resolve', desc: 'Closed with an audit trail', count: data.by('Resolved').length,
-      todo: `${data.by('Resolved').length} of ${data.total} closed` },
+    { key: 'detect', n: 1, label: tr('Detect'), desc: tr('Exceptions surfaced from DSM, DCT, G-Ops, Mosaic'), count: data.by('New').length,
+      todo: tr('{n} new exception(s) need acknowledgement', { n: data.by('New').length }),
+      cta: data.by('New').length ? { label: tr('Acknowledge all'), run: () => advance(ids('New'), 'Acknowledged') } : undefined },
+    { key: 'ack', n: 2, label: tr('Acknowledge'), desc: tr('Confirm someone has seen it'), count: data.by('Acknowledged').length,
+      todo: tr('{n} acknowledged without an owner plan', { n: data.by('Acknowledged').length }),
+      cta: data.by('Acknowledged').length ? { label: tr('Assign suggested owners'), run: () => advance(ids('Acknowledged'), 'Assigned', suggestOwner) } : undefined },
+    { key: 'assign', n: 3, label: tr('Assign owner'), desc: tr('Named owner and target time for each exception'), count: data.by('Assigned').length,
+      todo: tr('{n} assigned and waiting for a decision', { n: data.by('Assigned').length }),
+      cta: data.by('Assigned').length ? { label: tr('Start recovery'), run: () => advance(ids('Assigned'), 'Monitoring') } : undefined },
+    { key: 'decide', n: 4, label: tr('Decide'), desc: tr('People and Copilot assist judge options in the simulator'), count: data.pack ? data.pack.decisions.length - data.decided : 0,
+      todo: data.pack ? tr('{done}/{total} judgement tasks decided', { done: data.decided, total: data.pack.decisions.length }) : tr('Pick a demo scenario to get judgement tasks'),
+      cta: data.pack ? { label: data.decided < data.pack.decisions.length ? tr('Let Copilot assist all') : tr('Review decisions'), run: () => (data.decided < data.pack!.decisions.length ? copilotAll() : setTab('decisions')) } : undefined },
+    { key: 'monitor', n: 5, label: tr('Monitor'), desc: tr('Track recovery against target times'), count: data.by('Monitoring').length,
+      todo: tr('{n} under recovery', { n: data.by('Monitoring').length }),
+      cta: data.by('Monitoring').length ? { label: tr('Mark resolved'), run: () => advance(ids('Monitoring'), 'Resolved') } : undefined },
+    { key: 'resolve', n: 6, label: tr('Resolve'), desc: tr('Closed with an audit trail'), count: data.by('Resolved').length,
+      todo: tr('{n} of {total} closed', { n: data.by('Resolved').length, total: data.total }) },
   ];
   const pending = (s: Step) => (s.key === 'resolve' ? false : s.key === 'decide' ? !!data.pack && data.decided < data.pack.decisions.length : s.count > 0);
   const current = steps.findIndex(pending);
   const pct = Math.round((data.by('Resolved').length / Math.max(1, data.total)) * 100);
 
   return (
-    <section className="card workflow" aria-label="Response workflow">
+    <section className="card workflow" aria-label={tr('Response workflow')}>
       <div className="row between">
-        <h2><Flag24Regular /> Response workflow <small>from detection to closure · {pct}% of exceptions closed</small></h2>
-        <progress max={100} value={pct} aria-label="Closed exceptions" />
+        <h2><Flag24Regular /> {tr('Response workflow')} <small>{tr('from detection to closure · {pct}% of exceptions closed', { pct })}</small></h2>
+        <progress max={100} value={pct} aria-label={tr('Closed exceptions')} />
       </div>
       <ol className="steps">
         {steps.map((s, i) => {
@@ -75,8 +76,8 @@ export function WorkflowPanel() {
           );
         })}
       </ol>
-      {!can && <p className="muted">Observer lens is read-only: workflow actions are disabled.</p>}
-      <p className="muted">Workflow progress is stored only in this browser as a prototype overlay; no operational system is updated.</p>
+      {!can && <p className="muted">{tr('Observer lens is read-only: workflow actions are disabled.')}</p>}
+      <p className="muted">{tr('Workflow progress is stored only in this browser as a prototype overlay; no operational system is updated.')}</p>
     </section>
   );
 }
@@ -92,17 +93,17 @@ export function ExceptionStepper({ id }: { id: string }) {
   const owner = view.ownerIdOf(e);
   const candidates = baseline.stakeholders.filter((s) => s.roleType !== 'Observer');
   return (
-    <div className="ex-stepper" aria-label="Exception workflow">
-      <ol>{EX_STAGES.map((s, i) => <li key={s.key} className={i < idx ? 'done' : i === idx ? 'current' : ''}>{i < idx ? '✓' : i + 1} {s.label}</li>)}</ol>
+    <div className="ex-stepper" aria-label={tr('Exception workflow')}>
+      <ol>{EX_STAGES.map((s, i) => <li key={s.key} className={i < idx ? 'done' : i === idx ? 'current' : ''}>{i < idx ? '✓' : i + 1} {tr(s.label)}</li>)}</ol>
       {n && role !== 'Observer' && (
         <div className="row">
           {n === 'Assigned' && (
-            <label>Owner <select value={owner ?? ''} onChange={(ev) => advance([id], 'Assigned', ev.target.value || null)}>
-              <option value="">Unassigned</option>{candidates.map((s) => <option key={s.id} value={s.id}>{s.displayName}</option>)}
+            <label>{tr('Owner')} <select value={owner ?? ''} onChange={(ev) => advance([id], 'Assigned', ev.target.value || null)}>
+              <option value="">{tr('Unassigned')}</option>{candidates.map((s) => <option key={s.id} value={s.id}>{s.displayName}</option>)}
             </select></label>
           )}
-          <button className="primary" onClick={() => advance([id], n, n === 'Assigned' ? owner ?? 'u-sioc1' : undefined)}>Next: {EX_STAGES.find((s) => s.key === n)!.label}</button>
-          <small>Due {fmt(e.targetTime)}</small>
+          <button className="primary" onClick={() => advance([id], n, n === 'Assigned' ? owner ?? 'u-sioc1' : undefined)}>{tr('Next: {stage}', { stage: tr(EX_STAGES.find((s) => s.key === n)!.label) })}</button>
+          <small>{tr('Due {time}', { time: fmt(e.targetTime) })}</small>
         </div>
       )}
     </div>
