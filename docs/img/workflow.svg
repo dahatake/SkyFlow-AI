@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 300" width="960" height="300" role="img" aria-labelledby="t d" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <title id="t">Decision workflow</title>
+  <desc id="d">Five steps: disruption, ranked conflicts, agent proposal, human approval, owned 5W2H tasks and value.</desc>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#475569"/></marker>
+  </defs>
+  <rect width="960" height="300" fill="#fff"/>
+  <text x="30" y="34" font-size="18" font-weight="700" fill="#0f172a">From disruption to decision</text>
+  <g stroke="#334155" stroke-width="1.5">
+    <rect x="20" y="70" width="160" height="150" rx="10" fill="#fee2e2"/>
+    <rect x="200" y="70" width="160" height="150" rx="10" fill="#fef3c7"/>
+    <rect x="380" y="70" width="160" height="150" rx="10" fill="#ede9fe"/>
+    <rect x="560" y="70" width="160" height="150" rx="10" fill="#dbeafe"/>
+    <rect x="740" y="70" width="190" height="150" rx="10" fill="#dcfce7"/>
+  </g>
+  <g stroke="#475569" stroke-width="1.8" fill="none">
+    <path d="M180 145H198" marker-end="url(#a)"/><path d="M360 145H378" marker-end="url(#a)"/>
+    <path d="M540 145H558" marker-end="url(#a)"/><path d="M720 145H738" marker-end="url(#a)"/>
+  </g>
+  <g font-size="14" font-weight="700" fill="#0f172a" text-anchor="middle">
+    <text x="100" y="100">1. Disruption</text><text x="280" y="100">2. Rank</text><text x="460" y="100">3. Propose</text>
+    <text x="640" y="100">4. Approve</text><text x="835" y="100">5. Act and measure</text>
+  </g>
+  <g font-size="12" fill="#334155" text-anchor="middle">
+    <text x="100" y="130">Lightning stops</text><text x="100" y="148">ramp work</text><text x="100" y="170">12 arrivals slip,</text><text x="100" y="188">4 gates collide</text>
+    <text x="280" y="130">Every conflict</text><text x="280" y="148">ranked by</text><text x="280" y="166">SLA exposure</text>
+    <text x="460" y="130">Detect, Triage,</text><text x="460" y="148">Resolver compare</text><text x="460" y="166">engine options</text><text x="460" y="190">Models never</text><text x="460" y="206">produce numbers</text>
+    <text x="640" y="130">Manager reviews</text><text x="640" y="148">and approves</text><text x="640" y="170">Role checked</text><text x="640" y="188">server side</text>
+    <text x="835" y="130">Owned 5W2H tasks</text><text x="835" y="148">Teams Adaptive Card</text><text x="835" y="170">Before / after value</text><text x="835" y="188">with visible assumptions</text>
+  </g>
+  <text x="480" y="262" font-size="12" fill="#475569" text-anchor="middle">Every AI step has a deterministic rule-based fallback, and the baseline is never mutated.</text>
+</svg>

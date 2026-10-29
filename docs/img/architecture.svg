@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 520" width="960" height="520" role="img" aria-labelledby="t d" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <title id="t">AI Operations Control Tower architecture</title>
+  <desc id="d">A React web app calls an agent API that runs Detect, Triage, Resolver and Comms agents. Agents call a deterministic engine through MCP. The API uses Foundry models, Content Safety and Cosmos DB, and posts to Teams.</desc>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#475569"/></marker>
+    <style>
+      .box{fill:#fff;stroke:#334155;stroke-width:1.5}
+      .lane{fill:#f1f5f9;stroke:#cbd5e1;stroke-dasharray:6 4}
+      .h{font-size:13px;font-weight:700;fill:#0f172a}
+      .s{font-size:11px;fill:#475569}
+      .l{font-size:11px;fill:#334155}
+      .e{stroke:#475569;stroke-width:1.6;fill:none}
+    </style>
+  </defs>
+  <rect width="960" height="520" fill="#ffffff"/>
+  <text x="30" y="34" font-size="18" font-weight="700" fill="#0f172a">AI Operations Control Tower: system architecture</text>
+
+  <rect class="lane" x="20" y="55" width="190" height="440" rx="10"/>
+  <rect class="lane" x="235" y="55" width="460" height="440" rx="10"/>
+  <rect class="lane" x="720" y="55" width="220" height="440" rx="10"/>
+  <text class="s" x="32" y="75">EXPERIENCE</text>
+  <text class="s" x="247" y="75">AGENTS AND ENGINE</text>
+  <text class="s" x="732" y="75">AZURE SERVICES</text>
+
+  <rect class="box" x="40" y="110" width="150" height="90" rx="8" fill="#dbeafe"/>
+  <text class="h" x="115" y="140" text-anchor="middle">Static Web App</text>
+  <text class="s" x="115" y="159" text-anchor="middle">React + TypeScript</text>
+  <text class="s" x="115" y="174" text-anchor="middle">3D / 2D ops view</text>
+
+  <rect class="box" x="40" y="300" width="150" height="90" rx="8" fill="#dcfce7"/>
+  <text class="h" x="115" y="330" text-anchor="middle">Browser engine</text>
+  <text class="s" x="115" y="349" text-anchor="middle">app/src/domain</text>
+  <text class="s" x="115" y="364" text-anchor="middle">offline fallback</text>
+
+  <rect class="box" x="260" y="100" width="410" height="110" rx="8" fill="#ede9fe"/>
+  <text class="h" x="465" y="122" text-anchor="middle">agent-api (FastAPI, Agent Framework)</text>
+  <rect class="box" x="275" y="140" width="85" height="50" rx="6"/><text class="l" x="317" y="170" text-anchor="middle">Detect</text>
+  <rect class="box" x="372" y="140" width="85" height="50" rx="6"/><text class="l" x="414" y="170" text-anchor="middle">Triage</text>
+  <rect class="box" x="469" y="140" width="85" height="50" rx="6"/><text class="l" x="511" y="170" text-anchor="middle">Resolver</text>
+  <rect class="box" x="566" y="140" width="85" height="50" rx="6"/><text class="l" x="608" y="170" text-anchor="middle">Comms</text>
+  <path class="e" d="M360 165H372M457 165H469M554 165H566" marker-end="url(#a)"/>
+
+  <rect class="box" x="260" y="260" width="190" height="80" rx="8" fill="#fef3c7"/>
+  <text class="h" x="355" y="290" text-anchor="middle">Approval gate</text>
+  <text class="s" x="355" y="309" text-anchor="middle">role checked server side</text>
+  <text class="s" x="355" y="324" text-anchor="middle">human decides</text>
+
+  <rect class="box" x="480" y="260" width="190" height="80" rx="8" fill="#dcfce7"/>
+  <text class="h" x="575" y="290" text-anchor="middle">engine-mcp</text>
+  <text class="s" x="575" y="309" text-anchor="middle">deterministic scenario engine</text>
+  <text class="s" x="575" y="324" text-anchor="middle">exposed as MCP tools</text>
+
+  <rect class="box" x="260" y="400" width="410" height="60" rx="8" fill="#fee2e2"/>
+  <text class="h" x="465" y="425" text-anchor="middle">Rule: the engine owns every number</text>
+  <text class="s" x="465" y="443" text-anchor="middle">models only choose among options the engine computed</text>
+
+  <rect class="box" x="745" y="95" width="170" height="52" rx="8"/><text class="h" x="830" y="118" text-anchor="middle">Microsoft Foundry</text><text class="s" x="830" y="134" text-anchor="middle">models</text>
+  <rect class="box" x="745" y="167" width="170" height="52" rx="8"/><text class="h" x="830" y="190" text-anchor="middle">Content Safety</text><text class="s" x="830" y="206" text-anchor="middle">input / output checks</text>
+  <rect class="box" x="745" y="239" width="170" height="52" rx="8"/><text class="h" x="830" y="262" text-anchor="middle">Cosmos DB</text><text class="s" x="830" y="278" text-anchor="middle">approvals + audit</text>
+  <rect class="box" x="745" y="311" width="170" height="52" rx="8"/><text class="h" x="830" y="334" text-anchor="middle">Microsoft Teams</text><text class="s" x="830" y="350" text-anchor="middle">Adaptive Card</text>
+  <rect class="box" x="745" y="383" width="170" height="52" rx="8"/><text class="h" x="830" y="406" text-anchor="middle">Key Vault + Identity</text><text class="s" x="830" y="422" text-anchor="middle">no secrets in repo</text>
+
+  <path class="e" d="M190 140H225V155H260" marker-end="url(#a)"/>
+  <text class="l" x="196" y="128">propose / approve</text>
+  <path class="e" d="M115 200V300" marker-end="url(#a)" stroke-dasharray="5 4"/>
+  <text class="l" x="123" y="256">same code</text>
+  <path class="e" d="M511 190V225H575V260" marker-end="url(#a)"/>
+  <text class="l" x="585" y="236">MCP tools</text>
+  <path class="e" d="M450 300H480" marker-end="url(#a)"/>
+  <path class="e" d="M670 120H745" marker-end="url(#a)"/>
+  <path class="e" d="M355 210V260" marker-end="url(#a)"/>
+  <path class="e" d="M670 193H745" marker-end="url(#a)"/>
+  <path class="e" d="M355 340V380H710V265H745" marker-end="url(#a)"/>
+  <path class="e" d="M651 165H700V337H745" marker-end="url(#a)"/>
+</svg>

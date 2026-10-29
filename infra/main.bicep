@@ -114,7 +114,7 @@ param additionalCorsOrigins array = []
 param availabilityTestLocations array = [
   'apac-jp-kaw-edge'
   'apac-hk-hkn-azr'
-  'emea-sg-sin-azr'
+  'apac-sg-sin-azr'
 ]
 
 @description('azd: set automatically so reprovisioning keeps the deployed image.')
