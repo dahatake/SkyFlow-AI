@@ -4,6 +4,7 @@ import { DEMO_PACK } from '../domain/demo';
 import { valueReport } from '../domain/value';
 import { activeCustomer } from '../customers';
 import { useOps } from '../storage/store';
+import { BeforeAfterBars } from './D3Charts';
 import { tr } from '../i18n';
 import { trData } from '../i18n/data';
 
@@ -21,6 +22,8 @@ export function ValueView() {
       {reports.map(({ p, r }) => (
         <div key={p.id}>
           <h3>{trData(p.title)}</h3>
+          <BeforeAfterBars data={r.rows.map((x) => ({ label: tr(x.label), before: x.before, after: x.after }))} format={String} />
+          <p className="muted"><span style={{ color: '#a4262c' }}>■</span> {tr('Without decisions')} · <span style={{ color: '#107c10' }}>■</span> {tr('With decisions')}</p>
           <table>
             <thead><tr><th>{tr('Measure')}</th><th>{tr('Without decisions')}</th><th>{tr('With decisions')}</th><th>{tr('Improvement')}</th></tr></thead>
             <tbody>{r.rows.map((x) => <tr key={x.label}><td>{tr(x.label)}</td><td>{x.before} {x.unit === 'min' ? tr('min') : ''}</td><td>{x.after} {x.unit === 'min' ? tr('min') : ''}</td><td><b>{x.delta}</b></td></tr>)}</tbody>

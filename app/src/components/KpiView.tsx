@@ -3,6 +3,7 @@ import { useOps } from '../storage/store';
 import { actionRows, slaKpis, type ActionRow } from '../domain/kpi';
 import { fmt } from '../domain/seed';
 import { Badge } from './ui';
+import { RingGauge } from './D3Charts';
 import { tr } from '../i18n';
 import { trData } from '../i18n/data';
 
@@ -28,7 +29,7 @@ export function KpiView() {
       <div className="kpis" role="list">
         {kpis.map((k) => (
           <div key={k.key} className="kpi" role="listitem" style={{ cursor: 'default' }}>
-            <span className="v">{k.pct === null ? '—' : `${k.pct}%`}</span>
+            <RingGauge pct={k.pct} label={k.label} />
             <span className="kl">{k.label}</span>
             <small>{tr('SLA {target} · {met} met · {breached} breached · {pending} pending', { target: k.target, met: k.met, breached: k.breached, pending: k.pending })}</small>
           </div>
