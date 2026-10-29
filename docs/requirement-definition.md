@@ -306,6 +306,45 @@ These prototype states are proposed engineering normalizations, not claims about
 * Critical workflows satisfy accessibility and responsive requirements.
 * Every displayed simulated/derived value is labeled explicitly and traceable to its parameters.
 
+# 17. Resource and task optimization (autopilot)
+
+The original sections had no optimization capability: the simulator only analyses what-if impact and the decision queue only suggests mitigations. This section adds a one-click optimizer that recommends a re-plan of airport resources. It is a recommendation engine only: it is view-only, never edits baseline records and never writes back to operations (DATA-003, NFR-005).
+
+| **Priority / limitation** | **Used as** | **Prototype behavior** |
+| --- | --- | --- |
+| SLA / airline priority | Weight | Ranks flights by turnaround SLA risk, airline SLA tier and open exception severity. |
+| Time criticality | Weight + hard limit | Soonest departures rank higher; planning horizon (rolling window) bounds the problem; aircraft already on stand are frozen. |
+| Location distance | Weight + hard limit | Prefers stands close to the available equipment pool; assigns the nearest free GSE within a maximum travel distance. |
+| Resource limitation | Weight + hard limit | One task at a time per GSE unit; moves crew from slack to overloaded skill pools; fewer stand moves (re-gating penalty). |
+| Gate crew seats | Hard limit | At most N concurrent servicing tasks per stand; excess tasks are staggered. |
+| Turnaround buffer / closures / weather | Hard limit | No stand overlap including buffer; closed stands and weather-constrained piers are avoided. |
+
+|  |  |
+| --- | --- |
+| **OPT-001 One-click optimization [Must]** | |
+| An Optimize tab shall provide a single "Optimize all" action that plans stands, GSE assignments, crew-pool transfers and crew-seat staggering together. | Acceptance: One click produces a plan without further input; running it twice on the same data yields the same plan. |
+
+|  |  |
+| --- | --- |
+| **OPT-002 Configurable priorities and limits [Must]** | |
+| Users shall choose a preset (Balanced, SLA first, Resource saving, Time critical) or adjust weights (0-10) for SLA, distance, time and resources, and set horizon, stand buffer, maximum GSE travel and crew seats per stand. | Acceptance: Changing weights or limits clears any stale plan; limits are never violated in the produced plan. |
+
+|  |  |
+| --- | --- |
+| **OPT-003 Explainable result [Must]** | |
+| The plan shall show before/after measures (stand overlaps, unassigned GSE tasks, GSE travel, overloaded crew pools, seat overruns, weighted cost), every individual change with its reason, and items it could not resolve. | Acceptance: Each move, assignment, transfer and shift is listed; unresolved items state the blocking limit and are left for a human decision. |
+
+|  |  |
+| --- | --- |
+| **OPT-004 Non-destructive and auditable [Must]** | |
+| The optimizer shall respect the active scenario view (simulated delays, closures, capacity), mark its output as derived, and write an audit entry per run. | Acceptance: Baseline entities are byte-equivalent after a run (AT-08). |
+
+Optimization approach (practice-aligned): a priority-ordered greedy heuristic with a rolling horizon and frozen window, turnaround buffers between consecutive stand uses, GSE allocation as time-window scheduling with proximity, skill-pool levelling and crew-seat limits. Production would replace the heuristic with an exact or metaheuristic solver (MIP/CP-SAT) behind the same interface. Reference material: [A Complete Guide on Airport Operations Optimization](https://www.bqpsim.com/articles/airport-operations-optimization); [Optimizing Airport Gate Assignments: Methods & Metrics](https://www.bqpsim.com/quantum-optimization/airport-gate-optimization); [A Bi-Objective Optimization Model for Integrated Gate Assignment and ...](https://www.mdpi.com/2673-7590/6/2/86); [Improving Robustness through Buffer Placement in the Gate Assignment Problem](https://www.mit.edu/~hamsa/pubs/ZimmerBalakrishnanOdoni-ICRAT2024-final.pdf); [The Airport Gate Assignment Problem (Lim et al.)](https://www.researchgate.net/profile/Andrew-Lim-16/publication/2919193_The_Airport_Gate_Assignment_Problem/links/00b495298b538ba93a000000/The-Airport-Gate-Assignment-Problem.pdf).
+
+| **ID** | **Given / When / Then** |
+| --- | --- |
+| AT-08 | Given the live baseline or any active scenario, when the user selects Optimize all, then a plan with before/after measures is shown, no limit is exceeded, unresolved items are flagged, and baseline entity values remain unchanged. |
+
 # Appendix A - Source grounding
 
 Primary reference: SATS Project SPEAR - Business Envisioning Output.pptx, especially slides 3, 4, 7, 8 and 15-17. Supporting architectural reference: SkyFlowAI\_Solution\_Envisioning\_EN.pptx, especially the read-only evidence, coordinated data model, authority, state, reliability and human-control concepts. Requirements not explicitly present in those sources, including browser-only persistence, detailed simulator parameter ranges, normalized prototype state enums, and 2D/3D camera behavior, are design proposals added to satisfy the requested prototype scope.

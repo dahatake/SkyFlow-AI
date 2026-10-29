@@ -12,13 +12,14 @@ import { Resources } from './components/Resources';
 import {
   Airplane24Regular, AirplaneTakeOff24Regular, Alert24Regular, ArrowReset24Regular, Beaker24Regular, Bug24Regular, DataBarVertical24Regular,
   Eye24Regular, PersonBoard24Regular, PersonProhibited24Regular, ShieldCheckmark24Regular, Timeline24Regular, WeatherMoon24Regular,
-  WeatherSunny24Regular, WeatherThunderstorm24Regular, Sparkle24Regular, ClipboardTaskListLtr24Regular, Box24Regular, Gauge24Regular, Clock24Regular, TaskListSquareLtr24Regular, Warning24Regular,
+  WeatherSunny24Regular, WeatherThunderstorm24Regular, Sparkle24Regular, ClipboardTaskListLtr24Regular, Box24Regular, Gauge24Regular, Clock24Regular, TaskListSquareLtr24Regular, Warning24Regular, Flash24Regular,
 } from '@fluentui/react-icons';
 import { DEMO_PACK } from './domain/demo';
 import { DecisionQueue } from './components/Decisions';
 import { TaskList } from './components/TaskList';
 import { LiveBar } from './components/LiveBar';
 import { KpiView } from './components/KpiView';
+import { Optimizer } from './components/Optimizer';
 import { fmt } from './domain/seed';
 
 const TABS: [Tab, string, string, ReactNode][] = [
@@ -30,6 +31,7 @@ const TABS: [Tab, string, string, ReactNode][] = [
   ['exceptions', 'Exceptions', 'Severity, owner and next action', <Alert24Regular key="i" />],
   ['owner', 'Owners', 'Who is accountable for what', <PersonBoard24Regular key="i" />],
   ['scenarios', 'Simulator', 'Build and compare what-if cases', <Beaker24Regular key="i" />],
+  ['optimize', 'Optimize', 'One-click resource optimization', <Flash24Regular key="i" />],
   ['diagnostics', 'Diagnostics', 'Reset, export and logs', <Bug24Regular key="i" />],
 ];
 
@@ -164,12 +166,13 @@ function RoleLayout() {
   );
 }
 function Banner() {
-  const { mode, activeId, scenarios, activate, notice, setNotice, role } = useOps();
+  const { mode, activeId, scenarios, activate, notice, setNotice, role, appliedPlan, applyPlan } = useOps();
   const sc = scenarios.find((s) => s.id === activeId);
   return (
     <>
       <p className="safety" role="note"><Eye24Regular /> View-only prototype · simulated data · no operational execution or write-back. {LENS[role].blurb}.</p>
       {sc && <div className="scenario-banner" role="status"><Tag simulated /> Scenario “{sc.name}” — mode: <strong>{mode}</strong> <button onClick={() => activate(null)}><ArrowReset24Regular /> Return to Baseline</button></div>}
+      {appliedPlan && <div className="scenario-banner" role="status"><Tag simulated /> Optimized plan applied to all views (stands and equipment). <button onClick={() => applyPlan(null)}><ArrowReset24Regular /> Revert</button></div>}
       {notice && <div className="notice" role="status">{notice} <button onClick={() => setNotice('')}>Dismiss</button></div>}
     </>
   );
@@ -236,7 +239,7 @@ function FilterBar() {
 
 function Main() {
   const { tab, setTab } = useOps();
-  const plain = tab !== 'overview' && tab !== 'scenarios' && tab !== 'diagnostics' && tab !== 'kpi';
+  const plain = tab !== 'overview' && tab !== 'scenarios' && tab !== 'optimize' && tab !== 'diagnostics' && tab !== 'kpi';
   return (
     <>
       <nav className="tabs" role="tablist" aria-label="Views">
@@ -252,6 +255,7 @@ function Main() {
         {tab === 'exceptions' && <><div className="col"><ExceptionQueue /></div><div className="col"><ExceptionDetail /><DetailPanel /></div></>}
         {tab === 'owner' && <OwnerWorkbench />}
         {tab === 'scenarios' && <><ScenarioManager /><VizPane /></>}
+        {tab === 'optimize' && <><Optimizer /><VizPane /></>}
         {tab === 'diagnostics' && <Diagnostics />}
       </main>}
     </>

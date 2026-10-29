@@ -5,13 +5,14 @@ import { advise } from '../domain/judgement';
 import { applyLive, diffLive } from '../domain/live';
 import { DEMO_PACK } from '../domain/demo';
 import { deepFreeze } from '../domain/seed';
+import { overlayPlan, type OptPlan } from '../domain/optimizer';
 import { getProvider } from '../data/provider';
 import { noFilters, OpsView, type Filters, type Selection, type SimMode } from '../domain/view';
 import type { AuditEvent, Baseline, DiagEvent, ExceptionState, RoleType, Scenario, TaskStatus } from '../domain/types';
 import * as repo from '../storage/repo';
 
 export type WfMap = Record<string, { status: ExceptionState; ownerId?: string; ackAt?: number; actAt?: number }>;
-export type Tab = 'overview' | 'kpi' | 'decisions' | 'tasks' | 'turnaround' | 'exceptions' | 'owner' | 'scenarios' | 'diagnostics';
+export type Tab = 'overview' | 'kpi' | 'decisions' | 'tasks' | 'turnaround' | 'exceptions' | 'owner' | 'scenarios' | 'optimize' | 'diagnostics';
 
 export const LENS: Record<RoleType, { tab: Tab; filters: Partial<Filters>; canSimulate: boolean; blurb: string }> = {
   'Control Tower Lead': { tab: 'overview', filters: {}, canSimulate: true, blurb: 'Airport-wide risk, SLA exposure and ownership' },
@@ -30,7 +31,7 @@ interface Ctx {
   setFilters(f: Filters): void; select(s: Selection | null): void; setKpi(k: string | null): void;
   setRole(r: RoleType): void; setTab(t: Tab): void; setVizMode(v: '2d' | '3d'): void; toggleLayer(k: string): void; setTheme(t: 'light' | 'dark'): void;
   setMode(m: SimMode): void; saveScenario(s: Scenario): string[]; removeScenario(id: string): Promise<void>; activate(id: string | null): void;
-  runDemo(id: string | null): void; decide(taskId: string, optionId: string, by: 'human' | 'copilot'): void; undoDecision(taskId: string): void; copilotAll(): void; duplicate(id: string): void; reset(): Promise<void>; exportData(): void; logDiag(kind: DiagEvent['kind'], message: string): void;
+  runDemo(id: string | null): void; decide(taskId: string, optionId: string, by: 'human' | 'copilot'): void; undoDecision(taskId: string): void; copilotAll(): void; duplicate(id: string): void; reset(): Promise<void>; exportData(): void; logDiag(kind: DiagEvent['kind'], message: string): void; logAudit(actor: string, action: string, entityRef?: string, scenarioRef?: string): void; baseView: OpsView; appliedPlan: OptPlan | null; applyPlan(p: OptPlan | null): void;
 }
 const C = createContext<Ctx>(null as never);
 export const useOps = () => useContext(C);
@@ -55,6 +56,7 @@ export function OpsProvider({ children }: { children: ReactNode }) {
   const [kpiKey, setKpiKey] = useState<string | null>(null);
   const [timePos, setTimePos] = useState<number | null>(null);
   const [wf, setWf] = useState<WfMap>({});
+  const [appliedPlan, setAppliedPlan] = useState<OptPlan | null>(null);
   const [role, setRoleS] = useState<RoleType>(prefs.role as RoleType);
   const [tab, setTab] = useState<Tab>(LENS[prefs.role as RoleType]?.tab ?? 'overview');
   const [vizMode, setVizMode] = useState(prefs.view);
@@ -128,16 +130,20 @@ export function OpsProvider({ children }: { children: ReactNode }) {
 
   const active = scenarios.find((s) => s.id === activeId) ?? null;
   const impact = useMemo(() => (baseline && active ? computeImpact(baseline, active, activeMitigations(active)) : undefined), [baseline, active]);
-  const view = useMemo(() => {
+  const mkView = useCallback((plan: OptPlan | null) => {
     if (!baseline) return null as never;
-    const k = baseline && new OpsView(baseline, mode, impact, filters, null, timePos, wf).kpis().find((x) => x.key === kpiKey);
-    return new OpsView(baseline, mode, impact, filters, k && k.ids.length ? k.ids : null, timePos, wf);
+    const im = plan ? overlayPlan(impact, plan, baseline) : impact;
+    const m: SimMode = plan && mode === 'baseline' ? 'scenario' : mode;
+    const k = new OpsView(baseline, m, im, filters, null, timePos, wf).kpis().find((x) => x.key === kpiKey);
+    return new OpsView(baseline, m, im, filters, k && k.ids.length ? k.ids : null, timePos, wf);
   }, [baseline, mode, impact, filters, kpiKey, timePos, wf]);
+  const view = useMemo(() => mkView(appliedPlan), [mkView, appliedPlan]);
+  const baseView = useMemo(() => mkView(null), [mkView]);
   const related = useMemo(() => (view ? view.related(selection) : new Set<string>()), [view, selection]);
 
   const value: Ctx = {
     ready: !!baseline, live: { tick, speed, paused, lastTickAt, feed, setSpeed, setPaused, restart: () => { setTick(0); setFeed([]); setLastTickAt(Date.now()); } }, setTaskStatus: (id, st) => { if (!activeId) return; const upd = (l: Scenario[]) => l.map((x) => (x.id === activeId ? { ...x, taskStatus: { ...x.taskStatus, [id]: st } } : x)); const nx = upd(scenarios).find((x) => x.id === activeId)!; setScenarios(upd); void repo.saveScenario(nx); logAudit(role, `task ${id} → ${st}`, undefined, activeId); }, timePos, setTimePos, wf, notice, setNotice, baseline: baseline as Baseline, view, scenarios, activeId, mode, filters, selection, related, kpiKey,
-    role, tab, vizMode, layers, theme, audit, diag, logDiag,
+    role, tab, vizMode, layers, theme, audit, diag, logDiag, logAudit, baseView, appliedPlan, applyPlan: setAppliedPlan,
     setFilters, select: (s) => { setSel(s); if (s) logAudit(role, 'select', s.id, activeId ?? undefined); }, setKpi: setKpiKey,
     setRole: (r) => { setRoleS(r); setFilters({ ...noFilters, ...LENS[r].filters }); setTab(LENS[r].tab); setKpiKey(null); logAudit(r, 'switch-role'); },
     setTab, setVizMode, toggleLayer: (k) => setLayers((l) => ({ ...l, [k]: !l[k] })), setTheme,
@@ -227,7 +233,7 @@ export function OpsProvider({ children }: { children: ReactNode }) {
     },
     reset: async () => {
       const b = await repo.resetPrototype();
-      setBaseline(deepFreeze(b)); setScenarios([]); setActiveId(null); setModeS('baseline'); setAudit([]); setDiag([]); setSel(null); setFilters(noFilters); setKpiKey(null); setTimePos(null); setWf({}); setTick(0); setFeed([]);
+      setBaseline(deepFreeze(b)); setAppliedPlan(null); setScenarios([]); setActiveId(null); setModeS('baseline'); setAudit([]); setDiag([]); setSel(null); setFilters(noFilters); setKpiKey(null); setTimePos(null); setWf({}); setTick(0); setFeed([]);
       setNotice('Prototype reset to the seed baseline.');
     },
     exportData: () => {

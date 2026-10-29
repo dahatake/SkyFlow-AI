@@ -14,6 +14,7 @@ npm run build
 - **Single source of truth:** `src/domain/view.ts` (`OpsView`) projects the frozen baseline + active scenario overlay for every panel (FR-001, DATA-003).
 - **Simulator:** `src/domain/scenario.ts` – pure validation and impact calculation for the five cases plus combined; baseline is never mutated (SIM-001..004). Baseline / Scenario / Difference modes in the Scenario manager.
 - **Roles:** six lenses (header selector) that adjust default tab, scope filters and edit permissions.
+- **Optimizer:** `src/domain/optimizer.ts` – one-click "Optimize all" (Optimize tab) that recommends stand moves, GSE assignments, crew transfers and crew-seat staggering from weighted priorities and hard limits; recommendation only (OPT-001..004).
 - **2D/3D:** shared selection, filters, layers and simulation context; 3D has orbit/pan/dolly, reset, fit/focus selected, follow, LOD labels.
 - **Data:** seeded synthetic dataset (`seedVersion`/`schemaVersion` checked at load); Diagnostics tab offers Reset and Export.
 
