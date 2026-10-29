@@ -25,3 +25,6 @@ let counter = 0;
 // Deterministic when the clock is frozen: id depends on the clock and a per-process counter only.
 export const makeId = (prefix: string) => `${prefix}-${now().toString(36)}-${counter++}`;
 export const resetIdCounter = () => { counter = 0; };
+
+// Side effect on import so modules that read the clock at load time (seed.ts) already see the override.
+installClockFromUrl();

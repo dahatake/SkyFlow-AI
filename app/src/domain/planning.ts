@@ -5,6 +5,7 @@
  * Times are minutes from Monday 00:00 (Singapore time) of the displayed week.
  */
 import { tr, locale } from '../i18n';
+import { now as clockNow } from './clock';
 export type PlanCategory = 'Gate' | 'Staff' | 'GSE' | 'Belt' | 'Check-in';
 export type PlanKind = 'Flight' | 'Shift' | 'Task' | 'Maintenance' | 'Allocation';
 export type Terminal = 'T1' | 'T2' | 'T3' | 'T4' | 'All';
@@ -200,7 +201,7 @@ export function usage(res: PlanResource, list: PlanItem[], from: number, to: num
 }
 
 /** Monday 00:00 (Singapore) of the current week, as a UTC-based timestamp, plus "now" in plan minutes. */
-export function currentWeek(now = Date.now()) {
+export function currentWeek(now = clockNow()) {
   const sgt = new Date(now + 8 * 3600e3);
   const dow = (sgt.getUTCDay() + 6) % 7;
   const start = Date.UTC(sgt.getUTCFullYear(), sgt.getUTCMonth(), sgt.getUTCDate() - dow);

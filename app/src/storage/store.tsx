@@ -5,6 +5,7 @@ import { advise } from '../domain/judgement';
 import { applyLive, diffLive } from '../domain/live';
 import { DEMO_PACK } from '../domain/demo';
 import { deepFreeze } from '../domain/seed';
+import { now as clockNow, nowDate } from '../domain/clock';
 import { overlayPlan, type OptPlan } from '../domain/optimizer';
 import { getProvider } from '../data/provider';
 import { noFilters, OpsView, type Filters, type Selection, type SimMode } from '../domain/view';
@@ -39,7 +40,7 @@ const C = createContext<Ctx>(null as never);
 export const useOps = () => useContext(C);
 
 let seq = 0;
-const uid = (p: string) => `${p}-${Date.now().toString(36)}-${seq++}`;
+const uid = (p: string) => `${p}-${clockNow().toString(36)}-${seq++}`;
 
 export function OpsProvider({ children }: { children: ReactNode }) {
   const prefs = useMemo(() => repo.loadPrefs(), []);
@@ -48,7 +49,7 @@ export function OpsProvider({ children }: { children: ReactNode }) {
   const [speed, setSpeed] = useState(1);
   const [paused, setPaused] = useState(false);
   const [feed, setFeed] = useState<{ at: number; text: string }[]>([]);
-  const [lastTickAt, setLastTickAt] = useState(() => Date.now());
+  const [lastTickAt, setLastTickAt] = useState(() => clockNow());
   const baseline = useMemo(() => (seed ? deepFreeze(applyLive(seed, tick)) : null), [seed, tick]);
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -69,12 +70,12 @@ export function OpsProvider({ children }: { children: ReactNode }) {
   const [notice, setNotice] = useState('');
 
   const logDiag = useCallback((kind: DiagEvent['kind'], message: string) => {
-    const e = { id: uid('dg'), time: Date.now(), kind, message };
+    const e = { id: uid('dg'), time: clockNow(), kind, message };
     setDiag((d) => [...d.slice(-199), e]);
     void repo.appendDiag(e).catch(() => undefined);
   }, []);
   const logAudit = useCallback((actor: string, action: string, entityRef?: string, scenarioRef?: string) => {
-    const e = { id: uid('au'), time: Date.now(), actor, action, entityRef, scenarioRef };
+    const e = { id: uid('au'), time: clockNow(), actor, action, entityRef, scenarioRef };
     setAudit((a) => [...a.slice(-199), e]);
     void repo.appendAudit(e).catch(() => undefined);
   }, []);
@@ -107,7 +108,7 @@ export function OpsProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!seed || paused) return;
-    const id = setInterval(() => { setTick((n) => n + 1); setLastTickAt(Date.now()); }, 60000 / speed);
+    const id = setInterval(() => { setTick((n) => n + 1); setLastTickAt(clockNow()); }, 60000 / speed);
     return () => clearInterval(id);
   }, [seed, paused, speed]);
   const prevLive = useRef<Baseline | null>(null);
@@ -146,7 +147,7 @@ export function OpsProvider({ children }: { children: ReactNode }) {
   const related = useMemo(() => (view ? view.related(selection) : new Set<string>()), [view, selection]);
 
   const value: Ctx = {
-    ready: !!baseline, live: { tick, speed, paused, lastTickAt, feed, setSpeed, setPaused, restart: () => { setTick(0); setFeed([]); setLastTickAt(Date.now()); } }, setTaskStatus: (id, st) => { if (!activeId) return; const upd = (l: Scenario[]) => l.map((x) => (x.id === activeId ? { ...x, taskStatus: { ...x.taskStatus, [id]: st } } : x)); const nx = upd(scenarios).find((x) => x.id === activeId)!; setScenarios(upd); void repo.saveScenario(nx); logAudit(role, `task ${id} → ${st}`, undefined, activeId); }, timePos, setTimePos, wf, notice, setNotice, baseline: baseline as Baseline, view, scenarios, activeId, mode, filters, selection, related, kpiKey,
+    ready: !!baseline, live: { tick, speed, paused, lastTickAt, feed, setSpeed, setPaused, restart: () => { setTick(0); setFeed([]); setLastTickAt(clockNow()); } }, setTaskStatus: (id, st) => { if (!activeId) return; const upd = (l: Scenario[]) => l.map((x) => (x.id === activeId ? { ...x, taskStatus: { ...x.taskStatus, [id]: st } } : x)); const nx = upd(scenarios).find((x) => x.id === activeId)!; setScenarios(upd); void repo.saveScenario(nx); logAudit(role, `task ${id} → ${st}`, undefined, activeId); }, timePos, setTimePos, wf, notice, setNotice, baseline: baseline as Baseline, view, scenarios, activeId, mode, filters, selection, related, kpiKey,
     role, tab, vizMode, layers, theme, audit, diag, logDiag, logAudit, gps, baseView, appliedPlan, applyPlan: setAppliedPlan,
     setFilters, select: (s) => { setSel(s); if (s) logAudit(role, 'select', s.id, activeId ?? undefined); }, setKpi: setKpiKey,
     setRole: (r) => { setRoleS(r); setFilters({ ...noFilters, ...LENS[r].filters }); setTab(LENS[r].tab); setKpiKey(null); logAudit(r, 'switch-role'); },
@@ -190,7 +191,7 @@ export function OpsProvider({ children }: { children: ReactNode }) {
     },
     decide: (taskId, optionId, by) => {
       if (!activeId) return;
-      const upd = (l: Scenario[]) => l.map((s) => (s.id === activeId ? { ...s, decisions: { ...s.decisions, [taskId]: { optionId, by, at: Date.now(), opsAt: baseline!.now } } } : s));
+      const upd = (l: Scenario[]) => l.map((s) => (s.id === activeId ? { ...s, decisions: { ...s.decisions, [taskId]: { optionId, by, at: clockNow(), opsAt: baseline!.now } } } : s));
       const next = upd(scenarios).find((s) => s.id === activeId)!;
       setScenarios(upd);
       void repo.saveScenario(next);
@@ -212,7 +213,7 @@ export function OpsProvider({ children }: { children: ReactNode }) {
       pack.decisions.forEach((t) => {
         if (cur.decisions?.[t.id]) return;
         const a = advise(baseline!, cur, pack.decisions, t);
-        cur = { ...cur, decisions: { ...cur.decisions, [t.id]: { optionId: a.optionId, by: 'copilot', at: Date.now(), opsAt: baseline!.now } } };
+        cur = { ...cur, decisions: { ...cur.decisions, [t.id]: { optionId: a.optionId, by: 'copilot', at: clockNow(), opsAt: baseline!.now } } };
       });
       setScenarios((l) => l.map((s) => (s.id === cur.id ? cur : s)));
       void repo.saveScenario(cur);
@@ -222,7 +223,7 @@ export function OpsProvider({ children }: { children: ReactNode }) {
       if (!id) { setActiveId(null); setModeS('baseline'); setScenarios((l) => l.map((s) => (s.state === 'Active' ? { ...s, state: 'Inactive' } : s))); logAudit(role, 'demo-baseline'); return; }
       const pack = DEMO_PACK.find((d) => d.id === id);
       if (!pack) return;
-      const sc: Scenario = { ...structuredClone(pack.scenario), state: 'Active', createdAt: Date.now(), anchor: baseline!.now };
+      const sc: Scenario = { ...structuredClone(pack.scenario), state: 'Active', createdAt: clockNow(), anchor: baseline!.now };
       setScenarios((l) => [...l.filter((x) => x.id !== sc.id).map((s) => (s.state === 'Active' ? { ...s, state: 'Inactive' as const } : s)), sc]);
       void repo.saveScenario(sc);
       setActiveId(sc.id); setModeS('scenario'); setSel(null); setKpiKey(null);
@@ -231,7 +232,7 @@ export function OpsProvider({ children }: { children: ReactNode }) {
     duplicate: (id) => {
       const s = scenarios.find((x) => x.id === id);
       if (!s) return;
-      const copy: Scenario = { ...structuredClone(s), id: uid('sc'), name: `${s.name} (copy)`, state: 'Inactive', createdAt: Date.now() };
+      const copy: Scenario = { ...structuredClone(s), id: uid('sc'), name: `${s.name} (copy)`, state: 'Inactive', createdAt: clockNow() };
       setScenarios((l) => [...l, copy]);
       void repo.saveScenario(copy);
     },
@@ -242,7 +243,7 @@ export function OpsProvider({ children }: { children: ReactNode }) {
     },
     exportData: () => {
       const payload = {
-        exportedAt: new Date().toISOString(), schemaVersion: baseline!.schemaVersion, seedVersion: baseline!.seedVersion,
+        exportedAt: nowDate().toISOString(), schemaVersion: baseline!.schemaVersion, seedVersion: baseline!.seedVersion,
         baselineIdentifiers: Object.fromEntries(Object.entries(baseline!).filter(([, v]) => Array.isArray(v)).map(([k, v]) => [k, (v as { id: string }[]).map((x) => x.id)])),
         scenarioOverrides: scenarios, audit, diagnostics: diag,
       };

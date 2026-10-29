@@ -7,11 +7,16 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        main: resolve(__dirname, 'index.html'),
-        executive: resolve(__dirname, 'presentation/executive-briefing.html'),
-        ciocto: resolve(__dirname, 'presentation/cio-cto-briefing.html'),
+        main: resolve(import.meta.dirname, 'index.html'),
+        executive: resolve(import.meta.dirname, 'presentation/executive-briefing.html'),
+        ciocto: resolve(import.meta.dirname, 'presentation/cio-cto-briefing.html'),
       },
     },
   },
-  test: { environment: 'node' },
+  test: {
+    environment: 'node',
+    include: ['tests/**/*.test.ts'],
+    setupFiles: ['tests/setup.ts'],
+    coverage: { provider: 'v8', include: ['src/domain/**'], exclude: ['src/domain/types.ts'], reporter: ['text-summary', 'lcov'], thresholds: { lines: 80, statements: 80 } },
+  },
 });

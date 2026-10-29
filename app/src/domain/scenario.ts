@@ -3,6 +3,7 @@ import {
   type AssetState, type Baseline, type Impact, type Mitigation, type Scenario, type ScenarioParams, type Severity, type SlaLevel, type TaskState,
 } from './types';
 import { tr } from '../i18n/core';
+import { makeId, now as clockNow } from './clock';
 import { trData } from '../i18n/data';
 
 const raise = (l: SlaLevel, by: number): SlaLevel => SLA_ORDER[Math.min(3, SLA_ORDER.indexOf(l) + by)];
@@ -224,5 +225,5 @@ export function computeImpact(b: Baseline, sc: Scenario, mit: Mitigation[] = [])
 }
 
 export function defaultScenario(): Scenario {
-  return { id: `sc-${Date.now().toString(36)}`, name: tr('New scenario'), notes: '', state: 'Draft', createdAt: Date.now(), params: {} };
+  return { id: makeId('sc'), name: tr('New scenario'), notes: '', state: 'Draft', createdAt: clockNow(), params: {} };
 }

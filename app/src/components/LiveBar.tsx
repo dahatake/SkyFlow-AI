@@ -3,6 +3,7 @@ import { Pause24Regular, Play24Regular, ArrowReset24Regular } from '@fluentui/re
 import { fmt } from '../domain/seed';
 import { useOps } from '../storage/store';
 import { tr } from '../i18n';
+import { now as clockNow } from '../domain/clock';
 
 const SPEEDS: [number, string, string][] = [[1, '×1', 'update every 1 min'], [15, '×15', 'every 4 s (demo)'], [60, '×60', 'every 1 s (demo)']];
 
@@ -12,7 +13,7 @@ export function LiveBar() {
   const [, force] = useState(0);
   useEffect(() => { const t = setInterval(() => force((n) => n + 1), 1000); return () => clearInterval(t); }, []);
   const period = 60000 / live.speed;
-  const remain = live.paused ? 0 : Math.max(0, Math.ceil((live.lastTickAt + period - Date.now()) / 1000));
+  const remain = live.paused ? 0 : Math.max(0, Math.ceil((live.lastTickAt + period - clockNow()) / 1000));
   const recent = live.feed.slice(0, 6);
   return (
     <section className="livebar" aria-label={tr('Live data feed')}>
