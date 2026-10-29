@@ -1,0 +1,17 @@
+**/node_modules
+**/.venv
+**/__pycache__
+**/.pytest_cache
+**/coverage
+**/dist
+**/out
+**/playwright-report
+**/test-results
+.git
+.azure
+docs
+app/public
+app/presentation
+app/e2e
+app/tests
+infra

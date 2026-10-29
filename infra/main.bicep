@@ -8,10 +8,9 @@ param environmentName string
 @description('Azure region for the resource group and resources.')
 param location string = 'eastasia'
 
+@description('Region for the Foundry (AIServices) account; must offer the chosen models.')
 @description('Region for Cosmos DB (East Asia has had capacity limits).')
 param cosmosLocation string = 'southeastasia'
-
-@description('Region for the Foundry (AIServices) account; must offer the chosen models.')
 param foundryLocation string = 'eastus2'
 
 @description('Customer / team name; used for tagging and the Foundry project name.')
@@ -114,7 +113,7 @@ param additionalCorsOrigins array = []
 param availabilityTestLocations array = [
   'apac-jp-kaw-edge'
   'apac-hk-hkn-azr'
-  'apac-sg-sin-azr'
+  'emea-sg-sin-azr'
 ]
 
 @description('azd: set automatically so reprovisioning keeps the deployed image.')

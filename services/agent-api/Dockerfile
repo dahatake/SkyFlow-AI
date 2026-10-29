@@ -1,10 +1,10 @@
 # syntax=docker/dockerfile:1
-# Build context: services/agent-api.  docker build -t skyflow-agent-api services/agent-api
+# Build context: repository root (matches azure.yaml).  docker build -f services/agent-api/Dockerfile -t skyflow-agent-api .
 FROM python:3.12-slim AS build
 WORKDIR /build
 ENV PIP_NO_CACHE_DIR=1
-COPY pyproject.toml ./
-COPY src ./src
+COPY services/agent-api/pyproject.toml ./
+COPY services/agent-api/src ./src
 RUN pip install --prefix=/install ".[azure]"
 
 FROM python:3.12-slim

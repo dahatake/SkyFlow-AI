@@ -181,6 +181,34 @@ function renderPanel(p: PanelSpec): ReactNode {
   }
 }
 
+function RoleHeadline() {
+  const { role, view } = useOps();
+  const b = view.b;
+  const open = b.exceptions.filter((e) => view.statusOf(e) !== 'Resolved');
+  const crit = open.filter((e) => view.severity(e) === 'Critical' || view.severity(e) === 'High').length;
+  const unacked = open.filter((e) => view.statusOf(e) === 'New').length;
+  const breach = b.turnarounds.filter((t) => view.turnRisk(t.id) === 'Breach').length;
+  const atRisk = b.turnarounds.filter((t) => view.turnRisk(t.id) === 'AtRisk').length;
+  const badTask = (t: { id: string }) => ['AtRisk', 'Blocked'].includes(view.taskState(t.id));
+  const flightOf = (turnId: string) => b.flights.find((f) => f.id === b.turnarounds.find((t) => t.id === turnId)?.flightId);
+  let n = 0; let text = '';
+  const p = (c: number) => ({ n: String(c) });
+  if (role === 'Control Tower Lead') { n = breach + crit; text = tr('{n} SLA breaches or critical exceptions need escalation now', p(n)); }
+  else if (role === 'SIOC Duty Manager') { n = unacked + atRisk; text = tr('{n} turnarounds at risk or unacknowledged exceptions: intervene now', p(n)); }
+  else if (role === 'BU Ops Manager') { n = b.tasks.filter((t) => t.buId === LENS[role].filters.bu && badTask(t)).length; text = tr('{n} BU tasks blocked or at risk: check crew capacity', p(n)); }
+  else if (role === 'Ramp Lead') {
+    n = b.tasks.filter((t) => { const f = flightOf(t.turnaroundId); return f && view.pierOf(f) === LENS[role].filters.pier && badTask(t); }).length;
+    text = tr('{n} tasks on your pier blocked or at risk', p(n));
+  } else if (role === 'Action Owner') { n = b.tasks.filter((t) => t.ownerId === LENS[role].filters.owner && badTask(t)).length; text = tr('{n} of your tasks blocked or at risk', p(n)); }
+  else { n = open.length; text = tr('{n} open exceptions across the airport (read-only)', p(n)); }
+  return (
+    <div className={`headline ${n > 0 ? 'alert' : 'ok'}`} role="alert" aria-live="assertive" data-testid="role-headline">
+      <span className="headline-tag">{n > 0 ? tr('BREAKING') : tr('ALL CLEAR')}</span>
+      <span className="headline-text">{n > 0 ? text : tr('No high-priority situation for this role')}</span>
+    </div>
+  );
+}
+
 function RoleLayout() {
   const { role } = useOps();
   const meta = ROLE_META[role];
@@ -312,7 +340,7 @@ export default function App() {
   return (
     <LangCtx.Provider value={{ lang, change }}>
       <Boundary>
-        <OpsProvider><a href="#main" className="skip">{tr('Skip to content')}</a><Header /><RoleBar /><DemoBar /><Banner /><LiveBar /><DemoGuide /><div id="main"><Main /></div></OpsProvider>
+        <OpsProvider><a href="#main" className="skip">{tr('Skip to content')}</a><RoleHeadline /><Header /><RoleBar /><DemoBar /><Banner /><LiveBar /><DemoGuide /><div id="main"><Main /></div></OpsProvider>
       </Boundary>
     </LangCtx.Provider>
   );

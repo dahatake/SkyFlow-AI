@@ -89,6 +89,7 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
             raise HTTPException(429, "Rate limit exceeded", headers={"Retry-After": "60"})
 
     @app.get("/health")
+    @app.get("/api/health")
     async def health() -> dict[str, Any]:
         return {"status": "ok", "model": "configured" if svc.model.available else "rules-only", "store": type(svc.store).__name__, "authDisabled": settings.auth_disabled}
 

@@ -10,8 +10,10 @@ export interface Proposal {
   items: ProposalItem[]; steps: TraceStep[]; traceId: string; source: 'service' | 'local';
 }
 
-const BASE = (import.meta as { env?: Record<string, string> }).env?.VITE_AGENT_API_URL ?? '';
-export const agentConfigured = () => BASE.length > 0;
+const RAW = (import.meta as { env?: Record<string, string> }).env?.VITE_AGENT_API_URL ?? '';
+// 'same-origin' means the Static Web App proxies /api/* to the agent API (linked backend), so no absolute URL is used.
+const BASE = RAW === 'same-origin' ? '' : RAW;
+export const agentConfigured = () => RAW.length > 0;
 
 /** Deterministic in-browser proposal from the same engine advice the service uses as its fallback. */
 export function localProposal(b: Baseline, sc: Scenario, demoId: string, id: string): Proposal {

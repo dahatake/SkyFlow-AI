@@ -17,7 +17,7 @@ uvicorn agent_api.app:create_app --factory --port 8000
 python -m agent_api.scheduler      # one scheduled Detect run (Container Apps job)
 ```
 
-Docker: `docker build -t skyflow-agent-api services/agent-api` (scheduler job: same image, command `python -m agent_api.scheduler`).
+Docker: `docker build -f services/agent-api/Dockerfile -t skyflow-agent-api .` (from the repo root) (scheduler job: same image, command `python -m agent_api.scheduler`).
 
 ## API
 

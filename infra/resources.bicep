@@ -238,23 +238,6 @@ resource foundryProject 'Microsoft.CognitiveServices/accounts/projects@2025-06-0
   dependsOn: [fastDeployment]
 }
 
-resource appInsightsConnection 'Microsoft.CognitiveServices/accounts/connections@2025-06-01' = {
-  parent: foundry
-  name: 'appinsights'
-  properties: {
-    category: 'AppInsights'
-    target: appInsights.id
-    authType: 'ApiKey'
-    isSharedToAll: true
-    credentials: { key: appInsights.properties.ConnectionString }
-    metadata: {
-      ApiType: 'Azure'
-      ResourceId: appInsights.id
-    }
-  }
-  dependsOn: [foundryProject]
-}
-
 resource primaryDeployment 'Microsoft.CognitiveServices/accounts/deployments@2025-06-01' = if (deployModels) {
   parent: foundry
   name: primaryModel.name

@@ -25,7 +25,7 @@ resource actionGroup 'Microsoft.Insights/actionGroups@2023-01-01' = {
 
 var availabilityTargets = [
   { name: 'swa', url: 'https://${swaHostname}/' }
-  { name: 'agent-api', url: 'https://${agentApiFqdn}/health' }
+  { name: 'agent-api', url: 'https://${swaHostname}/api/health' }
 ]
 
 resource tests 'Microsoft.Insights/webtests@2022-06-15' = [for target in availabilityTargets: {
