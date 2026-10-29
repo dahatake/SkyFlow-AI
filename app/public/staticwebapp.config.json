@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json.schemastore.org/staticwebapp.config.json",
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": ["/assets/*", "/*.{css,js,map,png,jpg,jpeg,gif,svg,ico,webp,woff,woff2,glb,gltf,bin,json}", "/.auth/*", "/api/*"]
+  },
+  "routes": [
+    { "route": "/api/health", "allowedRoles": ["anonymous"] },
+    { "route": "/.auth/*", "allowedRoles": ["anonymous"] },
+    { "route": "/login", "redirect": "/.auth/login/aad", "statusCode": 302 },
+    { "route": "/logout", "redirect": "/.auth/logout", "statusCode": 302 },
+    { "route": "/*", "allowedRoles": ["authenticated"] }
+  ],
+  "responseOverrides": {
+    "401": { "redirect": "/.auth/login/aad?post_login_redirect_uri=.referrer", "statusCode": 302 }
+  },
+  "globalHeaders": {
+    "Content-Security-Policy": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; media-src 'self' blob:; worker-src 'self' blob:; connect-src 'self' blob: data: https://*.azurecontainerapps.io https://*.in.applicationinsights.azure.com https://*.livediagnostics.monitor.azure.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'",
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
+    "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+    "Cross-Origin-Opener-Policy": "same-origin"
+  },
+  "mimeTypes": {
+    ".glb": "model/gltf-binary",
+    ".gltf": "model/gltf+json",
+    ".wasm": "application/wasm"
+  }
+}

@@ -6,3 +6,27 @@ services:
     language: js
     host: staticwebapp
     dist: dist
+  engine-mcp:
+    project: ./services/engine-mcp
+    language: ts
+    host: containerapp
+    docker:
+      path: ./Dockerfile
+      context: ../..
+      remoteBuild: true
+  agent-api:
+    project: ./services/agent-api
+    language: python
+    host: containerapp
+    docker:
+      path: ./Dockerfile
+      context: ../..
+      remoteBuild: true
+  scheduler:
+    project: ./services/agent-api
+    language: python
+    host: containerapp
+    docker:
+      path: ./Dockerfile
+      context: ../..
+      remoteBuild: true

@@ -4,6 +4,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      ref:
+        description: Git ref to deploy (use a previous good SHA to roll back)
+        required: false
+        default: main
 
 permissions:
   id-token: write
@@ -14,37 +19,17 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    environment: production
-    env:
-      AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
-      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
-      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-      AZURE_ENV_NAME: ${{ vars.AZURE_ENV_NAME }}
-      AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
-      BUDGET_CONTACT_EMAIL: ${{ vars.BUDGET_CONTACT_EMAIL }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: app/package-lock.json
-      - name: Install azd
-        uses: Azure/setup-azd@v2
-      - name: Test
-        working-directory: app
-        run: |
-          npm ci
-          npm test
-      - name: Log in with azd (federated credential)
-        run: |
-          azd auth login \
-            --client-id "$AZURE_CLIENT_ID" \
-            --federated-credential-provider github \
-            --tenant-id "$AZURE_TENANT_ID"
-      - name: Provision infrastructure
-        run: azd provision --no-prompt
-      - name: Deploy application
-        run: azd deploy --no-prompt
+  staging:
+    uses: ./.github/workflows/deploy-env.yml
+    with:
+      environment: staging
+      ref: ${{ inputs.ref || github.sha }}
+    secrets: inherit
+
+  production:
+    needs: staging
+    uses: ./.github/workflows/deploy-env.yml
+    with:
+      environment: production
+      ref: ${{ inputs.ref || github.sha }}
+    secrets: inherit

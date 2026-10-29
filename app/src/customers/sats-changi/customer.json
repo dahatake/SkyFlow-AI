@@ -1,0 +1,18 @@
+{
+  "id": "sats-changi",
+  "name": "SATS",
+  "programme": "Project SPEAR",
+  "productName": "AI Operations Control Tower",
+  "airport": { "iata": "SIN", "name": "Singapore Changi", "timezone": "Asia/Singapore" },
+  "currency": "SGD",
+  "assumptions": {
+    "costPerDelayMinute": 120,
+    "slaBreachPenalty": 2500,
+    "blockedTaskCost": 60,
+    "manualResponseMinutes": 18,
+    "agentResponseMinutes": 4,
+    "disruptionsPerMonth": 20,
+    "source": "ASSUMPTION - placeholder values to validate with SATS finance and SIOC; replace before any external use"
+  },
+  "deck": { "mvpScopeDate": "2026-11-13", "buildStartDate": "2027-01-11", "anchorScenario": "demo-weather" }
+}

@@ -12,7 +12,7 @@ import { Resources } from './components/Resources';
 import {
   Airplane24Regular, AirplaneTakeOff24Regular, Alert24Regular, ArrowReset24Regular, Beaker24Regular, Bug24Regular, DataBarVertical24Regular,
   Eye24Regular, PersonBoard24Regular, PersonProhibited24Regular, ShieldCheckmark24Regular, Timeline24Regular, WeatherMoon24Regular,
-  WeatherSunny24Regular, WeatherThunderstorm24Regular, DocumentBriefcase24Regular, Sparkle24Regular, ClipboardTaskListLtr24Regular, Box24Regular, Gauge24Regular, Clock24Regular, TaskListSquareLtr24Regular, Warning24Regular, Flash24Regular, CalendarLtr24Regular,
+  WeatherSunny24Regular, WeatherThunderstorm24Regular, DocumentBriefcase24Regular, Sparkle24Regular, ClipboardTaskListLtr24Regular, Box24Regular, Gauge24Regular, Clock24Regular, TaskListSquareLtr24Regular, Warning24Regular, Flash24Regular, CalendarLtr24Regular, Money24Regular, Bot24Regular,
 } from '@fluentui/react-icons';
 import { DEMO_PACK } from './domain/demo';
 import { DecisionQueue } from './components/Decisions';
@@ -21,11 +21,18 @@ import { LiveBar } from './components/LiveBar';
 import { KpiView } from './components/KpiView';
 import { Optimizer } from './components/Optimizer';
 import { PlanningView } from './components/PlanningView';
+import { ExecutiveView } from './components/ExecutiveView';
+import { AgentView } from './components/AgentView';
+import { ValueView } from './components/ValueView';
+import { DemoGuide } from './components/DemoGuide';
 import { fmt } from './domain/seed';
 import { trData } from './i18n/data';
 import { LangCtx, LangSwitch, getLang, setLang, tr, type Lang } from './i18n';
 
 const TABS: [Tab, string, string, ReactNode][] = [
+  ['executive', 'Executive', 'What is wrong, what to do, what it saves', <Money24Regular key="i" />],
+  ['agent', 'AI agent', 'Agents propose, people approve', <Bot24Regular key="i" />],
+  ['value', 'Value', 'Before and after, with assumptions', <Money24Regular key="i" />],
   ['overview', 'Overview', 'KPIs, map and priorities', <DataBarVertical24Regular key="i" />],
   ['kpi', 'Action KPIs', 'Manager actions vs SLA', <Gauge24Regular key="i" />],
   ['decisions', 'Decisions', 'Judgement tasks for people and Copilot', <Sparkle24Regular key="i" />],
@@ -265,7 +272,7 @@ function FilterBar() {
 
 function Main() {
   const { tab, setTab } = useOps();
-  const plain = tab !== 'overview' && tab !== 'scenarios' && tab !== 'optimize' && tab !== 'planning' && tab !== 'diagnostics' && tab !== 'kpi';
+  const plain = tab !== 'executive' && tab !== 'agent' && tab !== 'value' && tab !== 'overview' && tab !== 'scenarios' && tab !== 'optimize' && tab !== 'planning' && tab !== 'diagnostics' && tab !== 'kpi';
   return (
     <>
       <nav className="tabs" role="tablist" aria-label={tr('Views')}>
@@ -274,6 +281,9 @@ function Main() {
       {tab === 'overview' && <><TimeBar /><FilterBar /><RoleLayout /></>}
       {plain && <><Kpis /><TimeBar /><FilterBar /></>}
       {tab !== 'overview' && <main className={tab === 'turnaround' ? 'grid-main' : 'single'}>
+        {tab === 'executive' && <ExecutiveView />}
+        {tab === 'agent' && <><AgentView /><DecisionQueue compact /></>}
+        {tab === 'value' && <ValueView />}
         {tab === 'kpi' && <KpiView />}
         {tab === 'tasks' && <><TaskList /><WorkflowPanel /></>}
         {tab === 'decisions' && <><WorkflowPanel /><DecisionQueue /><VizPane /></>}
@@ -302,7 +312,7 @@ export default function App() {
   return (
     <LangCtx.Provider value={{ lang, change }}>
       <Boundary>
-        <OpsProvider><a href="#main" className="skip">{tr('Skip to content')}</a><Header /><RoleBar /><DemoBar /><Banner /><LiveBar /><div id="main"><Main /></div></OpsProvider>
+        <OpsProvider><a href="#main" className="skip">{tr('Skip to content')}</a><Header /><RoleBar /><DemoBar /><Banner /><LiveBar /><DemoGuide /><div id="main"><Main /></div></OpsProvider>
       </Boundary>
     </LangCtx.Provider>
   );

@@ -1,2 +1,8 @@
 node_modules
 dist
+coverage
+playwright-report
+test-results
+_out.json
+out
+dist-deck

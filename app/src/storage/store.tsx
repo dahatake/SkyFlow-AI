@@ -15,10 +15,10 @@ import { useGpsTracker, type GpsState } from './gpsTracker';
 import { getLang, tr } from '../i18n';
 
 export type WfMap = Record<string, { status: ExceptionState; ownerId?: string; ackAt?: number; actAt?: number }>;
-export type Tab = 'overview' | 'kpi' | 'decisions' | 'tasks' | 'turnaround' | 'exceptions' | 'owner' | 'scenarios' | 'optimize' | 'planning' | 'diagnostics';
+export type Tab = 'executive' | 'agent' | 'value' | 'overview' | 'kpi' | 'decisions' | 'tasks' | 'turnaround' | 'exceptions' | 'owner' | 'scenarios' | 'optimize' | 'planning' | 'diagnostics';
 
 export const LENS: Record<RoleType, { tab: Tab; filters: Partial<Filters>; canSimulate: boolean; blurb: string }> = {
-  'Control Tower Lead': { tab: 'overview', filters: {}, canSimulate: true, blurb: 'Airport-wide risk, SLA exposure and ownership' },
+  'Control Tower Lead': { tab: 'executive', filters: {}, canSimulate: true, blurb: 'Airport-wide risk, SLA exposure and ownership' },
   'SIOC Duty Manager': { tab: 'overview', filters: {}, canSimulate: true, blurb: 'Live turnarounds, exceptions and dependencies' },
   'BU Ops Manager': { tab: 'overview', filters: { bu: 'bu-ramp' }, canSimulate: true, blurb: 'BU workload, capacity and SLA risk' },
   'Ramp Lead': { tab: 'overview', filters: { pier: 'A' }, canSimulate: false, blurb: 'Pier/stand view and next actions' },

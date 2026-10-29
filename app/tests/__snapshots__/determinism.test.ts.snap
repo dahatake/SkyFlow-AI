@@ -1,0 +1,13 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`reproducibility (golden) > pins the demo advice so regressions are visible 1`] = `
+[
+  "demo-weather/wx-gate=regate-c",
+  "demo-weather/wx-crew=extra-ramp",
+  "demo-flight-delay/fd-crew=pre-stage",
+  "demo-flight-delay/fd-gse=borrow-fuel",
+  "demo-flight-delay/fd-gate=regate-c",
+  "demo-no-staff/ns-source=standby",
+  "demo-no-staff/ns-scope=defer-p3",
+]
+`;

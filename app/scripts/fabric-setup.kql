@@ -1,0 +1,5 @@
+// Run in the Fabric Eventhouse KQL database.
+.create-merge table BaselineSnapshot (IngestedAt: datetime, Customer: string, Payload: dynamic)
+.alter table BaselineSnapshot policy retention softdelete = 30d
+// Ingest the JSON from `npx tsx scripts/publish-baseline.ts` with:
+//   .ingest inline into table BaselineSnapshot <| 2027-01-11T00:00:00Z, "sats-changi", <payload json>

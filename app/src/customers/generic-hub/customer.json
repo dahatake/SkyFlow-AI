@@ -1,0 +1,18 @@
+{
+  "id": "generic-hub",
+  "name": "Example Airport Services",
+  "programme": "Hub Pilot",
+  "productName": "AI Operations Control Tower",
+  "airport": { "iata": "XXX", "name": "Example International", "timezone": "UTC" },
+  "currency": "USD",
+  "assumptions": {
+    "costPerDelayMinute": 90,
+    "slaBreachPenalty": 2000,
+    "blockedTaskCost": 50,
+    "manualResponseMinutes": 15,
+    "agentResponseMinutes": 4,
+    "disruptionsPerMonth": 12,
+    "source": "ASSUMPTION - sample values for a second customer; replace with discovery data"
+  },
+  "deck": { "mvpScopeDate": "2027-01-29", "buildStartDate": "2027-03-01", "anchorScenario": "demo-weather" }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "skyflow-ai",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:22",
+  "features": {
+    "ghcr.io/devcontainers/features/python:1": { "version": "3.12" },
+    "ghcr.io/devcontainers/features/azure-cli:1": { "installBicep": true },
+    "ghcr.io/azure/azure-dev/azd:0": {}
+  },
+  "postCreateCommand": "cd app && npm ci && npx playwright install --with-deps chromium",
+  "forwardPorts": [5173, 4173],
+  "customizations": { "vscode": { "extensions": ["GitHub.copilot", "ms-azuretools.vscode-bicep", "ms-playwright.playwright", "oxc.oxc-vscode"] } }
+}
