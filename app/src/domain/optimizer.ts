@@ -36,14 +36,19 @@ export const DEFAULT_LIMITS: OptLimits = { horizonMin: 180, standBufferMin: 10, 
 export const defaultConfig = (): OptConfig => ({ weights: { ...PRESETS.balanced.weights }, limits: { ...DEFAULT_LIMITS } });
 
 export interface StandMove { flightId: string; flightNo: string; from: string; to: string; reason: string }
-export interface GseAssignment { taskId: string; taskType: string; flightNo: string; assetId: string; assetType: string; fromStand: string; toStand: string; distance: number; start: number; end: number }
+export interface GseAssignment { taskId: string; taskType: string; flightNo: string; assetId: string; assetType: string; fromStand: string; toStand: string; distance: number; start: number; end: number; reason: string }
 export interface StaffTransfer { fromBuId: string; fromSkill: string; toBuId: string; toSkill: string; qty: number; reason: string }
 export interface TaskShift { taskId: string; taskType: string; flightNo: string; standId: string; shiftMin: number; reason: string }
 export interface Unresolved { kind: 'stand' | 'gse' | 'staff'; ref: string; reason: string }
 export interface OptMetrics {
   standConflicts: number; gseUnassigned: number; gseTravel: number; overloadedPools: number; seatOverruns: number; weightedScore: number;
 }
+export interface StandCap { standId: string; seats: number; peakBefore: number; peakAfter: number; tasks: number }
+export interface GseCap { type: string; total: number; usable: number; assignedUnits: number; assignedTasks: number; peakInUse: number }
+export interface StaffCap { buId: string; skill: string; available: number; engaged: number; availableAfter: number; pressureBefore: number; pressureAfter: number }
 export interface OptPlan {
+  capacity: { stands: StandCap[]; gse: GseCap[]; staff: StaffCap[] };
+  summary: string[];
   generatedAt: number; config: OptConfig;
   standMoves: StandMove[]; gse: GseAssignment[]; staff: StaffTransfer[]; shifts: TaskShift[]; unresolved: Unresolved[];
   before: OptMetrics; after: OptMetrics; flightsConsidered: number; tasksConsidered: number; priorityOrder: { flightNo: string; score: number }[];
@@ -162,7 +167,7 @@ export function optimize(view: OpsView, cfg: OptConfig, now: number): OptPlan {
     const d = round1(dist(standById.get(a.standId)!, st));
     travelAfter += d;
     booked.set(a.id, [...(booked.get(a.id) ?? []), [t0, t1]]);
-    gse.push({ taskId: t.id, taskType: t.taskType, flightNo: f.flightNo, assetId: a.id, assetType: a.type, fromStand: a.standId, toStand: st.id, distance: d, start: t0, end: t1 });
+    gse.push({ taskId: t.id, taskType: t.taskType, flightNo: f.flightNo, assetId: a.id, assetType: a.type, fromStand: a.standId, toStand: st.id, distance: d, start: t0, end: t1, reason: `nearest free ${type} (${near.length} eligible of ${pool.length} usable); priority ${scores.get(f.id)}` });
   });
 
   // --- 3. Crew seats per stand: stagger tasks that exceed the seat limit --------------------------------------
@@ -183,6 +188,7 @@ export function optimize(view: OpsView, cfg: OptConfig, now: number): OptPlan {
   tasks.forEach((t) => { const s = view.standOf(flightOf(t)); overStandBefore.set(s, [...(overStandBefore.get(s) ?? []), t]); });
   overStandBefore.forEach((l) => { seatBefore += seatLoad(l, () => 0); });
   let seatAfter = 0;
+  const shiftMap = new Map<string, number>();
   bySt.forEach((list, standId) => {
     const sorted = [...list].sort((a, c) => taskStart(a) - taskStart(c) || a.priority - c.priority);
     const shiftOf = new Map<string, number>();
@@ -190,7 +196,7 @@ export function optimize(view: OpsView, cfg: OptConfig, now: number): OptPlan {
       let shift = 0;
       const conc = () => sorted.filter((o) => o !== t && shiftOf.has(o.id) && overlaps(taskStart(t) + shift, taskStart(t) + shift + L.taskMinutes, taskStart(o) + (shiftOf.get(o.id) ?? 0), taskStart(o) + (shiftOf.get(o.id) ?? 0) + L.taskMinutes)).length;
       while (conc() >= L.seatsPerStand && shift < 60) shift += 5;
-      shiftOf.set(t.id, shift);
+      shiftOf.set(t.id, shift); shiftMap.set(t.id, shift);
       if (shift > 0) shifts.push({ taskId: t.id, taskType: t.taskType, flightNo: flightOf(t).flightNo, standId, shiftMin: shift, reason: `Stand ${standId} crew seats (${L.seatsPerStand}) exceeded` });
     });
     seatAfter += seatLoad(sorted, (t) => shiftOf.get(t.id) ?? 0);
@@ -216,11 +222,40 @@ export function optimize(view: OpsView, cfg: OptConfig, now: number): OptPlan {
     if (want > 0) { overloadedAfter++; unresolved.push({ kind: 'staff', ref: `${b.bus.find((x) => x.id === n.buId)?.name ?? n.buId} · ${n.skillGroup}`, reason: `${want} short with no donor pool spare` }); }
   });
 
+  // --- 5. Capacity per resource and plain-language summary -------------------------------------------------------
+  const peak = (list: { t0: number; t1: number }[]) => Math.max(0, ...list.map((x) => list.filter((o) => overlaps(x.t0, x.t1, o.t0, o.t1)).length));
+  const standIds = [...new Set([...overStandBefore.keys(), ...bySt.keys()])].sort();
+  const capStands: StandCap[] = standIds.map((id) => ({
+    standId: id, seats: L.seatsPerStand, tasks: bySt.get(id)?.length ?? 0,
+    peakBefore: peak((overStandBefore.get(id) ?? []).map((t) => ({ t0: taskStart(t), t1: taskStart(t) + L.taskMinutes }))),
+    peakAfter: peak((bySt.get(id) ?? []).map((t) => ({ t0: taskStart(t) + (shiftMap.get(t.id) ?? 0), t1: taskStart(t) + (shiftMap.get(t.id) ?? 0) + L.taskMinutes }))),
+  }));
+  const capGse: GseCap[] = [...new Set(b.assets.map((a) => a.type))].sort().map((type) => {
+    const units = b.assets.filter((a) => a.type === type);
+    const mine = gse.filter((g) => g.assetType === type);
+    return { type, total: units.length, usable: units.filter((a) => USABLE.includes(view.assetState(a.id))).length, assignedUnits: new Set(mine.map((g) => g.assetId)).size, assignedTasks: mine.length, peakInUse: peak(mine.map((g) => ({ t0: g.start, t1: g.end }))) };
+  });
+  const capStaff: StaffCap[] = b.staff.map((s) => {
+    const inn = staff.filter((x) => x.toBuId === s.buId && x.toSkill === s.skillGroup).reduce((n, x) => n + x.qty, 0);
+    const out = staff.filter((x) => x.fromBuId === s.buId && x.fromSkill === s.skillGroup).reduce((n, x) => n + x.qty, 0);
+    const availableAfter = s.available + inn - out;
+    return { buId: s.buId, skill: s.skillGroup, available: s.available, engaged: s.engaged, availableAfter, pressureBefore: round1(pressure(s.id) * 100) / 100, pressureAfter: round1((s.engaged / Math.max(1, availableAfter)) * 100) / 100 };
+  });
+  const summary = [
+    `Replanned ${flights.length} flights and ${tasks.length} equipment tasks inside the next ${L.horizonMin} min (aircraft already on stand were kept in place).`,
+    standMoves.length ? `${standMoves.length} flight(s) move stand; stand overlaps fall from ${conflictsBefore} to ${conflictsAfter}.` : `No stand moves were needed; stand overlaps stay at ${conflictsAfter}.`,
+    `${gse.length} of ${tasks.length} equipment tasks have a unit assigned (before: ${tasks.length - unassignedBefore}); total travel ${round1(travelBefore)} → ${round1(travelAfter)} map units.`,
+    staff.length ? `${staff.reduce((n, x) => n + x.qty, 0)} crew member(s) are shifted between pools; overloaded pools ${overloadedBefore} → ${overloadedAfter}.` : `Crew pools needed no transfer (${overloadedBefore} overloaded).`,
+    shifts.length ? `${shifts.length} task(s) start later so no stand exceeds ${L.seatsPerStand} crew seats.` : `All stands stay within ${L.seatsPerStand} crew seats.`,
+    unresolved.length ? `${unresolved.length} item(s) could not be solved within the limits and need a human decision.` : 'Everything was solved within the limits.',
+  ];
+
   const metrics = (m: Omit<OptMetrics, 'weightedScore'>): OptMetrics => ({
     ...m,
     weightedScore: round1(m.standConflicts * 10 * w.time + m.gseUnassigned * 6 * w.sla + m.gseTravel * 0.2 * w.distance + m.overloadedPools * 5 * w.resource + m.seatOverruns * 2 * w.resource),
   });
   return {
+    capacity: { stands: capStands, gse: capGse, staff: capStaff }, summary,
     generatedAt: now, config: cfg, standMoves, gse, staff, shifts, unresolved,
     flightsConsidered: flights.length, tasksConsidered: tasks.length,
     priorityOrder: ordered.slice(0, 5).map((f) => ({ flightNo: f.flightNo, score: scores.get(f.id)! })),

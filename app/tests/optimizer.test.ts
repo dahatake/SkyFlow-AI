@@ -47,6 +47,16 @@ describe('resource optimizer', () => {
     expect(JSON.stringify(sla.priorityOrder)).not.toBe(JSON.stringify(speed.priorityOrder));
   });
 
+  it('reports capacity numbers and a summary', () => {
+    const b = mk();
+    const p = optimize(viewOf(b), defaultConfig(), b.now);
+    expect(p.summary.length).toBeGreaterThanOrEqual(5);
+    expect(p.capacity.gse.length).toBeGreaterThan(0);
+    expect(p.capacity.staff.length).toBe(b.staff.length);
+    p.capacity.stands.forEach((s) => expect(s.peakAfter).toBeLessThanOrEqual(Math.max(s.seats, s.peakBefore)));
+    p.gse.forEach((g) => expect(g.reason).toBeTruthy());
+  });
+
   it('applying a plan overlays stand moves without touching baseline', () => {
     const b = mk();
     const before = JSON.stringify(b);

@@ -222,3 +222,4 @@ th{font-weight:600;color:var(--mut);position:sticky;top:0;background:var(--card)
 .tgantt .g-head,.tgantt .g-row{grid-template-columns:130px 1fr}
 
 .opt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:12px 0}.opt-grid fieldset{border:1px solid var(--line);border-radius:6px;display:grid;gap:6px}.opt-grid label{display:grid;gap:2px;font-size:12px}.opt-go{font-weight:600;padding:8px 18px}
+.howto{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:8px 12px;margin:8px 0}.howto ol{margin:6px 0 6px 18px}.opt-summary{margin:4px 0 8px 18px}.over{color:#a4262c;font-weight:600}.optimizer caption{text-align:left;padding:6px 0}

@@ -46,6 +46,17 @@ export function Optimizer() {
       <h2><Flash24Regular /> Optimize all resources <Tag simulated /></h2>
       <p className="muted">Recommends stand, equipment and crew changes in one click. Weighted priorities decide trade-offs; limits are never broken. Recommendation only: no write-back to operations.</p>
 
+      <details className="howto" open>
+        <summary><strong>How to use</strong></summary>
+        <ol>
+          <li>Pick a preset (or move the sliders) to say what matters most. Higher weight = that priority wins trade-offs.</li>
+          <li>Set the limits: planning horizon, stand buffer, maximum equipment travel and crew seats per stand. Limits are hard rules and are never broken.</li>
+          <li>Press <b>Optimize all</b>. Read the summary, the capacity tables and every change with its reason.</li>
+          <li>Press <b>Apply to all views</b> to see the plan on the maps and boards, or <b>Revert applied plan</b> to undo it. Items under “Needs a human decision” must be handled by people.</li>
+        </ol>
+        <p className="muted"><b>Why it works this way:</b> flights are ranked by SLA risk, airline tier, time to departure and open exceptions; the highest-ranked flights choose stands and equipment first. Aircraft already on stand are not moved. Nothing is written back to operations.</p>
+      </details>
+
       <div className="row" role="group" aria-label="Priority preset">
         {(Object.keys(PRESETS) as PresetId[]).map((id) => (
           <button key={id} className={`demo-card ${preset === id ? 'on' : ''}`} aria-pressed={preset === id} onClick={() => choose(id)}>
@@ -80,18 +91,33 @@ export function Optimizer() {
 
       {plan && (
         <div role="region" aria-label="Optimization result" aria-live="polite">
+          <h3>Summary</h3>
+          <ul className="opt-summary">{plan.summary.map((s, i) => <li key={i}>{s}</li>)}</ul>
+
           <h3>Before → after</h3>
           <table><thead><tr><th>Measure</th><th>Before</th><th>After</th></tr></thead><tbody>
             {METRICS.map(([k, l]) => <tr key={k}><td>{l}</td><td>{plan.before[k]}</td><td><b>{plan.after[k]}</b> {plan.after[k] < plan.before[k] ? '▼' : plan.after[k] > plan.before[k] ? '▲' : ''}</td></tr>)}
           </tbody></table>
           <p className="muted">Highest priority: {plan.priorityOrder.map((p) => `${p.flightNo} (${p.score})`).join(', ') || 'none'}</p>
 
+          <h3>Capacity</h3>
+          <p className="muted">Numbers are people / units / seats. “Peak” is the most that run at the same time.</p>
+          <table><caption className="muted">Stands (crew seats per stand: {plan.config.limits.seatsPerStand})</caption><thead><tr><th>Stand</th><th>Tasks</th><th>Seats</th><th>Peak before</th><th>Peak after</th></tr></thead><tbody>
+            {plan.capacity.stands.map((s) => <tr key={s.standId}><td>{s.standId}</td><td>{s.tasks}</td><td>{s.seats}</td><td className={s.peakBefore > s.seats ? 'over' : ''}>{s.peakBefore}</td><td className={s.peakAfter > s.seats ? 'over' : ''}><b>{s.peakAfter}</b></td></tr>)}
+          </tbody></table>
+          <table><caption className="muted">Equipment (GSE)</caption><thead><tr><th>Type</th><th>Total units</th><th>Usable</th><th>Units assigned</th><th>Tasks assigned</th><th>Peak in use</th></tr></thead><tbody>
+            {plan.capacity.gse.map((g) => <tr key={g.type}><td>{g.type}</td><td>{g.total}</td><td>{g.usable}</td><td>{g.assignedUnits}</td><td>{g.assignedTasks}</td><td className={g.peakInUse > g.usable ? 'over' : ''}>{g.peakInUse}</td></tr>)}
+          </tbody></table>
+          <table><caption className="muted">Crew pools</caption><thead><tr><th>Pool</th><th>Available</th><th>Engaged</th><th>Available after</th><th>Pressure before → after</th></tr></thead><tbody>
+            {plan.capacity.staff.map((s, i) => <tr key={i}><td>{bu.get(s.buId)} · {s.skill}</td><td>{s.available}</td><td>{s.engaged}</td><td><b>{s.availableAfter}</b></td><td className={s.pressureAfter > 1 ? 'over' : ''}>{s.pressureBefore.toFixed(2)} → <b>{s.pressureAfter.toFixed(2)}</b></td></tr>)}
+          </tbody></table>
+
           <h3>Stand moves ({plan.standMoves.length})</h3>
           {plan.standMoves.length ? <table><tbody>{plan.standMoves.map((m) => <tr key={m.flightId}><td>{m.flightNo}</td><td>{m.from} → <b>{m.to}</b></td><td>{m.reason}</td></tr>)}</tbody></table> : <p className="muted">Current stand allocation is already best for these priorities.</p>}
 
           <h3>Equipment assignments ({plan.gse.length})</h3>
-          {plan.gse.length ? <table><thead><tr><th>Flight</th><th>Task</th><th>Unit</th><th>Route</th><th>Window</th></tr></thead><tbody>
-            {plan.gse.map((g) => <tr key={g.taskId}><td>{g.flightNo}</td><td>{g.taskType}</td><td>{g.assetId}</td><td>{g.fromStand} → {g.toStand} ({g.distance})</td><td>{fmt(g.start)}–{fmt(g.end)}</td></tr>)}
+          {plan.gse.length ? <table><thead><tr><th>Flight</th><th>Task</th><th>Unit</th><th>Route</th>          <th>Window</th><th>Reason</th></tr></thead><tbody>
+                      {plan.gse.map((g) => <tr key={g.taskId}><td>{g.flightNo}</td><td>{g.taskType}</td><td>{g.assetId}</td><td>{g.fromStand} → {g.toStand} ({g.distance})</td><td>{fmt(g.start)}–{fmt(g.end)}</td><td>{g.reason}</td></tr>)}
           </tbody></table> : <p className="muted">No equipment assignments needed.</p>}
 
           <h3>Crew transfers ({plan.staff.length})</h3>
