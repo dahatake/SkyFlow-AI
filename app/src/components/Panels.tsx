@@ -1,7 +1,6 @@
 import { fmt } from '../domain/seed';
 import { useOps } from '../storage/store';
 import { ExceptionQueue } from './Board';
-import { Map2D } from './Map2D';
 import { Scene3D } from './Scene3D';
 import { GpsMap } from './GpsMap';
 import { Badge, Tag } from './ui';
@@ -23,13 +22,12 @@ export function VizPane() {
             <div role="group" aria-label={tr('2D / 3D toggle')} className="seg">
           <button aria-pressed={vizMode === '2d'} onClick={() => setVizMode('2d')}>2D</button>
           <button aria-pressed={vizMode === '3d'} onClick={() => setVizMode('3d')}>3D</button>
-          <button aria-pressed={vizMode === 'gps'} onClick={() => setVizMode('gps')}>GPS</button>
         </div>
       </div>
-      {vizMode !== 'gps' && <details className="layers">      <summary>{tr('Layers')}</summary>
+      {vizMode === '3d' && <details className="layers">      <summary>{tr('Layers')}</summary>
               {LAYERS.map(([k, l]) => <label key={k}><input type="checkbox" checked={!!layers[k]} onChange={() => toggleLayer(k)} /> {tr(l)}</label>)}
       </details>}
-      {vizMode === '2d' ? <Map2D /> : vizMode === '3d' ? <Scene3D /> : <GpsMap />}
+      {vizMode === '2d' ? <GpsMap /> : <Scene3D />}
       <p className="legend">{tr('Risk:')} <Badge level="Normal" /> <Badge level="Watch" /> <Badge level="AtRisk" /> <Badge level="Breach" /> · {tr('Layers hide rendering only; KPIs are unaffected.')}</p>
     </section>
   );

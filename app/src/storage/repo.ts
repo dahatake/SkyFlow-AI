@@ -5,7 +5,7 @@ import type { AuditEvent, Baseline, DiagEvent, Scenario } from '../domain/types'
 
 const PREF_KEY = 'aoct.prefs';
 
-export interface Prefs { role: string; theme: 'light' | 'dark'; view: '2d' | '3d' | 'gps'; layers: Record<string, boolean>; panel: boolean }
+export interface Prefs { role: string; theme: 'light' | 'dark'; view: '2d' | '3d'; layers: Record<string, boolean>; panel: boolean }
 export const defaultPrefs: Prefs = {
   role: 'Control Tower Lead', theme: 'light', view: '2d', panel: true,
   layers: { flights: true, stands: true, milestones: true, tasks: true, staff: true, assets: true, sla: true, weather: true, relations: true },

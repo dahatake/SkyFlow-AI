@@ -34,3 +34,5 @@ npm run build
 
 - **Task list:** every decision option expands into 5W2H action tasks (What, Why, Who, When, Where, How, How much) shown as List / Gantt / Board with priority and status (`src/domain/tasks.ts`, `components/TaskList.tsx`). Choosing a decision in the Decision queue creates them.
 - **Live feed:** the seed stays immutable; `src/domain/live.ts` derives the observed state at operational minute 08:00 + tick (flight status, milestones, tasks, SLA risk, GSE, crew, new exceptions). One tick per real minute by default (x15 / x60 for demos), with pause, restart and a change ticker.
+
+- **Presentation decks:** the header's **Presentation** menu opens two full-screen keynote-style decks served at `/presentation/`: `executive-briefing.html` (business benefit) and `cio-cto-briefing.html` (technical view). Both cover Business Envisioning, Solution Envisioning, the ADS and the prototype, end with *Why Microsoft*, and run over a live Three.js airport whose camera moves between 2D and 3D per slide (`presentation/scene.ts`; Auto / 2D / 3D toggle, keys `0` / `2` / `3`, drag to orbit, arrow keys to navigate). Narrative source: `docs/presentation-narrative.md`.

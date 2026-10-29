@@ -65,7 +65,7 @@ export function createScene(canvas: HTMLCanvasElement, labelRoot: HTMLElement, f
   const fog = new THREE.FogExp2(0x02040a, 0.002);
   scene.fog = fog;
   const camera = new THREE.PerspectiveCamera(40, 1, 1, 6000);
-  const hemi = new THREE.HemisphereLight(0x9fc4ff, 0x0a0f18, 0.9);
+  const hemi = new THREE.HemisphereLight(0xb5d3ff, 0x1a2333, 1.3);
   const sun = new THREE.DirectionalLight(0xffffff, 1.6);
   sun.position.set(120, 200, 80);
   scene.add(hemi, sun);
@@ -75,20 +75,20 @@ export function createScene(canvas: HTMLCanvasElement, labelRoot: HTMLElement, f
     new THREE.MeshBasicMaterial({ color, transparent: true, opacity, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide });
 
   // Ground, aprons, runways, taxiways
-  const ground = new THREE.Mesh(new THREE.PlaneGeometry(1400, 1000), new THREE.MeshStandardMaterial({ color: 0x080c14, roughness: 1 }));
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(1400, 1000), new THREE.MeshStandardMaterial({ color: 0x0d1420, roughness: 1 }));
   ground.rotation.x = -Math.PI / 2;
   scene.add(ground);
-  const grid = new THREE.GridHelper(700, 70, 0x1a2638, 0x0f1622);
+  const grid = new THREE.GridHelper(700, 70, 0x24344d, 0x152033);
   grid.position.y = 0.02;
   scene.add(grid);
-  const apronMat = new THREE.MeshStandardMaterial({ color: 0x121a27, roughness: 0.9 });
+  const apronMat = new THREE.MeshStandardMaterial({ color: 0x1a2536, roughness: 0.9 });
   TERMS.forEach((cx) => {
     const a = new THREE.Mesh(new THREE.PlaneGeometry(40, 84), apronMat);
     a.rotation.x = -Math.PI / 2;
     a.position.set(cx, 0.04, 0);
     scene.add(a);
   });
-  const stripMat = new THREE.MeshStandardMaterial({ color: 0x1a2130, roughness: 0.8 });
+  const stripMat = new THREE.MeshStandardMaterial({ color: 0x232c3d, roughness: 0.8 });
   const dashGeo = new THREE.BoxGeometry(2.4, 0.04, 0.3);
   const dashMat = new THREE.MeshBasicMaterial({ color: 0xdfe6f2 });
   const lightPos: number[] = [];
@@ -115,7 +115,7 @@ export function createScene(canvas: HTMLCanvasElement, labelRoot: HTMLElement, f
   scene.add(new THREE.Points(lightGeo, new THREE.PointsMaterial({ color: 0xffc66b, size: 1.4, map: glow, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending })));
 
   // Terminals and piers
-  const termMat = new THREE.MeshStandardMaterial({ color: 0x1c2738, roughness: 0.5, metalness: 0.3, emissive: 0x0a1a33, emissiveIntensity: 0.6 });
+  const termMat = new THREE.MeshStandardMaterial({ color: 0x1c2738, roughness: 0.5, metalness: 0.3, emissive: 0x12305c, emissiveIntensity: 0.9 });
   const edgeMat = new THREE.LineBasicMaterial({ color: 0x4aa3ff, transparent: true, opacity: 0.7 });
   const box = (w: number, h: number, d: number, x: number, z: number) => {
     const g = new THREE.BoxGeometry(w, h, d);
@@ -147,7 +147,7 @@ export function createScene(canvas: HTMLCanvasElement, labelRoot: HTMLElement, f
   const wing = new THREE.BoxGeometry(7.4, 0.12, 1.3).translate(0, -0.1, 0.3);
   const stab = new THREE.BoxGeometry(2.8, 0.1, 0.7).translate(0, 0.2, -3.1);
   const fin = new THREE.BoxGeometry(0.12, 1.6, 1.1).translate(0, 0.9, -3);
-  const ringGeo = new THREE.RingGeometry(4.3, 4.9, 48);
+  const ringGeo = new THREE.RingGeometry(4.2, 5.1, 48);
   for (const s of occupied) {
     const g = new THREE.Group();
     [fus, nose, wing, stab].forEach((geo) => { const m = new THREE.Mesh(geo, bodyMat); m.position.y = 1.1; g.add(m); });
@@ -299,6 +299,7 @@ export function createScene(canvas: HTMLCanvasElement, labelRoot: HTMLElement, f
   const goalFx: Record<Fx, number> = { ...level };
   let labelMaster = 1;
   let labelGoal = 1;
+  const shift = { x: 0, y: 0, gx: 0, gy: 0 };
   const labels: Label[] = [];
   const label = (text: string, pos: THREE.Vector3, vis: () => number, cls = '') => {
     const el = document.createElement('div');
@@ -359,12 +360,14 @@ export function createScene(canvas: HTMLCanvasElement, labelRoot: HTMLElement, f
   let time = 0;
 
   function frame(now: number) {
-    const dt = Math.min(0.05, Math.max(0, (now - last) / 1000));
+    const dt = Math.min(0.2, Math.max(0, (now - last) / 1000));
     last = now;
     time += dt;
     const kf = 1 - Math.exp(-dt * (reduce ? 8 : 2.2));
     FX.forEach((f) => (level[f] += (goalFx[f] - level[f]) * kf));
     labelMaster += (labelGoal - labelMaster) * kf;
+    shift.x += (shift.gx - shift.x) * kf;
+    shift.y += (shift.gy - shift.y) * kf;
 
     // Camera tween: log-space dolly plus FOV change produces a dolly-zoom between 2D and 3D.
     const e = effective();
@@ -382,9 +385,12 @@ export function createScene(canvas: HTMLCanvasElement, labelRoot: HTMLElement, f
     const ph = cur.phi * DEG, th = cur.theta * DEG;
     camera.position.set(target.x + cur.dist * Math.sin(ph) * Math.sin(th), target.y + cur.dist * Math.cos(ph), target.z + cur.dist * Math.sin(ph) * Math.cos(th));
     camera.fov = cur.fov;
+    // Re-frame the scene away from the slide copy (positive x moves it right, positive y moves it up).
+    const vw = window.innerWidth, vh = window.innerHeight;
+    camera.setViewOffset(vw, vh, -shift.x * vw, shift.y * vh, vw, vh);
     camera.updateProjectionMatrix();
     camera.lookAt(target);
-    fog.density = (0.5 + level.storm * 0.9) / Math.max(cur.dist, 60);
+    fog.density = (0.45 + level.storm * 0.35) / Math.max(cur.dist, 60);
 
     // Storm
     rainLines.visible = level.storm > 0.01;
@@ -399,7 +405,7 @@ export function createScene(canvas: HTMLCanvasElement, labelRoot: HTMLElement, f
     }
     if (!reduce && level.storm > 0.6 && Math.random() < dt * 0.4) flash = 1;
     flash *= Math.exp(-dt * 7);
-    hemi.intensity = 0.9 - 0.4 * level.storm + flash * 3.5;
+    hemi.intensity = 1.3 - 0.45 * level.storm + flash * 3.5;
     sun.intensity = 1.6 * (1 - 0.6 * level.storm);
     (scene.background as THREE.Color).copy(BG).lerp(STORM_BG, Math.min(1, level.storm * 0.6 + flash * 0.4));
     if (flashEl) flashEl.style.opacity = String(flash * 0.35);
@@ -465,7 +471,9 @@ export function createScene(canvas: HTMLCanvasElement, labelRoot: HTMLElement, f
   requestAnimationFrame(frame);
 
   return {
-    setShot(cam: string, fx: Fx[], showLabels = true) {
+    setShot(cam: string, fx: Fx[], showLabels = true, frame: [number, number] = [0, 0]) {
+      shift.gx = frame[0];
+      shift.gy = frame[1];
       goal = PRESETS[cam] ?? PRESETS.hero;
       FX.forEach((f) => (goalFx[f] = fx.includes(f) ? 1 : 0));
       labelGoal = showLabels ? 1 : 0;

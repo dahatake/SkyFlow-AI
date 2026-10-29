@@ -29,9 +29,9 @@ interface Ctx {
   ready: boolean; notice: string; setNotice(s: string): void;
   baseline: Baseline; view: OpsView; scenarios: Scenario[]; activeId: string | null; mode: SimMode;
   filters: Filters; selection: Selection | null; related: Set<string>; kpiKey: string | null; timePos: number | null; setTimePos(t: number | null): void; live: { tick: number; speed: number; paused: boolean; lastTickAt: number; feed: { at: number; text: string }[]; setSpeed(n: number): void; setPaused(p: boolean): void; restart(): void }; setTaskStatus(id: string, st: TaskStatus): void; wf: WfMap; advance(ids: string[], to: ExceptionState, ownerId?: string | null | ((id: string) => string | null | undefined)): void;
-  role: RoleType; tab: Tab; vizMode: '2d' | '3d' | 'gps'; layers: Record<string, boolean>; theme: 'light' | 'dark'; audit: AuditEvent[]; diag: DiagEvent[];
+  role: RoleType; tab: Tab; vizMode: '2d' | '3d'; layers: Record<string, boolean>; theme: 'light' | 'dark'; audit: AuditEvent[]; diag: DiagEvent[];
   setFilters(f: Filters): void; select(s: Selection | null): void; setKpi(k: string | null): void;
-  setRole(r: RoleType): void; setTab(t: Tab): void; setVizMode(v: '2d' | '3d' | 'gps'): void; toggleLayer(k: string): void; setTheme(t: 'light' | 'dark'): void;
+  setRole(r: RoleType): void; setTab(t: Tab): void; setVizMode(v: '2d' | '3d'): void; toggleLayer(k: string): void; setTheme(t: 'light' | 'dark'): void;
   setMode(m: SimMode): void; saveScenario(s: Scenario): string[]; removeScenario(id: string): Promise<void>; activate(id: string | null): void;
   runDemo(id: string | null): void; decide(taskId: string, optionId: string, by: 'human' | 'copilot'): void; undoDecision(taskId: string): void; copilotAll(): void; duplicate(id: string): void; reset(): Promise<void>; exportData(): void; logDiag(kind: DiagEvent['kind'], message: string): void; logAudit(actor: string, action: string, entityRef?: string, scenarioRef?: string): void; gps: GpsState; baseView: OpsView; appliedPlan: OptPlan | null; applyPlan(p: OptPlan | null): void;
 }
@@ -61,7 +61,7 @@ export function OpsProvider({ children }: { children: ReactNode }) {
   const [appliedPlan, setAppliedPlan] = useState<OptPlan | null>(null);
   const [role, setRoleS] = useState<RoleType>(prefs.role as RoleType);
   const [tab, setTab] = useState<Tab>(LENS[prefs.role as RoleType]?.tab ?? 'overview');
-  const [vizMode, setVizMode] = useState(prefs.view);
+  const [vizMode, setVizMode] = useState<'2d' | '3d'>(prefs.view === '3d' ? '3d' : '2d');
   const [layers, setLayers] = useState<Record<string, boolean>>({ gates: true, baggage: true, cargo: true, ...prefs.layers });
   const [theme, setTheme] = useState(prefs.theme);
   const [audit, setAudit] = useState<AuditEvent[]>([]);

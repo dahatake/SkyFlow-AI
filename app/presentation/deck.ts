@@ -22,7 +22,12 @@ function go(i: number) {
   });
   const s = slides[n];
   const fx = (s.dataset.fx ?? '').split(/\s+/).filter((f): f is Fx => (FX as string[]).includes(f));
-  stage.setShot(s.dataset.cam ?? 'hero', fx, s.dataset.labels !== 'off');
+  const narrow = window.innerWidth <= 1000;
+  const frame: [number, number] = narrow ? [0, 0.18]
+    : s.classList.contains('layout-left') ? [0.2, 0]
+    : s.classList.contains('layout-right') ? [-0.2, 0]
+    : s.classList.contains('layout-wide') ? [0, 0.24] : [0, 0];
+  stage.setShot(s.dataset.cam ?? 'hero', fx, s.dataset.labels !== 'off', frame);
   bar.style.width = `${((n + 1) / slides.length) * 100}%`;
   count.textContent = `${String(n + 1).padStart(2, '0')} / ${String(slides.length).padStart(2, '0')}`;
   act.textContent = s.dataset.act ?? '';

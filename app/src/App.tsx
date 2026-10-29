@@ -12,7 +12,7 @@ import { Resources } from './components/Resources';
 import {
   Airplane24Regular, AirplaneTakeOff24Regular, Alert24Regular, ArrowReset24Regular, Beaker24Regular, Bug24Regular, DataBarVertical24Regular,
   Eye24Regular, PersonBoard24Regular, PersonProhibited24Regular, ShieldCheckmark24Regular, Timeline24Regular, WeatherMoon24Regular,
-  WeatherSunny24Regular, WeatherThunderstorm24Regular, Presentation24Regular, Sparkle24Regular, ClipboardTaskListLtr24Regular, Box24Regular, Gauge24Regular, Clock24Regular, TaskListSquareLtr24Regular, Warning24Regular, Flash24Regular, CalendarLtr24Regular,
+  WeatherSunny24Regular, WeatherThunderstorm24Regular, DocumentBriefcase24Regular, Sparkle24Regular, ClipboardTaskListLtr24Regular, Box24Regular, Gauge24Regular, Clock24Regular, TaskListSquareLtr24Regular, Warning24Regular, Flash24Regular, CalendarLtr24Regular,
 } from '@fluentui/react-icons';
 import { DEMO_PACK } from './domain/demo';
 import { DecisionQueue } from './components/Decisions';
@@ -96,7 +96,7 @@ const DECKS: [string, string, string][] = [
 function PresentationMenu() {
   return (
     <details className="present">
-      <summary><Presentation24Regular /> {tr('Presentation')}</summary>
+      <summary><DocumentBriefcase24Regular /> {tr('Presentation')}</summary>
       <div className="present-menu" role="menu">
         {DECKS.map(([href, title, sub]) => (
           <a key={href} role="menuitem" href={`${import.meta.env.BASE_URL}${href}`} target="_blank" rel="noopener">
@@ -120,7 +120,6 @@ function Header() {
         <div role="group" aria-label={tr('2D / 3D toggle')} className="seg">
           <button aria-pressed={vizMode === '2d'} onClick={() => setVizMode('2d')}>2D</button>
           <button aria-pressed={vizMode === '3d'} onClick={() => setVizMode('3d')}>3D</button>
-          <button aria-pressed={vizMode === 'gps'} onClick={() => setVizMode('gps')}>GPS</button>
         </div>
         <button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} aria-label={tr('Toggle theme')} title={tr('Toggle light / dark')}>{theme === 'light' ? <WeatherMoon24Regular /> : <WeatherSunny24Regular />}</button>
       </div>
