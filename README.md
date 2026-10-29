@@ -129,12 +129,108 @@ Open the repo in VS Code with Copilot and run the prompt `/instantiate-engagemen
 
 ## Deploy to Azure
 
+These steps deploy the full platform: the Static Web App, engine and agent containers, scheduler job, Microsoft Foundry models, Cosmos DB, Key Vault, and monitoring. Azure resources incur charges.
+
+### 1. Install prerequisites and sign in
+
+- [Node.js 22+](https://nodejs.org/) and [Git](https://git-scm.com/downloads).
+- [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) with Bicep, and [Azure Developer CLI (`azd`)](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd).
+- An Azure subscription with permission to create resources and role assignments at subscription scope (for example, Contributor plus User Access Administrator), and quota for the selected Foundry models.
+
+Run the following PowerShell commands from the repository root. If you have not cloned the repository yet, follow [Quick start](#quick-start) first.
+
 ```powershell
-./scripts/preflight.ps1    # Linux/macOS: ./scripts/preflight.sh
+az login
+azd auth login
+az bicep install
+```
+
+### 2. Configure a deployment environment
+
+Replace the subscription ID and budget email below. Use a distinct environment name for each deployment; it determines the resource group name (`rg-<environment-name>`).
+
+```powershell
+$subscriptionId = '<your-subscription-id>'
+$location = 'eastasia'
+$foundryLocation = 'eastus2'
+
+az account set --subscription $subscriptionId
+azd env new skyflow-dev
+azd env set AZURE_SUBSCRIPTION_ID $subscriptionId
+azd env set AZURE_LOCATION $location
+azd env set FOUNDRY_LOCATION $foundryLocation
+azd env set COSMOS_LOCATION southeastasia
+azd env set ENVIRONMENT_TYPE dev
+azd env set BUDGET_CONTACT_EMAIL '<your-budget-alert-email>'
+```
+
+Defaults are defined in [infra/main.parameters.json](infra/main.parameters.json):
+
+| Setting | Default | When to change it |
+|---|---|---|
+| `AZURE_LOCATION` | `eastasia` | Choose a region supporting Static Web Apps and Container Apps |
+| `FOUNDRY_LOCATION` | `eastus2` | Choose a region offering the models with sufficient quota |
+| `COSMOS_LOCATION` | `southeastasia` | Choose a region with Cosmos DB capacity |
+| `FOUNDRY_MODEL_PRIMARY` / `FOUNDRY_MODEL_FAST` | `gpt-4.1` / `gpt-4.1-mini` | Match available models, versions, SKUs, and capacity |
+| `ENVIRONMENT_TYPE` | `dev` | Use `staging` or `prod`; prod keeps container replicas running |
+| `SWA_SKU` | `Standard` | Required for the default linked `/api/*` backend |
+
+Set overrides with `azd env set <SETTING> <VALUE>`. The subscription budget defaults to **10,000 USD/month**; it sends alerts, not a spending cap. Adjust `monthlyBudgetUsd` in [infra/main.parameters.json](infra/main.parameters.json) before provisioning if needed.
+
+**Authentication:** the website requires Microsoft Entra sign-in by default, but the infrastructure sets API token validation to disabled when `API_AUDIENCE` is empty (`AUTH_DISABLED=auto`). Treat this default as demo-only. Before production use, configure Entra bearer-token access, set `API_AUDIENCE` and `AUTH_DISABLED=false`, and verify client token handling and approver roles. See [agent-api authentication](services/agent-api/README.md#environment). Azure service access uses managed identity; never commit credentials or the ignored `.azure/` directory.
+
+### 3. Check prerequisites, preview, and deploy
+
+```powershell
+.\scripts\preflight.ps1 -SubscriptionId $subscriptionId -Location $location -FoundryLocation $foundryLocation
+# Stop here if any checks fail; apply the printed fixes and rerun.
+azd provision --preview
+# Review the proposed resources and costs before continuing.
 azd up
 ```
 
-Infrastructure is Bicep in `infra/`; CI/CD lives in `.github/workflows`. Authentication uses managed identity, with no secrets in the repo. See the PLAYBOOK for OIDC setup.
+On Linux/macOS, use `./scripts/preflight.sh` instead; see its options for the equivalent subscription and region flags. If you override model settings, pass matching model, SKU, and capacity options to preflight (or export the corresponding environment variables); `azd env set` does not export them into your shell.
+
+`azd up` provisions the Bicep infrastructure in [infra/](infra/) and deploys the services in [azure.yaml](azure.yaml). Container images use remote builds in Azure Container Registry, so local Docker is not required.
+
+### 4. Verify the deployment
+
+```powershell
+$webUri = azd env get-value WEB_URI
+$apiUri = azd env get-value API_URI
+Invoke-RestMethod "$($apiUri.TrimEnd('/'))/health"
+Invoke-RestMethod "$($webUri.TrimEnd('/'))/api/health"
+```
+
+Both health requests should succeed. Open the `WEB_URI` URL, sign in, and follow the [decision flow](#2-follow-the-decision-flow) to check proposals, approvals, and tasks. A healthy API alone does not prove model-backed proposals work: `/health` reports whether a model is configured, and the pipeline can still use its deterministic fallback.
+
+### 5. Update or automate deployments
+
+```powershell
+azd env select skyflow-dev
+azd deploy                 # Application changes only
+# For infrastructure or provisioning-setting changes, preview and run azd up again.
+```
+
+For GitHub Actions, create `staging` and `production` GitHub environments, with required reviewers for production. Run [scripts/setup-oidc.ps1](scripts/setup-oidc.ps1) once per environment:
+
+```powershell
+.\scripts\setup-oidc.ps1 -SubscriptionId $subscriptionId -Repo '<owner>/<repo>' -Environment staging
+.\scripts\setup-oidc.ps1 -SubscriptionId $subscriptionId -Repo '<owner>/<repo>' -Environment production
+```
+
+Set the printed variables in each GitHub environment, using distinct `AZURE_ENV_NAME` values. [CD](.github/workflows/cd.yml) deploys staging, smoke-tests it, then deploys production. See the [PLAYBOOK](docs/PLAYBOOK.md#5-cicd-15-min) for variables and rollback instructions.
+
+### 6. Remove a deployment
+
+Select the environment carefully: this deletes its deployed resources and data.
+
+```powershell
+azd env select skyflow-dev
+azd down --purge
+```
+
+Key Vault purge protection is enabled by default; protected vaults cannot be immediately purged. Use a new environment name if a retained vault causes a redeployment conflict. For region, model quota, and sign-in issues, see [troubleshooting](docs/PLAYBOOK.md#troubleshooting).
 
 ## Contributing
 

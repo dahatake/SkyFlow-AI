@@ -492,6 +492,7 @@ var agentEnv = [
   { name: 'PORT', value: '8080' }
   { name: 'ENGINE_MCP_URL', value: engineUrl }
   { name: 'FOUNDRY_ENDPOINT', value: 'https://${foundryName}.services.ai.azure.com/api/projects/${foundryProject.name}' }
+  { name: 'FOUNDRY_PROJECT_ENDPOINT', value: 'https://${foundryName}.services.ai.azure.com/api/projects/${foundryProject.name}' }
   { name: 'FOUNDRY_OPENAI_ENDPOINT', value: 'https://${foundryName}.openai.azure.com/' }
   { name: 'FOUNDRY_MODEL_PRIMARY', value: primaryModel.name }
   { name: 'FOUNDRY_MODEL_FAST', value: fastModel.name }
