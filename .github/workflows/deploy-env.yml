@@ -24,7 +24,7 @@ jobs:
       BUDGET_CONTACT_EMAIL: ${{ vars.BUDGET_CONTACT_EMAIL }}
       ENVIRONMENT_TYPE: ${{ inputs.environment == 'production' && 'prod' || 'staging' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.ref }}
       - uses: actions/setup-node@v4
