@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Add24Regular, Subtract24Regular, Home24Regular, Location24Regular, ArrowDownload24Regular } from '@fluentui/react-icons';
+import { Add24Regular, Subtract24Regular, Home24Regular, Location24Regular, ArrowDownload24Regular, Dismiss24Regular } from '@fluentui/react-icons';
 import { useOps } from '../storage/store';
 import { fmt } from '../domain/seed';
 import { APRON_AREAS, GRASS, JEWEL, LEVELS, P, RUNWAYS, RUNWAY_Y, TERMINALS, WORLD, beltPoint, checkinRow, gateLounge, gateName, OPS_ROOMS, standPoint, terminalById, toLatLon, type LevelChoice } from '../domain/airportMap';
@@ -29,6 +29,7 @@ export function GpsMap() {
   const [layers, setLayers] = useState<Record<string, boolean>>({ aircraft: true, gse: true, staff: true, gates: true, trails: true });
   const [q, setQ] = useState('');
   const [selId, setSelId] = useState<string | null>(null);
+  const [hoverId, setHoverId] = useState<string | null>(null);
   const [follow, setFollow] = useState(false);
   const [replay, setReplay] = useState<number | null>(null);
 
@@ -70,6 +71,7 @@ export function GpsMap() {
   useEffect(() => {
     const el = wrap.current; if (!el) return;
     const onWheel = (e: WheelEvent) => {
+      if ((e.target as Element).closest?.('.gm-pop')) return;
       e.preventDefault(); cancelAnimationFrame(anim.current);
       const r = el.getBoundingClientRect();
       setCam(zoomTarget(Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.0016)), e.clientX - r.left, e.clientY - r.top));
@@ -144,6 +146,35 @@ export function GpsMap() {
   useEffect(() => {
     if (follow && selFix) animateTo({ ...camRef.current, x: size.w / 2 - selFix.x * camRef.current.k, y: size.h / 2 - selFix.y * camRef.current.k });
   }, [follow, selFix?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  const hov = hoverId ? byId.get(hoverId) : undefined;
+  const popEnt = hov ?? sel;
+  const popFix = popEnt ? lastFix(popEnt.id) : undefined;
+  const popRows = (e: GpsEntity): [string, string][] => {
+    const rows: [string, string][] = [];
+    const fl = e.kind === 'aircraft' ? baseline.flights.find((x) => x.id === e.refId) : undefined;
+    const as = e.kind === 'gse' ? baseline.assets.find((x) => x.id === e.refId) : undefined;
+    if (fl) {
+      const al = baseline.airlines.find((a) => a.id === fl.airlineId);
+      const ta = baseline.turnarounds.find((t) => t.flightId === fl.id);
+      rows.push([tr('Flight'), fl.flightNo], [tr('Airline'), al?.name ?? fl.airlineId], [tr('Route'), `${fl.origin} → ${fl.destination}`],
+        [tr('Stand'), `${fl.standId} (${fl.pierId})`], ['STA / STD', `${fmt(fl.sta)} / ${fmt(fl.std)}`], ['ETD', fmt(fl.etd)], [tr('Status'), trData(fl.status)]);
+      if (fl.ata !== undefined) rows.push(['ATA', fmt(fl.ata)]);
+      if (ta) {
+        rows.push([tr('Turnaround'), `${trData(ta.phase)} · ${fmt(ta.plannedStart)}–${fmt(ta.plannedEnd)}`], ['SLA', `${trData(ta.health)} / ${trData(ta.slaRisk)}`]);
+        const tasks = baseline.tasks.filter((t) => t.turnaroundId === ta.id);
+        if (tasks.length) rows.push([tr('Tasks'), `${tasks.filter((t) => t.status === 'Complete').length}/${tasks.length}`]);
+      }
+      const ex = baseline.exceptions.filter((x) => x.affectedEntityIds.includes(fl.id) || (ta && x.affectedEntityIds.includes(ta.id)));
+      if (ex.length) rows.push([tr('Exceptions'), ex.map((x) => `${trData(x.type)} (${trData(x.severity)})`).join(', ')]);
+    }
+    if (as) {
+      const task = as.assignedTaskId ? baseline.tasks.find((t) => t.id === as.assignedTaskId) : undefined;
+      rows.push([tr('Asset type'), trData(as.type)], [tr('Status'), trData(as.status)], [tr('Stand'), as.standId], [tr('Available'), `${fmt(as.availFrom)}–${fmt(as.availTo)}`]);
+      if (task) rows.push([tr('Assigned task'), `${trData(task.taskType)} · ${trData(task.status)}`]);
+    }
+    rows.push([tr('Device'), e.device]);
+    return rows;
+  };
   const pick = (e: GpsEntity) => {
     if (moved.current > 4) return;
     setSelId(e.id);
@@ -227,7 +258,7 @@ export function GpsMap() {
             {shown.map(({ e, f }) => {
               const dimmed = !matches(e), isSel = e.id === selId;
               return (
-                <g key={e.id} className={`gm-ent ${dimmed ? 'dim' : ''}`} style={{ transform: `translate(${f.x}px, ${f.y}px)` }} onClick={() => pick(e)} role="button" tabIndex={-1} aria-label={`${lab(e)} ${trData(f.state)}`}>
+                <g key={e.id} className={`gm-ent ${dimmed ? 'dim' : ''}`} style={{ transform: `translate(${f.x}px, ${f.y}px)` }} onClick={() => pick(e)} onPointerEnter={() => setHoverId(e.id)} onPointerLeave={() => setHoverId((h) => (h === e.id ? null : h))} role="button" tabIndex={-1} aria-label={`${lab(e)} ${trData(f.state)}`}>
                   <g style={{ transform: `scale(${1 / c.k})` }}>
                     {isSel && <circle r={16} className="gm-ring" />}
                     {e.kind === 'aircraft' && <path d={PLANE} transform={`rotate(${f.headingDeg}) scale(0.9)`} fill={KIND_COLOR.aircraft} stroke="#fff" strokeWidth={1} />}
@@ -241,6 +272,29 @@ export function GpsMap() {
           </g>
         </svg>
 
+        {popEnt && popFix && (() => {
+          const pinned = popEnt.id === selId;
+          const sx = c.x + popFix.x * c.k, sy = c.y + popFix.y * c.k, W = 280;
+          const left = clamp(sx + 18, 8, Math.max(8, size.w - W - 8)), top = clamp(sy - 20, 8, Math.max(8, size.h - 260));
+          return (
+            <div className={`gm-pop ${pinned ? 'pinned' : ''}`} style={{ left, top, width: W }} role="dialog" aria-label={lab(popEnt)}
+              onPointerDown={(ev) => ev.stopPropagation()} onDoubleClick={(ev) => ev.stopPropagation()}>
+              <div className="gm-pop-head">
+                <b>{lab(popEnt)}</b>
+                <small>{tr(popEnt.kind === 'aircraft' ? 'Aircraft' : popEnt.kind === 'gse' ? 'GSE vehicle' : 'Staff')} · {trData(popEnt.sub)}</small>
+                <button className="gm-pop-x" aria-label={tr('Close')} title={tr('Close')} onClick={() => { setHoverId(null); if (pinned) { setSelId(null); setFollow(false); } }}><Dismiss24Regular /></button>
+              </div>
+              <dl>
+                {popRows(popEnt).map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}
+                <div><dt>{tr('Last fix')}</dt><dd>{fmt(popFix.t)} · {trData(popFix.state)}</dd></div>
+                <div><dt>{tr('Position')}</dt><dd className="mono">{popFix.lat.toFixed(6)}, {popFix.lon.toFixed(6)}</dd></div>
+                <div><dt>{tr('Level')}</dt><dd>{tr(popFix.level === 'apron' ? 'Apron / airside' : 'Level ' + popFix.level.slice(1))}</dd></div>
+                <div><dt>{tr('Speed')}</dt><dd>{popFix.speedKmh} km/h · {popFix.headingDeg}° · ±{popFix.accuracyM} m</dd></div>
+                <div><dt>{tr('Source')}</dt><dd>{tr(popFix.source)}</dd></div>
+              </dl>
+            </div>
+          );
+        })()}
         <div className="gm-levels" role="radiogroup" aria-label={tr('Map layer')}>
           {LEVELS.map((l) => <button key={l.id} role="radio" aria-checked={level === l.id} className={level === l.id ? 'on' : ''} title={tr(l.blurb)} onClick={() => chooseLevel(l.id)}>{tr(l.label)}</button>)}
         </div>
