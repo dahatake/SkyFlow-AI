@@ -49,7 +49,7 @@ export function Optimizer() {
 
   return (
     <section className="card optimizer" aria-label={tr('Resource optimizer')}>
-      <h2><Flash24Regular /> {tr('Optimize all resources')} <Tag simulated /></h2>
+      <h2><Flash24Regular /> {tr('Resource Optimization with AI Agent')} <Tag simulated /></h2>
       <p className="muted">{tr('Recommends stand, equipment and crew changes in one click. Weighted priorities decide trade-offs; limits are never broken. Recommendation only: no write-back to operations.')}</p>
 
       <details className="howto" open>

@@ -12,6 +12,7 @@ permissions:
 
 jobs:
   deploy:
+    if: ${{ false }} # Archived: prevent reusable workflow calls from recreating Azure resources.
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     env:

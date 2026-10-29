@@ -24,23 +24,24 @@ const browser = await chromium.launch();
 const out = join(root, 'out', 'decks', id);
 mkdirSync(out, { recursive: true });
 
-for (const deck of ['executive-briefing', 'cio-cto-briefing']) {
+for (const lang of ['en', 'zh', 'ko', 'ja']) for (const deck of ['executive-briefing', 'cio-cto-briefing']) {
+  const tag = lang === 'en' ? deck : `${deck}.${lang}`;
   const page = await browser.newPage({ viewport: { width: 1600, height: 900 } });
-  await page.route(`**/presentation/${deck}.html`, async (r) => { const res = await r.fetch(); await r.fulfill({ response: res, body: personalise(await res.text()) }); });
-  await page.goto(`http://localhost:4199/presentation/${deck}.html`);
+  await page.route(`**/presentation/${deck}.html*`, async (r) => { const res = await r.fetch(); await r.fulfill({ response: res, body: personalise(await res.text()) }); });
+  await page.goto(`http://localhost:4199/presentation/${deck}.html?lang=${lang}`);
   const n = await page.locator('.slide').count();
   const shots: string[] = [];
   for (let i = 0; i < n; i++) {
-    await page.goto(`http://localhost:4199/presentation/${deck}.html#${i + 1}`);
+    await page.goto(`http://localhost:4199/presentation/${deck}.html?lang=${lang}#${i + 1}`);
     await page.waitForTimeout(700);
-    const f = join(out, `${deck}-${String(i + 1).padStart(2, '0')}.png`);
+    const f = join(out, `${tag}-${String(i + 1).padStart(2, '0')}.png`);
     await page.screenshot({ path: f });
     shots.push(f);
   }
   const pdf = await browser.newPage();
   await pdf.setContent(`<style>@page{size:1600px 900px;margin:0}body{margin:0}img{display:block;width:1600px;height:900px;page-break-after:always}</style>${shots.map((s) => `<img src="data:image/png;base64,${readFileSync(s).toString('base64')}">`).join('')}`);
-  writeFileSync(join(out, `${deck}.pdf`), await pdf.pdf({ width: '1600px', height: '900px', printBackground: true }));
-  console.log(`${deck}: ${n} slides -> ${join(out, `${deck}.pdf`)}`);
+  writeFileSync(join(out, `${tag}.pdf`), await pdf.pdf({ width: '1600px', height: '900px', printBackground: true }));
+  console.log(`${tag}: ${n} slides -> ${join(out, `${tag}.pdf`)}`);
   await page.close(); await pdf.close();
 }
 await browser.close();

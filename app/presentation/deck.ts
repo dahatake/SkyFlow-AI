@@ -1,4 +1,7 @@
+import { localise } from './i18n';
 import { createScene, FX, type Fx, type Mode } from './scene';
+
+localise();
 
 const slides = Array.from(document.querySelectorAll<HTMLElement>('.slide'));
 const bar = document.getElementById('bar')!;

@@ -4,7 +4,7 @@ export interface CustomerAssumptions {
 }
 export interface Customer {
   id: string; name: string; programme: string; productName: string;
-  airport: { iata: string; name: string; timezone: string };
+  airport: { iata: string; name: string; timezone: string; country?: string; lat?: number; lon?: number; labels?: Partial<Record<'en' | 'zh' | 'ko' | 'ja', string>> };
   currency: string; assumptions: CustomerAssumptions;
   deck: { mvpScopeDate: string; buildStartDate: string; anchorScenario: string };
 }

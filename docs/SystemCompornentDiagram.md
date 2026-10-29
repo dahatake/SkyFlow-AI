@@ -1,6 +1,29 @@
 # System Component Diagram
 
-SkyFlow-AI のアプリケーション層コンポーネント図と Azure コンポーネント図です。
+## Current system: local-only horizontal demo
+
+```mermaid
+flowchart LR
+    user["Operations user"] --> ui["Local React UI<br/>2D / 3D / dashboards"]
+    ui --> advisor["Coded rule-based advisor<br/>Detect / Triage / Resolver / Comms"]
+    advisor --> engine["Pure deterministic engine<br/>scenarios / KPI / optimizer / planning"]
+    engine --> human["Human approval<br/>derived overlays / 5W2H tasks"]
+    human --> storage["Local browser storage<br/>IndexedDB / preferences / audit"]
+    seed["Bundled customer.json + seed<br/>simulated live feed / GPS"] --> engine
+```
+
+Everything runs on one local machine. Vite serves bundled assets on localhost; the browser executes all application logic. No LLM, MCP/API server, Azure, Entra sign-in, Fabric feed, Teams webhook or telemetry endpoint is used. Rules select valid engine options and compute explanations from scores. Comms records a local notification preview only.
+
+The approval gate remains explicit; only the three manager roles can approve pipeline proposals. These are local demo role checks, not production authentication. Decisions and audit persist in IndexedDB; preferences use localStorage. Baseline records remain immutable. Dependencies need installation once; afterwards only the localhost server is needed (no PWA/service worker).
+
+Implementation: [advisor](../app/src/agent/client.ts), [approval UI](../app/src/components/AgentView.tsx), [engine](../app/src/domain), [storage](../app/src/storage), [seed provider](../app/src/data/provider.ts).
+
+## Archived cloud architecture (not running in the demo)
+
+<details>
+<summary>Historical Azure and LLM components</summary>
+
+The diagrams below describe the retired cloud implementation, not the current runtime.
 (Sources: [azure.yaml](../azure.yaml), [infra/resources.bicep](../infra/resources.bicep), `app/`, `services/`)
 
 ## 1. Application layer
@@ -147,3 +170,5 @@ flowchart TB
 - `agent-api` and `scheduler` are built from the same image/project (`services/agent-api`); the scheduler runs as a Container Apps Job.
 - The deterministic engine is the sole source of numbers; the LLM only selects/explains and is guarded by grounding checks in `safety.py`.
 - Private endpoints, Content Safety, alerts, and the SWA linked backend are conditional on Bicep parameters (`enablePrivateNetworking`, `enableContentSafety`, `enableAlerts`, `linkSwaBackend`).
+
+</details>

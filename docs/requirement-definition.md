@@ -266,6 +266,27 @@ These prototype states are proposed engineering normalizations, not claims about
 
 # 13. Prototype component architecture
 
+**Current baseline: local-only, rule-based demo.** This supersedes historical Azure/LLM deployment diagrams. "Horizontal" means the left-to-right component layout below, not cloud scale-out.
+
+```mermaid
+flowchart LR
+    user["Operations user"] --> ui["Local React UI<br/>2D / 3D / role lenses"]
+    ui --> rules["Coded advisor<br/>Detect / Triage / Resolve / Comms"]
+    rules --> engine["Pure TypeScript engine<br/>simulation / scoring / planning / optimization"]
+    engine --> approval["Human approval<br/>simulation overlays / owned tasks"]
+    approval --> storage["Local browser storage<br/>IndexedDB / localStorage / audit"]
+    seed["Bundled customer + seed data"] --> engine
+```
+
+All components execute on the presenter's machine. Node/Vite serves local assets only; no backend service or LLM executes. Comms is a local notification preview, not Teams delivery. GPS and operational feeds are simulated locally. Browser role checks demonstrate the approval flow; they are not production identity/security boundaries.
+
+| **ID** | **Requirement / acceptance** |
+| --- | --- |
+| DEMO-001 | After dependency installation, all UI workflows run using only localhost, including scenarios, 2D/3D, planning, optimization, GPS replay, tasks, value and export. No Azure service, internet API or model download is required. |
+| DEMO-002 | Coded rules are the only recommendation mode. Identical baseline/scenario input produces identical engine-valid options and KPI deltas. Legacy API URL configuration cannot enable remote calls. |
+| DEMO-003 | Proposals do not change decisions until a Control Tower Lead, SIOC Duty Manager or BU Ops Manager explicitly approves. Accepted decisions and audit are persisted locally; baseline records remain unchanged. |
+| DEMO-004 | Azure deployment automation is disabled. Historical infrastructure/services are reference only and are outside the active demo architecture. |
+
 * Web application shell: React/TypeScript recommended for the prototype UI; component library should follow Fluent-style patterns.
 * Domain store: normalized in-memory state hydrated from IndexedDB; selectors produce role/filter/scenario-specific projections.
 * Scenario engine: pure functions accepting baseline snapshot + validated parameters and returning derived impact overlays.
@@ -362,6 +383,11 @@ Optimization approach (practice-aligned): a priority-ordered greedy heuristic wi
 | **PLAN-003 Sample data when no roster feed exists [Should]** | |
 | Without a real roster/AODB feed the prototype shall generate a deterministic sample week modelled on Changi (four terminals, about 100 gates, 3-shift SATS / dnata style ground handling, about 1,000 movements a day). | Acceptance: Data is labelled simulated and identical on every fresh profile. Sources: [Singapore Changi Airport (SIN) terminal map](https://worldairportmap.com/airport/SIN); [Infrastructure of Changi Airport](https://en.wikipedia.org/wiki/Infrastructure_of_Changi_Airport). |
 
+|  |  |
+| --- | --- |
+| **PLAN-004 Staff as human resource per job [Must]** | |
+| The prototype shall generate, at app start, a named staff roster for every airport job (ramp, baggage, cabin / catering, fuelling, pushback, check-in, gate / boarding, line maintenance, SIOC control): each person has an id, name, job, team, terminal, employer, base shift, weekly rest day and certifications, and each shift shows its head count split by job. | Acceptance: Selecting the Staff resource type lists the roster (filterable by terminal and search); shift details show the job mix, which always sums to the rostered head count; the roster is identical on every fresh profile. |
+
 # 19. Language switching
 
 |  |  |
@@ -392,6 +418,86 @@ Optimization approach (practice-aligned): a priority-ordered greedy heuristic wi
 | Users shall replay the last 3 hours of fixes with a time slider, see movement trails, search and follow an entity. | Acceptance: Replay shows each entity at its last fix at or before the chosen time; Live returns to the newest fix. |
 
 The map geometry is a schematic of the public [Changi Airport map](https://www.changiairport.com/en/at-changi/map.html) (terminals T1-T4, Jewel, apron, runways), not a survey; production would load the official floor plans / GeoJSON and a real positioning feed.
+
+# 21. Data analytics view
+
+The Analytics tab applies exploratory data analysis (EDA) practice to the whole baseline: summarise each variable, look at distributions and outliers, compare groups, test relationships, check data quality, and keep every number traceable to a chart. Guidance used: Tukey-style EDA (five-number summary, 1.5 x IQR outlier fences; [Wikipedia: Exploratory data analysis](https://en.wikipedia.org/wiki/Exploratory_data_analysis)) and accessible report design ([Microsoft Learn: Design Power BI reports for accessibility](https://learn.microsoft.com/en-us/power-bi/create-reports/desktop-accessibility-creating-reports)).
+
+|  |  |
+| --- | --- |
+| **ANA-001 Whole-baseline exploratory charts [Must]** | |
+| The Analytics tab shall render D3.js charts over all tasks, exceptions and staff: a histogram of forecast task slip, box plots of slip by business unit, a planned-time vs slip scatter with linear trend, an exception type x severity heatmap and grouped bars of planned / available / engaged staff. | Acceptance: Charts animate on load (no animation when the user prefers reduced motion) and are computed by pure functions in `app/src/domain/analytics.ts`. |
+
+|  |  |
+| --- | --- |
+| **ANA-002 Linked brushing [Must]** | |
+| Dragging across the histogram shall select a slip range; the findings, box plots, scatter and summary table shall update to the selected tasks. A Clear selection button restores the full set. | Acceptance: Selected count and statistics match the tasks inside the range; clearing returns the original numbers. |
+
+|  |  |
+| --- | --- |
+| **ANA-003 Statistical summary and findings [Must]** | |
+| The view shall show n, mean, median, Q1, Q3 and outlier count per business unit, the Pearson correlation of planned time and slip, and plain-language key findings. | Acceptance: Statistics are deterministic for identical input and defined for empty selections. |
+
+|  |  |
+| --- | --- |
+| **ANA-004 Data-quality profile [Should]** | |
+| The view shall report record counts, gaps and completeness per entity (flights, turnarounds, tasks, exceptions, assets). | Acceptance: Completeness is between 0 and 100% and flagged with a glyph and text when below 90%. |
+
+|  |  |
+| --- | --- |
+| **ANA-005 Accessible visualisation [Must]** | |
+| Every chart shall have a text label, tooltips and a table or text equivalent; colour shall never be the only channel (marker shapes, printed counts and glyphs are used). All text goes through `tr()` in en / zh / ko / ja. | Acceptance: Playwright covers the tab and brush interaction; i18n tests pass. |
+
+# 22. Airport importer
+
+The header Import airport action lets a user re-target the prototype to any airport in the bundled world-wide catalog (major international airports on every continent; implemented in `app/src/importer/`). Public data is gathered from Wikipedia and Wikidata, and valid sample data is generated deterministically and stored in the browser.
+
+|  |  |
+| --- | --- |
+| **IMP-001 Choose a world-wide airport with a localized label [Must]** | |
+| The user shall pick an airport from a searchable list. Each entry shows its name in the current UI language (en / zh / ko / ja) with IATA / ICAO code, country and IANA time zone; search matches any language, IATA or ICAO. | Acceptance: Every catalog airport has four labels and a valid IANA time zone; searching a Japanese label finds the airport. |
+
+|  |  |
+| --- | --- |
+| **IMP-002 Gather related data from the internet [Must]** | |
+| The importer shall collect the Wikipedia article, localized summaries (en / zh / ko / ja), and Wikidata facts (annual passengers, elevation, website, opening year). If the network is unavailable it shall continue with catalog data and never fail because of it. | Acceptance: Parsing is covered by unit tests with a mocked fetcher, including the offline case. |
+
+|  |  |
+| --- | --- |
+| **IMP-003 Generate valid sample data [Must]** | |
+| From the gathered facts the importer shall generate a valid customer profile (validated by `validateCustomer`) and sample airlines, stands, flights and staff capacity, scaled by passenger volume. Generation is deterministic (seeded by IATA code, no `Math.random`). Generated assumptions are labelled as assumptions. | Acceptance: Identical input gives identical output; every flight references an existing stand. |
+
+|  |  |
+| --- | --- |
+| **IMP-004 Store all data [Must]** | |
+| The gathered facts, catalog record, customer profile and generated dataset shall be stored in the IndexedDB `airports` store; the customer profile is also mirrored to local storage so the imported airport becomes the active customer after reload (`?customer=` and `VITE_CUSTOMER` still take precedence). | Acceptance: Imported airports survive reload and are listed from IndexedDB. |
+
+|  |  |
+| --- | --- |
+| **IMP-005 Progress bar and screen dimming [Must]** | |
+| While importing, a modal shows a progress bar with a moving-stripe animation, the percentage and the current phase (find article, gather facts, localized descriptions, generate, validate, store, activate). The rest of the screen is dimmed and blocked until the import completes or fails. Animation stops under reduced-motion preferences. All text uses `tr()`. | Acceptance: The progress bar exposes `role="progressbar"` with value 0-100; the dim layer prevents interaction; completion offers Reload, failure shows the error. |
+
+|  |  |
+| --- | --- |
+| **IMP-006 Real map data [Must]** | |
+| The importer shall search the internet for real airport geometry (runways, taxiways, aprons, terminals) from OpenStreetMap via the Overpass API (several public endpoints, tried in turn), store it with the airport, and draw it in the 2D situational view of the imported airport. The OpenStreetMap / ODbL attribution is shown with the map. If every endpoint is unreachable the Changi schematic remains. | Acceptance: Overpass parsing and projection are unit tested; the stored map is drawn after reload. |
+
+|  |  |
+| --- | --- |
+| **IMP-007 Airport name at the top of the screen [Must]** | |
+| The header shall show the active airport name (localized to the UI language) and IATA code under the product title. | Acceptance: After importing Tokyo Haneda with the UI in Japanese the header shows 東京国際空港（羽田） (HND). |
+
+|  |  |
+| --- | --- |
+| **IMP-008 Airport time zone [Must]** | |
+| The operational clock, the minutes-of-day used by the engine and the log timestamps shall use the airport's IANA time zone (`customer.json` `airport.timezone`), and clock labels shall name the airport and zone offset. | Acceptance: With Haneda active the clock shows Japan time (GMT+9). |
+
+|  |  |
+| --- | --- |
+| **IMP-009 UI language follows the airport country [Should]** | |
+| After import the UI language is switched to the country's language: JP to Japanese, KR to Korean, CN / HK / TW / MO to Chinese; any other country (no translation available) uses English. The user can still change the language afterwards. | Acceptance: Unit test of the country-to-language mapping; English is the fallback. |
+
+Limitation: the operational baseline (flight board, 2D / 3D map) still comes from the Changi seed; the imported airport drives the customer-specific views (value model, executive deck, naming) and its generated dataset is stored for later wiring.
 
 # Appendix A - Source grounding
 

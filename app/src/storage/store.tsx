@@ -15,10 +15,10 @@ import { useGpsTracker, type GpsState } from './gpsTracker';
 import { getLang, tr } from '../i18n';
 
 export type WfMap = Record<string, { status: ExceptionState; ownerId?: string; ackAt?: number; actAt?: number }>;
-export type Tab = 'executive' | 'agent' | 'value' | 'overview' | 'kpi' | 'decisions' | 'tasks' | 'turnaround' | 'exceptions' | 'owner' | 'scenarios' | 'optimize' | 'planning' | 'diagnostics';
+export type Tab = 'executive' | 'agent' | 'value' | 'overview' | 'kpi' | 'analytics' | 'decisions' | 'tasks' | 'turnaround' | 'exceptions' | 'owner' | 'scenarios' | 'optimize' | 'planning' | 'diagnostics';
 
 export const LENS: Record<RoleType, { tab: Tab; filters: Partial<Filters>; canSimulate: boolean; blurb: string }> = {
-  'Control Tower Lead': { tab: 'executive', filters: {}, canSimulate: true, blurb: 'Airport-wide risk, SLA exposure and ownership' },
+  'Control Tower Lead': { tab: 'overview', filters: {}, canSimulate: true, blurb: 'Airport-wide risk, SLA exposure and ownership' },
   'SIOC Duty Manager': { tab: 'overview', filters: {}, canSimulate: true, blurb: 'Live turnarounds, exceptions and dependencies' },
   'BU Ops Manager': { tab: 'overview', filters: { bu: 'bu-ramp' }, canSimulate: true, blurb: 'BU workload, capacity and SLA risk' },
   'Ramp Lead': { tab: 'overview', filters: { pier: 'A' }, canSimulate: false, blurb: 'Pier/stand view and next actions' },
@@ -34,7 +34,7 @@ interface Ctx {
   setFilters(f: Filters): void; select(s: Selection | null): void; setKpi(k: string | null): void;
   setRole(r: RoleType): void; setTab(t: Tab): void; setVizMode(v: '2d' | '3d'): void; toggleLayer(k: string): void; setTheme(t: 'light' | 'dark'): void;
   setMode(m: SimMode): void; saveScenario(s: Scenario): string[]; removeScenario(id: string): Promise<void>; activate(id: string | null): void;
-  runDemo(id: string | null): void; decide(taskId: string, optionId: string, by: 'human' | 'copilot'): void; undoDecision(taskId: string): void; copilotAll(): void; duplicate(id: string): void; reset(): Promise<void>; exportData(): void; logDiag(kind: DiagEvent['kind'], message: string): void; logAudit(actor: string, action: string, entityRef?: string, scenarioRef?: string): void; gps: GpsState; baseView: OpsView; appliedPlan: OptPlan | null; applyPlan(p: OptPlan | null): void;
+  runDemo(id: string | null): void; decide(taskId: string, optionId: string, by: 'human' | 'copilot'): void; decideMany(items: { taskId: string; optionId: string }[], by: 'human' | 'copilot'): Promise<void>; undoDecision(taskId: string): void; copilotAll(): void; duplicate(id: string): void; reset(): Promise<void>; exportData(): void; logDiag(kind: DiagEvent['kind'], message: string): void; logAudit(actor: string, action: string, entityRef?: string, scenarioRef?: string): void; gps: GpsState; baseView: OpsView; appliedPlan: OptPlan | null; applyPlan(p: OptPlan | null): void;
 }
 const C = createContext<Ctx>(null as never);
 export const useOps = () => useContext(C);
@@ -146,6 +146,24 @@ export function OpsProvider({ children }: { children: ReactNode }) {
   const gps = useGpsTracker(seed, baseline);
   const related = useMemo(() => (view ? view.related(selection) : new Set<string>()), [view, selection]);
 
+  const decideMany: Ctx['decideMany'] = async (items, by) => {
+    const scenario = scenarios.find((s) => s.id === activeId);
+    if (!scenario || !baseline) throw new Error(tr('Start the scenario first.'));
+    if (role === 'Observer') throw new Error(tr('Observer lens is read-only.'));
+    const pack = demoById(scenario.id);
+    if (!pack || items.some((i) => !pack.decisions.find((t) => t.id === i.taskId)?.options.some((o) => o.id === i.optionId))) {
+      throw new Error(tr('Invalid decision option.'));
+    }
+    const decisions = { ...scenario.decisions };
+    for (const { taskId, optionId } of items) decisions[taskId] = { optionId, by, at: clockNow(), opsAt: baseline.now };
+    const next = { ...scenario, decisions };
+    await repo.saveScenario(next);
+    setScenarios((list) => list.map((s) => s.id === next.id ? next : s));
+    for (const { taskId, optionId } of items) {
+      logAudit(by === 'copilot' ? 'Copilot assist (accepted by ' + role + ')' : role, `decision ${taskId}=${optionId}`, undefined, next.id);
+    }
+  };
+
   const value: Ctx = {
     ready: !!baseline, live: { tick, speed, paused, lastTickAt, feed, setSpeed, setPaused, restart: () => { setTick(0); setFeed([]); setLastTickAt(clockNow()); } }, setTaskStatus: (id, st) => { if (!activeId) return; const upd = (l: Scenario[]) => l.map((x) => (x.id === activeId ? { ...x, taskStatus: { ...x.taskStatus, [id]: st } } : x)); const nx = upd(scenarios).find((x) => x.id === activeId)!; setScenarios(upd); void repo.saveScenario(nx); logAudit(role, `task ${id} → ${st}`, undefined, activeId); }, timePos, setTimePos, wf, notice, setNotice, baseline: baseline as Baseline, view, scenarios, activeId, mode, filters, selection, related, kpiKey,
     role, tab, vizMode, layers, theme, audit, diag, logDiag, logAudit, gps, baseView, appliedPlan, applyPlan: setAppliedPlan,
@@ -189,13 +207,13 @@ export function OpsProvider({ children }: { children: ReactNode }) {
       });
       setWf(next);
     },
+    decideMany,
     decide: (taskId, optionId, by) => {
-      if (!activeId) return;
-      const upd = (l: Scenario[]) => l.map((s) => (s.id === activeId ? { ...s, decisions: { ...s.decisions, [taskId]: { optionId, by, at: clockNow(), opsAt: baseline!.now } } } : s));
-      const next = upd(scenarios).find((s) => s.id === activeId)!;
-      setScenarios(upd);
-      void repo.saveScenario(next);
-      logAudit(by === 'copilot' ? 'Copilot assist (accepted by ' + role + ')' : role, `decision ${taskId}=${optionId}`, undefined, activeId);
+      void decideMany([{ taskId, optionId }], by).catch((e: unknown) => {
+        const message = tr('Decision save failed: {message}', { message: e instanceof Error ? e.message : String(e) });
+        setNotice(message);
+        logDiag('load', message);
+      });
     },
     undoDecision: (taskId) => {
       if (!activeId) return;

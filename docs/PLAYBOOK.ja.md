@@ -1,4 +1,25 @@
-# プレイブック: 空のフォルダーからデプロイ済みデモまで(目標: 2 時間未満)
+# プレイブック: ローカル専用・ルールベースのデモ
+
+現在のデモは localhost のブラウザ内で動作します。Python、Azure、LLM、外部サービスは不要です。
+
+```powershell
+cd app
+npm ci --legacy-peer-deps
+npm run dev -- --host 127.0.0.1
+```
+
+`http://localhost:5173/?clock=2027-01-11T08:00:00%2B08:00&demo=1` を開きます。ビルド済みデモは `npm run build` の後に `npx vite preview --host 127.0.0.1 --port 4173` で配信します。配信サーバーは停止しないでください。PWA ではありません。
+
+パイプラインを実行し、ルールによる提案を確認してからマネージャーが明示的に承認します。決定と監査は IndexedDB に保存されます。ブラウザデータを削除する前に Diagnostics からエクスポートしてください。外部通知は送信せず、旧 `VITE_AGENT_API_URL` 設定も使用しません。
+
+構成: [水平コンポーネント図](SystemCompornentDiagram.ja.md)。検証は `app/` で `npm test`、`npx tsc --noEmit`、`npm run lint`、`npm run build`、`npm run test:e2e` を実行します。
+
+## 過去のクラウド手順
+
+以下は参考資料です。デプロイワークフローは無効であり、ローカルデモに Azure の作成手順は不要です。
+
+<details>
+<summary>過去のサービス・デプロイ・CI/CD 手順</summary>
 
 対象読者: GitHub Copilot(または任意の AI ハーネス)とこのリポジトリのみを使用する Hub SE。
 
@@ -95,3 +116,5 @@ azd up
 ## 削除
 
 `azd down --purge`
+
+</details>

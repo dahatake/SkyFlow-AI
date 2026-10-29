@@ -6,7 +6,9 @@
 ![Node 22+](https://img.shields.io/badge/node-22%2B-339933)
 ![Python 3.12](https://img.shields.io/badge/python-3.12-3776AB)
 
-[Overview](#overview) · [Quick start](#quick-start) · [Tutorial](#tutorial) · [Architecture](#architecture) · [Repository map](#repository-map) · [Deploy](#deploy-to-azure) · [Contributing](#contributing) · [License](#license)
+[Overview](#overview) · [Quick start](#quick-start) · [Tutorial](#tutorial) · [Architecture](#architecture) · [Repository map](#repository-map) · [Contributing](#contributing) · [License](#license)
+
+**Current architecture: local-only demo.** All application features run in the browser, served from localhost. Recommendations use coded, deterministic rules, not an LLM. No Azure resources, Python services, model downloads, credentials or external APIs are required. The horizontal component diagram is in [System Component Diagram](docs/SystemCompornentDiagram.md).
 
 ## Overview
 
@@ -28,15 +30,16 @@ Reference customer: SATS (Project SPEAR) at Singapore Changi. A second sample cu
 ### Features
 
 - Conflicts ranked by SLA exposure in a 3D/2D operations view
-- Four-agent pipeline (Detect, Triage, Resolver, Comms) over a deterministic engine exposed through MCP
-- Human approval gate with server-side role checks and an audit trail
+- Four-stage rule-based pipeline (Detect, Triage, Resolver, Comms) over the in-browser deterministic engine
+- Human approval gate with local demo role checks and an IndexedDB audit trail
 - 5W2H task generation and a simulated before/after value model
+- Analytics tab: D3.js exploratory data analysis over the whole baseline (slip histogram with linked brushing, box plots, scatter with trend, exception heatmap, staffing bars, data-quality profile); see requirement-definition section 21
 - Multi-language UI (en, zh, ko, ja) and Playwright accessibility tests
 - Customer-agnostic: re-target via one `customer.json`
 
 ## Quick start
 
-Prerequisites: Node.js 22+ (see `app/.nvmrc`). Python 3.12 is only needed for `services/agent-api`. No Azure subscription is required.
+Prerequisites: Node.js 22+ (see `app/.nvmrc`). Dependencies must be installed once; afterwards the demo requires only localhost, not internet access.
 
 ```powershell
 git clone https://github.com/dahatake/SkyFlow-AI.git
@@ -46,11 +49,13 @@ cd app
 npm run dev                # http://localhost:5173
 ```
 
-Reproducible demo: <http://localhost:5173/?clock=2027-01-11T08:00:00%2B08:00&demo=1>. The agent features fall back to a deterministic rule-based advisor when no agent service is configured, so the demo never depends on the network.
+Reproducible demo: <http://localhost:5173/?clock=2027-01-11T08:00:00%2B08:00&demo=1>. The advisor always runs locally in rules mode. Legacy `VITE_AGENT_API_URL` settings are ignored.
+
+For a built demo: run `npm run build`, then `npx vite preview --host 127.0.0.1 --port 4173` in `app/`. Keep the local server running while presenting. This is not a service-worker/PWA installation.
 
 ## Tutorial
 
-A guided walk-through of the demo, then the agent service, then your own customer.
+A guided walk-through of the local demo, then your own customer.
 
 ### 1. Run the demo
 
@@ -68,7 +73,12 @@ Open <http://localhost:5173/?clock=2027-01-11T08:00:00%2B08:00&demo=1>. The `clo
 3. **Approval and tasks**: approve one option. Owned 5W2H tasks appear.
 4. **Value**: open the value view to compare before and after, with the assumptions shown.
 
-### 3. Run the agent service (optional)
+### 3. Local data and approvals
+
+Scenarios, accepted decisions, generated tasks and audit events stay in browser storage. Clearing site data removes them; use Diagnostics to export before resetting. Role lenses are demo controls, not production authentication. Only Control Tower Lead, SIOC Duty Manager and BU Ops Manager can approve pipeline proposals. Comms prepares a local trace; it does not send Teams messages or execute operational work.
+
+<details>
+<summary>Archived service setup (not used by the local demo)</summary>
 
 ```powershell
 cd services/engine-mcp; npm ci; npm start          # MCP tools on :8080
@@ -81,6 +91,8 @@ uvicorn agent_api.app:create_app --factory --port 8000
 
 With no model configured the service runs in `rules` mode. Details: [agent-api](services/agent-api/README.md), [engine-mcp](services/engine-mcp/README.md).
 
+</details>
+
 ### 4. Bring your own customer
 
 1. Copy `app/src/customers/generic-hub` to `app/src/customers/<id>`.
@@ -88,7 +100,7 @@ With no model configured the service runs in `rules` mode. Details: [agent-api](
 3. Register it in `app/src/customers/index.ts`.
 4. Run `npm run validate:customer -- <id>`, then open `?customer=<id>`.
 
-The full path to a deployed demo is in the [PLAYBOOK](docs/PLAYBOOK.md); a talk track is in [DEMO-SCRIPT](docs/DEMO-SCRIPT.md).
+The local walkthrough is in the [PLAYBOOK](docs/PLAYBOOK.md); a talk track is in [DEMO-SCRIPT](docs/DEMO-SCRIPT.md).
 
 ## Architecture
 
@@ -96,9 +108,9 @@ The full path to a deployed demo is in the [PLAYBOOK](docs/PLAYBOOK.md); a talk 
 
 Design rules:
 
-1. **The engine is the source of truth.** Models only choose among options the engine computed. They never produce numbers.
+1. **The engine is the source of truth.** Coded rules select among engine-computed options and use engine-computed numbers. No model is called.
 2. **Agents propose, people approve.** Nothing is applied without an approval, and the baseline is never mutated.
-3. **Every AI path has a deterministic fallback.** Same input gives the same output.
+3. **Rules are the primary implementation, not a fallback.** Same input gives the same output. Seed data, simulation, planning, optimization, GPS replay and value calculations all run locally.
 
 ## Repository map
 
@@ -106,15 +118,15 @@ Design rules:
 |---|---|
 | `app/` | React + TypeScript UI, the pure domain engine (`src/domain`), tests, Playwright e2e, deck sources |
 | `app/src/customers/<id>/customer.json` | Everything customer specific: names, airport, assumptions, dates |
-| `services/engine-mcp/` | The engine exposed as MCP tools |
-| `services/agent-api/` | Multi-agent pipeline, approval gate, audit, Teams card |
-| `infra/` | Bicep for the whole platform (`azd up`) |
+| `services/engine-mcp/` | Archived MCP service; not required or called by the demo |
+| `services/agent-api/` | Archived cloud/LLM service; not required or called by the demo |
+| `infra/` | Historical Azure infrastructure; do not provision for the local demo |
 | `docs/` | Requirements, narrative, [PLAYBOOK](docs/PLAYBOOK.md), [DEMO-SCRIPT](docs/DEMO-SCRIPT.md), [VALUE-MODEL](docs/VALUE-MODEL.md) |
 | `.github/` | CI/CD, plus Copilot instructions, agents, skills and prompts for AI-driven reuse |
 
 ## Reuse it for another engagement
 
-Open the repo in VS Code with Copilot and run the prompt `/instantiate-engagement` (see [PLAYBOOK](docs/PLAYBOOK.md)). It uses the `customer-onboarding` agent and the `swap-customer-dataset`, `generate-deck` and `deploy-azure` skills.
+Use the `swap-customer-dataset` and `generate-deck` skills to re-target the local demo. Legacy onboarding/deployment automation includes Azure provisioning; do not run those deployment steps for this architecture.
 
 ## Commands
 
@@ -125,9 +137,14 @@ Open the repo in VS Code with Copilot and run the prompt `/instantiate-engagemen
 | Lint | `npm run lint` |
 | Validate customer files | `npm run validate:customer` |
 | Decks to PDF | `npm run build:deck -- <customerId>` |
-| Deploy | `azd up` after `./scripts/preflight.ps1` |
+| Serve built demo locally | `npm run build`, then `npx vite preview --host 127.0.0.1 --port 4173` |
 
-## Deploy to Azure
+## Archived Azure deployment
+
+Azure deployment is retired for the current demo. The CD push trigger is removed and both deployment workflows are gated off. The following instructions are historical only; running them manually would recreate billable cloud resources. Existing cloud infrastructure and services are retained as reference, not as demo dependencies.
+
+<details>
+<summary>Historical deployment and teardown instructions</summary>
 
 These steps deploy the full platform: the Static Web App, engine and agent containers, scheduler job, Microsoft Foundry models, Cosmos DB, Key Vault, and monitoring. Azure resources incur charges.
 
@@ -230,7 +247,9 @@ azd env select skyflow-dev
 azd down --purge
 ```
 
-Key Vault purge protection is enabled by default; protected vaults cannot be immediately purged. Use a new environment name if a retained vault causes a redeployment conflict. For region, model quota, and sign-in issues, see [troubleshooting](docs/PLAYBOOK.md#troubleshooting).
+Key Vault purge protection is enabled by default; protected vaults cannot be immediately purged. Use a new environment name if a retained vault causes a redeployment conflict.
+
+</details>
 
 ## Contributing
 

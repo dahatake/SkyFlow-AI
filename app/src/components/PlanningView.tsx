@@ -16,7 +16,7 @@ export function PlanningView() {
   const [scope, setScope] = useState<'day' | 'week'>('day');
   const [day, setDay] = useState(todayIdx);
   const [mode, setMode] = useState<'gantt' | 'table'>('gantt');
-  const [cat, setCat] = useState<'' | PlanCategory>('Gate');
+  const [cat, setCat] = useState<'' | PlanCategory>('');
   const [term, setTerm] = useState<'' | Terminal>('');
   const [q, setQ] = useState('');
   const [selRaw, setSel] = useState<PlanItem | null>(null);
@@ -29,6 +29,10 @@ export function PlanningView() {
     .filter((r) => (!cat || r.category === cat) && (!term || r.terminal === term || (r.terminal === 'All' && cat === 'Staff')))
     .filter((r) => !q || r.name.toLowerCase().includes(q.toLowerCase()) || (itemsBy.get(r.id) ?? []).some((i) => i.end > from && i.start < to && i.label.toLowerCase().includes(q.toLowerCase())))
     .sort((a, b) => CATEGORIES.indexOf(a.category) - CATEGORIES.indexOf(b.category) || a.group.localeCompare(b.group) || a.name.localeCompare(b.name, undefined, { numeric: true })), [plan, cat, term, q, itemsBy, from, to]);
+  const people = useMemo(() => {
+    const ids = new Set(rows.map((r) => r.id)), s = q.toLowerCase();
+    return plan.staff.filter((p) => ids.has(p.teamId) && (!s || `${p.name} ${tr(p.job)} ${p.job}`.toLowerCase().includes(s) || p.team.toLowerCase().includes(s)));
+  }, [plan, rows, q]);
   const stats = useMemo(() => rows.map((r) => ({ r, u: usage(r, itemsBy.get(r.id) ?? [], from, to) })), [rows, itemsBy, from, to]);
   const avg = stats.length ? stats.reduce((s, x) => s + x.u.utilization, 0) / stats.length : 0;
   const conflicts = stats.reduce((s, x) => s + x.u.conflicts, 0);
@@ -57,6 +61,10 @@ export function PlanningView() {
           <button aria-pressed={mode === 'gantt'} onClick={() => setMode('gantt')}>{tr('Gantt')}</button>
           <button aria-pressed={mode === 'table'} onClick={() => setMode('table')}>{tr('Table')}</button>
         </div>
+      </div>
+
+      <div className="seg" role="group" aria-label={tr('Resource')} style={{ margin: '8px 0' }}>
+        {(['', ...CATEGORIES] as ('' | PlanCategory)[]).map((c) => <button key={c} aria-pressed={cat === c} onClick={() => setCat(c)}>{c ? tr(c) : tr('All types')}</button>)}
       </div>
 
       <div className="plan-kpis" role="status">
@@ -106,6 +114,17 @@ export function PlanningView() {
           <div className="tbl-wrap"><table><thead><tr><th>{tr('Start')}</th><th>{tr('End')}</th><th>{tr('Resource')}</th><th>{tr('Kind')}</th><th>{tr('Item')}</th><th>{tr('Load')}</th><th>{tr('Detail')}</th></tr></thead><tbody>
             {entries.slice(0, 300).map(({ r, i }: { r: PlanResource; i: PlanItem }) => (
               <tr key={i.id} className={i.conflict ? 'over' : ''}><td>{when(i.start)}</td><td>{clock(i.end)}</td><td>{r.name}</td><td>{tr(i.kind)}</td><td>{i.label}{i.conflict ? ' ⚠' : ''}</td><td>{i.load}{r.category === 'Staff' ? ` / ${r.capacity}` : ''}</td><td className="wrap">{i.detail}</td></tr>
+            ))}
+          </tbody></table></div>
+        </>
+      )}
+
+      {(cat === 'Staff' || cat === '') && people.length > 0 && (
+        <>
+          <h3>{tr('Staff roster ({n} people, first 200 shown)', { n: people.length })}</h3>
+          <div className="tbl-wrap"><table><thead><tr><th>{tr('ID')}</th><th>{tr('Name')}</th><th>{tr('Job')}</th><th>{tr('Team')}</th><th>{tr('Terminal')}</th><th>{tr('Employer')}</th><th>{tr('Base shift')}</th><th>{tr('Rest day')}</th><th>{tr('Certifications')}</th></tr></thead><tbody>
+            {people.slice(0, 200).map((p) => (
+              <tr key={p.id}><td>{p.id}</td><td>{p.name}</td><td>{tr(p.job)}</td><td>{tr(p.team)}</td><td>{tr(p.terminal)}</td><td>{p.employer}</td><td>{tr(p.shift)}</td><td>{dayLabel(wk.start, p.restDay).split(' ')[0]}</td><td className="wrap">{p.certifications.split(', ').map((c) => tr(c)).join(', ')}</td></tr>
             ))}
           </tbody></table></div>
         </>

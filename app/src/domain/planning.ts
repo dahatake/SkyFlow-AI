@@ -15,7 +15,7 @@ export const WEEK = 7 * DAY;
 
 export interface PlanResource { id: string; name: string; category: PlanCategory; terminal: Terminal; group: string; capacity: number; unit: string; owner: string }
 export interface PlanItem { id: string; resourceId: string; start: number; end: number; kind: PlanKind; label: string; detail: string; load: number; conflict?: boolean }
-export interface PlanData { resources: PlanResource[]; items: PlanItem[]; sources: string[] }
+export interface PlanData { resources: PlanResource[]; items: PlanItem[]; staff: StaffMember[]; sources: string[] }
 
 function rng(seed: number) {
   let s = seed;
@@ -61,7 +61,42 @@ const TEAMS: { id: string; name: string; terminal: Terminal; owner: string; pool
   { id: 'st-fuel', name: 'Fuelling Crew', terminal: 'All', owner: 'Into-plane', pool: 24, fn: 'Fuel' },
   { id: 'st-push', name: 'Pushback & Towing', terminal: 'All', owner: 'SATS', pool: 18, fn: 'Pushback' },
   { id: 'st-sioc', name: 'SIOC Duty Managers', terminal: 'All', owner: 'Airport Ops', pool: 8, fn: 'Control' },
+  { id: 'st-ci-t1', name: 'Check-in Agents T1', terminal: 'T1', owner: 'SATS', pool: 24, fn: 'Check-in' },
+  { id: 'st-ci-t2', name: 'Check-in Agents T2', terminal: 'T2', owner: 'SATS', pool: 30, fn: 'Check-in' },
+  { id: 'st-ci-t3', name: 'Check-in Agents T3', terminal: 'T3', owner: 'dnata', pool: 32, fn: 'Check-in' },
+  { id: 'st-ci-t4', name: 'Check-in Agents T4', terminal: 'T4', owner: 'dnata', pool: 14, fn: 'Check-in' },
+  { id: 'st-gate', name: 'Gate & Boarding Agents', terminal: 'All', owner: 'SATS', pool: 36, fn: 'Gate' },
+  { id: 'st-tech', name: 'Line Maintenance Engineers', terminal: 'All', owner: 'SIA Engineering', pool: 20, fn: 'Technical' },
 ];
+
+/** Jobs inside each function and their share of the team (the last job takes the remainder). */
+const JOBS: Record<string, [string, number][]> = {
+  Ramp: [['Ramp Agent', 0.45], ['Loader Driver', 0.2], ['Aircraft Marshaller', 0.1], ['Ramp Team Leader', 0.1], ['Load Controller', 0.15]],
+  Baggage: [['Baggage Loader', 0.5], ['Baggage Tractor Driver', 0.25], ['Belt Operator', 0.15], ['Baggage Supervisor', 0.1]],
+  Cabin: [['Cabin Cleaner', 0.5], ['Catering Loader', 0.25], ['Catering Truck Driver', 0.15], ['Cleaning Supervisor', 0.1]],
+  Fuel: [['Fuel Dispenser Operator', 0.6], ['Fuel Quality Inspector', 0.15], ['Fuelling Supervisor', 0.25]],
+  Pushback: [['Pushback Tug Driver', 0.5], ['Wing Walker', 0.3], ['Towing Supervisor', 0.2]],
+  Control: [['SIOC Duty Manager', 0.5], ['Flight Dispatcher', 0.3], ['Resource Coordinator', 0.2]],
+  'Check-in': [['Check-in Agent', 0.65], ['Baggage Drop Agent', 0.2], ['Check-in Supervisor', 0.15]],
+  Gate: [['Gate Agent', 0.6], ['Boarding Agent', 0.25], ['Gate Supervisor', 0.15]],
+  Technical: [['Licensed Engineer', 0.4], ['Aircraft Technician', 0.4], ['Maintenance Controller', 0.2]],
+};
+const CERTS: Record<string, string> = {
+  Ramp: 'Ramp safety, airside driving permit', Baggage: 'Baggage handling, airside driving permit', Cabin: 'Cabin cleaning, airside pass',
+  Fuel: 'Into-plane fuelling licence, fire safety', Pushback: 'Pushback & towing licence, airside driving permit', Control: 'Airport operations management, A-CDM',
+  'Check-in': 'DCS check-in, dangerous goods awareness', Gate: 'DCS boarding, security screening', Technical: 'CAAS Part-66 B1/B2, human factors',
+};
+const FIRST = ['Wei', 'Aisha', 'Ravi', 'Mei', 'Hui Min', 'Arjun', 'Siti', 'Jun Jie', 'Nur', 'Priya', 'Kenji', 'Min-jun', 'Daniel', 'Farah', 'Zhi Hao', 'Lakshmi', 'Hafiz', 'Xin Yi', 'Marcus', 'Anita'];
+const LAST = ['Tan', 'Lim', 'Wong', 'Rahman', 'Kumar', 'Ng', 'Chua', 'Ismail', 'Lee', 'Singh', 'Goh', 'Teo', 'Abdullah', 'Nair', 'Ong', 'Yeo', 'Chen', 'Pillai', 'Koh', 'Sim'];
+
+export interface StaffMember { id: string; name: string; teamId: string; team: string; job: string; function: string; terminal: Terminal; employer: string; shift: string; restDay: number; certifications: string }
+
+/** Splits a head count over a function's jobs; the counts always add up to `hc`. */
+export function jobMix(fn: string, hc: number): [string, number][] {
+  const jobs = JOBS[fn] ?? [[fn, 1]];
+  let left = hc;
+  return jobs.map(([job, share], i) => { const n = i === jobs.length - 1 ? left : Math.min(left, Math.round(hc * share)); left -= n; return [job, n] as [string, number]; }).filter(([, n]) => n > 0);
+}
 const SHIFTS: [string, number, number, number][] = [['Morning', 6 * 60, 14 * 60, 0.9], ['Afternoon', 14 * 60, 22 * 60, 1], ['Night', 22 * 60, 30 * 60, 0.6]];
 
 const overlaps = (a: { start: number; end: number }, b: { start: number; end: number }) => a.start < b.end && b.start < a.end;
@@ -145,6 +180,7 @@ export function buildPlan(): PlanData {
   });
 
   // Staff rosters: three shifts a day; weekends lighter; each team rests on a rotating day.
+  const staff: StaffMember[] = [];
   TEAMS.forEach((tm, ti) => {
     resources.push({ id: tm.id, name: tr(tm.name), category: 'Staff', terminal: tm.terminal, group: tr(tm.fn), capacity: tm.pool, unit: 'staff', owner: tm.owner });
     for (let d = 0; d < 7; d++) {
@@ -152,9 +188,18 @@ export function buildPlan(): PlanData {
         const weekend = d >= 5 ? 0.9 : 1;
         const sioc = tm.fn === 'Control' ? 0.5 : 1;
         const hc = Math.max(1, Math.round(tm.pool * f * weekend * (0.82 + r() * 0.2) * sioc * (d === (ti + 1) % 7 && name === 'Night' ? 0.8 : 1)));
-        add({ resourceId: tm.id, start: d * DAY + s, end: Math.min(WEEK, d * DAY + e), kind: 'Shift', label: `${tr(name)} ${hc}`, detail: tr('{team} {shift} shift {from}–{to}: {hc} of {pool} staff rostered', { team: tr(tm.name), shift: tr(name), from: hhmm(s), to: hhmm(e), hc, pool: tm.pool }), load: hc });
+        add({ resourceId: tm.id, start: d * DAY + s, end: Math.min(WEEK, d * DAY + e), kind: 'Shift', label: `${tr(name)} ${hc}`, detail: `${tr('{team} {shift} shift {from}–{to}: {hc} of {pool} staff rostered', { team: tr(tm.name), shift: tr(name), from: hhmm(s), to: hhmm(e), hc, pool: tm.pool })}. ${tr('Jobs')}: ${jobMix(tm.fn, hc).map(([j, n]) => `${tr(j)} ${n}`).join(', ')}`, load: hc });
       });
     }
+    // Named roster: every team member has one job, a base shift and a weekly rest day.
+    const sr = rng(900 + ti);
+    jobMix(tm.fn, tm.pool).forEach(([job, n]) => {
+      for (let k = 0; k < n; k++) {
+        const idx = staff.length;
+        const shift = SHIFTS[(k + ti) % 3 === 2 && sr() < 0.4 ? 0 : (k + ti) % 3][0];
+        staff.push({ id: `emp-${String(idx + 1).padStart(4, '0')}`, name: `${FIRST[Math.floor(sr() * FIRST.length)]} ${LAST[Math.floor(sr() * LAST.length)]}`, teamId: tm.id, team: tm.name, job, function: tm.fn, terminal: tm.terminal, employer: tm.owner, shift, restDay: (idx + ti) % 7, certifications: CERTS[tm.fn] ?? '' });
+      }
+    });
   });
 
   items.forEach((i) => { i.conflict = conflictIds(resources, items).has(i.id); });
@@ -164,7 +209,7 @@ export function buildPlan(): PlanData {
     x.group = m ? tr('Terminal {n}', { n: m[1] }) : tr(x.group);
     x.unit = tr(x.unit);
   });
-  return { resources, items, sources: [
+  return { resources, items, staff, sources: [
     'https://worldairportmap.com/airport/SIN', 'https://en.wikipedia.org/wiki/Infrastructure_of_Changi_Airport',
   ] };
 }

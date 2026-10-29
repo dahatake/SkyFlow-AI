@@ -4,7 +4,8 @@ import { actionRows, slaKpis, type ActionRow } from '../domain/kpi';
 import { fmt } from '../domain/seed';
 import { Badge } from './ui';
 import { RingGauge } from './D3Charts';
-import { tr } from '../i18n';
+import { getLang, tr } from '../i18n';
+import { airportName } from '../customers';
 import { trData } from '../i18n/data';
 
 const STATE_LABEL = { met: '✓ Met', breached: '✖ Breached', pending: '… Pending' } as const;
@@ -25,7 +26,7 @@ export function KpiView() {
 
   return (
     <section className="card" aria-label={tr('Manager action KPIs')}>
-      <h2>{tr('Manager action KPIs')} <small className="muted">· {tr('Changi time · now {time}', { time: fmt(baseline.now) })}</small></h2>
+      <h2>{tr('Manager action KPIs')} <small className="muted">· {tr('{airport} time · now {time}', { airport: airportName(getLang()), time: fmt(baseline.now) })}</small></h2>
       <div className="kpis" role="list">
         {kpis.map((k) => (
           <div key={k.key} className="kpi" role="listitem" style={{ cursor: 'default' }}>

@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { tx } from './i18n';
 
 /** Stylised Changi-like airport used as the living backdrop of the presentation decks. */
 
@@ -304,7 +305,7 @@ export function createScene(canvas: HTMLCanvasElement, labelRoot: HTMLElement, f
   const label = (text: string, pos: THREE.Vector3, vis: () => number, cls = '') => {
     const el = document.createElement('div');
     el.className = `lbl ${cls}`;
-    el.textContent = text;
+    el.textContent = tx(text);
     labelRoot.appendChild(el);
     labels.push({ el, pos, vis });
   };
@@ -313,7 +314,7 @@ export function createScene(canvas: HTMLCanvasElement, labelRoot: HTMLElement, f
   label('Microsoft Fabric · OneLake', TOWER_TOP.clone().setY(38), () => level.flow, 'blue big');
   SOURCES.forEach((s, i) => label(s, srcPos[i].clone().setY(26), () => level.flow));
   LAYERS.forEach(([s], i) => label(s, new THREE.Vector3(-135, 22 + i * 20, 90), () => level.layers, 'big'));
-  conflicts.forEach((s, i) => label(`Gate conflict ${i + 1}`, new THREE.Vector3(s.x, 12, s.z), () => level.conflicts * (1 - level.resolve), 'red'));
+  conflicts.forEach((s, i) => label(tx('Gate conflict {n}').replace('{n}', String(i + 1)), new THREE.Vector3(s.x, 12, s.z), () => level.conflicts * (1 - level.resolve), 'red'));
   conflicts.forEach((s) => label('Owner assigned · Teams ✓', new THREE.Vector3(s.x, 12, s.z), () => level.resolve, 'green'));
   label('Baseline · untouched', new THREE.Vector3(65, 4, 0), () => level.whatif, 'big');
   label('Scenario · simulated', new THREE.Vector3(-65, 4, 0), () => level.whatif, 'amber big');

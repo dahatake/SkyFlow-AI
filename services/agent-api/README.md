@@ -1,5 +1,7 @@
 # agent-api
 
+> Archived cloud/LLM implementation. The current local-only demo does not start or call this service. Its coded advisor, approval flow and audit run in the browser; see the [current architecture](../../docs/SystemCompornentDiagram.md). The service instructions below are historical reference, not demo prerequisites.
+
 FastAPI service that runs a four-agent pipeline, **Detect -> Triage -> Resolver -> Comms**, over the `engine-mcp` tools and produces a
 human-approved `Recommendation`. The engine supplies every number; models only select among engine options and write explanations.
 Every stage has a deterministic rules-only fallback (the engine's own `advise()` result), so the service works with no model at all.

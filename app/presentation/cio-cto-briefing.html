@@ -34,7 +34,7 @@
         <p class="eyebrow reveal">SATS Project SPEAR · Technical briefing</p>
         <h1 class="mega reveal">One platform.<br /><span class="grad">Every decision.</span></h1>
         <p class="lede reveal">The architecture behind the AI Operations Control Tower, and a <b>low-risk path from prototype to production</b>.</p>
-        <div class="chips reveal"><span>Business Envisioning</span><span>Solution Envisioning</span><span>Architecture Design Session</span><span>Prototype in Azure</span></div>
+        <div class="chips reveal"><span>Business Envisioning</span><span>Solution Envisioning</span><span>Architecture Design Session</span><span>Local rule-based demo</span></div>
       </div>
     </section>
 
@@ -83,7 +83,7 @@
     <!-- 5 -->
     <section class="slide layout-wide" data-cam="layers" data-fx="layers" data-act="Act 2 · Solution Envisioning" aria-label="Target architecture">
       <div class="content">
-        <p class="eyebrow purple reveal">Act 2 · Solution Envisioning · target architecture</p>
+        <p class="eyebrow purple reveal">Act 2 · Solution Envisioning · future production concept, not the local demo</p>
         <h2 class="big reveal">Five layers. <span class="grad">One governance.</span></h2>
         <div class="cards reveal" style="grid-template-columns:repeat(5,minmax(0,1fr))">
           <div class="card"><span class="tag" style="color:#8e8e93">Sources</span><p>GroundStar tasks and rosters · G-Ops, Mosaic, DSM · CAG turnaround events · iFleet and GSE · BRS baggage · weather and airline SLAs</p></div>
@@ -156,18 +156,19 @@
     </section>
 
     <!-- 9 -->
-    <section class="slide layout-left" data-cam="pier" data-fx="whatif" data-act="Act 3 · Architecture Design" aria-label="Prototype component architecture">
+    <section class="slide layout-wide" data-cam="pier" data-fx="whatif" data-act="Act 3 · Architecture Design" aria-label="Prototype component architecture">
       <div class="content">
-        <p class="eyebrow teal reveal">Prototype component architecture</p>
-        <h2 class="big reveal">One shared <span class="grad">view context.</span></h2>
-        <p class="lede reveal">Role, filters, selection, time position and active scenario drive every panel (FR-001, FR-006, VIZ-001).</p>
-        <div class="cards c2 reveal">
-          <div class="card"><h3>Domain store</h3><p>Normalised entities, read-only baseline.</p></div>
-          <div class="card"><h3>Scenario engine</h3><p>Pure functions: baseline + parameters → derived overlay. Baseline byte-equivalent after apply, refresh or delete.</p></div>
-          <div class="card"><h3>2D and 3D renderers</h3><p>Layers, clustering, stable hit-testing; WebGL scene with level of detail and a camera controller.</p></div>
-          <div class="card"><h3>Persistence and diagnostics</h3><p>IndexedDB with schemaVersion + seedVersion; payload-free, exportable diagnostics.</p></div>
+        <p class="eyebrow teal reveal">Current demo · horizontal component architecture</p>
+        <h2 class="big reveal">One machine. <span class="grad">No cloud or LLM.</span></h2>
+        <p class="lede reveal">All application logic runs in the browser. Localhost serves bundled assets only.</p>
+        <div class="cards reveal" style="grid-template-columns:repeat(5,minmax(0,1fr))">
+          <div class="card"><h3>1 · React UI</h3><p>Linked 2D / 3D views, dashboards, GPS replay and role lenses.</p></div>
+          <div class="card"><h3>2 · Coded rules</h3><p>Detect → Triage → Resolve → Comms. Engine-valid options, no model calls.</p></div>
+          <div class="card"><h3>3 · Pure engine</h3><p>Deterministic simulation, scoring, planning, optimization and value.</p></div>
+          <div class="card"><h3>4 · Human approval</h3><p>A manager approves derived overlays and owned 5W2H tasks. Baseline unchanged.</p></div>
+          <div class="card"><h3>5 · Local storage</h3><p>IndexedDB for decisions and audit; localStorage for preferences.</p></div>
         </div>
-        <div class="band reveal"><b>Data-provider interface</b>: seed provider now → Fabric adapter in Horizon 2 · <b>No network mutation endpoint</b> (NFR-005)</div>
+        <div class="band reveal"><b>Bundled customer and seed data</b> · No backend, Azure, Fabric, Teams delivery or external telemetry. Production concepts on other slides are future options only.</div>
       </div>
     </section>
 
@@ -210,7 +211,7 @@
       <div class="content">
         <p class="eyebrow green reveal">Act 4 · Prototyping</p>
         <h2 class="big reveal">Running code. <span class="grad">Not mock-ups.</span></h2>
-        <div class="chips reveal"><span>React 19</span><span>TypeScript</span><span>Vite</span><span>Three.js</span><span>Fluent UI icons</span><span>Vitest</span><span>GitHub Actions CI/CD</span><span>Bicep</span><span>Azure Developer CLI</span><span>Azure Static Web Apps</span></div>
+        <div class="chips reveal"><span>React 19</span><span>TypeScript</span><span>Vite on localhost</span><span>Three.js</span><span>Fluent UI icons</span><span>Vitest</span><span>Playwright</span><span>IndexedDB</span><span>Deterministic rules</span></div>
         <ul class="list reveal">
           <li><b>Six role lenses</b>, KPI strip with drill-through, turnaround board, exception and ownership queue.</li>
           <li><b>Linked 2D map and 3D scene</b> with dynamic camera.</li>
@@ -218,7 +219,7 @@
           <li><b>One-click optimiser</b> and <b>day / week resource planning</b> on a Changi-modelled sample week.</li>
           <li><b>Traceable</b>: every screen maps to FR, VIZ, SIM, DATA, NFR, OPT and PLAN requirements.</li>
         </ul>
-        <p class="quote reveal">The prototype is a working specification, and it shows <span class="grad">exactly where Fabric plugs in.</span></p>
+        <p class="quote reveal">The prototype is a working specification, with <span class="grad">every feature running locally.</span></p>
       </div>
     </section>
 

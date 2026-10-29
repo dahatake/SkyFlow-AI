@@ -12,38 +12,52 @@ import { Resources } from './components/Resources';
 import {
   Airplane24Regular, AirplaneTakeOff24Regular, Alert24Regular, ArrowReset24Regular, Beaker24Regular, Bug24Regular, DataBarVertical24Regular,
   Eye24Regular, PersonBoard24Regular, PersonProhibited24Regular, ShieldCheckmark24Regular, Timeline24Regular, WeatherMoon24Regular,
-  WeatherSunny24Regular, WeatherThunderstorm24Regular, DocumentBriefcase24Regular, Sparkle24Regular, ClipboardTaskListLtr24Regular, Box24Regular, Gauge24Regular, Clock24Regular, TaskListSquareLtr24Regular, Warning24Regular, Flash24Regular, CalendarLtr24Regular, Money24Regular, Bot24Regular,
+  WeatherSunny24Regular, WeatherThunderstorm24Regular, DocumentBriefcase24Regular, Sparkle24Regular, ClipboardTaskListLtr24Regular, Box24Regular, Gauge24Regular, Clock24Regular, TaskListSquareLtr24Regular, Warning24Regular, Flash24Regular, CalendarLtr24Regular, Money24Regular, Bot24Regular, Globe24Regular,
 } from '@fluentui/react-icons';
 import { DEMO_PACK } from './domain/demo';
 import { DecisionQueue } from './components/Decisions';
 import { TaskList } from './components/TaskList';
 import { LiveBar } from './components/LiveBar';
 import { KpiView } from './components/KpiView';
+import { AnalyticsView } from './components/AnalyticsView';
 import { Optimizer } from './components/Optimizer';
 import { PlanningView } from './components/PlanningView';
 import { ExecutiveView } from './components/ExecutiveView';
 import { AgentView } from './components/AgentView';
 import { ValueView } from './components/ValueView';
 import { DemoGuide } from './components/DemoGuide';
+import { AirportImporter } from './components/AirportImporter';
+import { activeCustomer, airportName, zoneLabel } from './customers';
 import { fmt } from './domain/seed';
 import { trData } from './i18n/data';
-import { LangCtx, LangSwitch, getLang, setLang, tr, type Lang } from './i18n';
+import { LangCtx, LangSwitch, getLang, setLang, tr, useLang, type Lang } from './i18n';
 
-const TABS: [Tab, string, string, ReactNode][] = [
-  ['executive', 'Executive', 'What is wrong, what to do, what it saves', <Money24Regular key="i" />],
-  ['agent', 'AI agent', 'Agents propose, people approve', <Bot24Regular key="i" />],
-  ['value', 'Value', 'Before and after, with assumptions', <Money24Regular key="i" />],
-  ['overview', 'Overview', 'KPIs, map and priorities', <DataBarVertical24Regular key="i" />],
-  ['kpi', 'Action KPIs', 'Manager actions vs SLA', <Gauge24Regular key="i" />],
-  ['decisions', 'Decisions', 'Judgement tasks for people and Copilot', <Sparkle24Regular key="i" />],
-  ['tasks', 'Task list', 'Who does what, by when (5W2H)', <ClipboardTaskListLtr24Regular key="i" />],
-  ['turnaround', 'Turnarounds', 'Milestones, tasks and GSE per flight', <Timeline24Regular key="i" />],
-  ['exceptions', 'Exceptions', 'Severity, owner and next action', <Alert24Regular key="i" />],
-  ['owner', 'Owners', 'Who is accountable for what', <PersonBoard24Regular key="i" />],
-  ['scenarios', 'Simulator', 'Build and compare what-if cases', <Beaker24Regular key="i" />],
-  ['planning', 'Planning', 'Day / week resource schedule', <CalendarLtr24Regular key="i" />],
-  ['optimize', 'Optimize', 'One-click resource optimization', <Flash24Regular key="i" />],
-  ['diagnostics', 'Diagnostics', 'Reset, export and logs', <Bug24Regular key="i" />],
+interface Section { tab: Tab; label: string; desc: string; icon: ReactNode }
+interface Group { id: string; label: string; desc: string; icon: ReactNode; sections: Section[] }
+
+// Top-level navigation is task oriented; related views are sections of one group (Fluent "Pivot" pattern).
+const GROUPS: Group[] = [
+  { id: 'overview', label: 'Overview', desc: 'KPIs, map and priorities', icon: <DataBarVertical24Regular key="i" />, sections: [
+    { tab: 'overview', label: 'Live situation', desc: 'KPIs, map and priorities', icon: <DataBarVertical24Regular key="i" /> },
+    { tab: 'turnaround', label: 'Turnarounds', desc: 'Milestones, tasks and GSE per flight', icon: <Timeline24Regular key="i" /> },
+  ] },
+  { id: 'tasks', label: 'Tasks', desc: 'Resolve, decide and track actions', icon: <ClipboardTaskListLtr24Regular key="i" />, sections: [
+    { tab: 'agent', label: 'Task Resolver with AI Agent', desc: 'Agents propose, people approve', icon: <Bot24Regular key="i" /> },
+    { tab: 'decisions', label: 'Decisions', desc: 'Judgement tasks for people and Copilot', icon: <Sparkle24Regular key="i" /> },
+    { tab: 'tasks', label: 'Task list', desc: 'Who does what, by when (5W2H)', icon: <ClipboardTaskListLtr24Regular key="i" /> },
+    { tab: 'exceptions', label: 'Exceptions', desc: 'Severity, owner and next action', icon: <Alert24Regular key="i" /> },
+    { tab: 'owner', label: 'Owners', desc: 'Who is accountable for what', icon: <PersonBoard24Regular key="i" /> },
+  ] },
+  { id: 'value', label: 'Business Value', desc: 'What is wrong, what it saves, before and after', icon: <Money24Regular key="i" />, sections: [
+    { tab: 'executive', label: 'Executive', desc: 'What is wrong, what to do, what it saves', icon: <Money24Regular key="i" /> },
+    { tab: 'value', label: 'Value', desc: 'Before and after, with assumptions', icon: <Money24Regular key="i" /> },
+  ] },
+  { id: 'kpi', label: 'Action KPIs', desc: 'Manager actions vs SLA', icon: <Gauge24Regular key="i" />, sections: [{ tab: 'kpi', label: 'Action KPIs', desc: '', icon: null }] },
+  { id: 'analytics', label: 'Analytics', desc: 'Exploratory charts, distributions and data quality', icon: <DataBarVertical24Regular key="i" />, sections: [{ tab: 'analytics', label: 'Analytics', desc: '', icon: null }] },
+  { id: 'scenarios', label: 'Simulator', desc: 'Build and compare what-if cases', icon: <Beaker24Regular key="i" />, sections: [{ tab: 'scenarios', label: 'Simulator', desc: '', icon: null }] },
+  { id: 'planning', label: 'Planning', desc: 'Day / week resource schedule', icon: <CalendarLtr24Regular key="i" />, sections: [{ tab: 'planning', label: 'Planning', desc: '', icon: null }] },
+  { id: 'optimize', label: 'Resource Optimization with AI Agent', desc: 'One-click resource optimization', icon: <Flash24Regular key="i" />, sections: [{ tab: 'optimize', label: 'Resource Optimization with AI Agent', desc: '', icon: null }] },
+  { id: 'diagnostics', label: 'Diagnostics', desc: 'Reset, export and logs', icon: <Bug24Regular key="i" />, sections: [{ tab: 'diagnostics', label: 'Diagnostics', desc: '', icon: null }] },
 ];
 
 const DEMO_ICON: Record<string, ReactNode> = {
@@ -81,11 +95,11 @@ function ClockBar() {
     .filter((x) => x.f.status !== 'Departed' && x.f.status !== 'Cancelled' && x.std >= t)
     .sort((a, b) => a.std - b.std)[0];
   return (
-    <div className="clock" role="timer" aria-label={tr('Operational time (Changi, SGT)')}>
+    <div className="clock" role="timer" aria-label={tr('Operational time ({airport}, {tz})', { airport: activeCustomer().airport.iata, tz: zoneLabel() })}>
       <Clock24Regular />
       <div className="clock-main">
         <span className="clock-time">{fmt(t)}</span>
-        <span className="clock-label">{timePos === null ? <b className="live">● {tr('LIVE')}</b> : <b className="replay">{tr('REPLAY')}</b>} {tr('Changi time (SGT)')}</span>
+        <span className="clock-label">{timePos === null ? <b className="live">● {tr('LIVE')}</b> : <b className="replay">{tr('REPLAY')}</b>} {tr('{airport} time ({tz})', { airport: activeCustomer().airport.iata, tz: zoneLabel() })}</span>
       </div>
       <div className="clock-side">
         {next && <span>{tr('Next departure')} <b>{next.f.flightNo}</b> {fmt(next.std)} ({tr('in {n} min', { n: Math.max(0, next.std - t) })})</span>}
@@ -101,12 +115,13 @@ const DECKS: [string, string, string][] = [
 ];
 
 function PresentationMenu() {
+  const { lang } = useLang();
   return (
     <details className="present">
       <summary><DocumentBriefcase24Regular /> {tr('Presentation')}</summary>
       <div className="present-menu" role="menu">
         {DECKS.map(([href, title, sub]) => (
-          <a key={href} role="menuitem" href={`${import.meta.env.BASE_URL}${href}`} target="_blank" rel="noopener">
+          <a key={href} role="menuitem" href={`${import.meta.env.BASE_URL}${href}?lang=${lang}`} target="_blank" rel="noopener">
             <strong>{tr(title)}</strong><small>{tr(sub)}</small>
           </a>
         ))}
@@ -117,11 +132,14 @@ function PresentationMenu() {
 
 function Header() {
   const { theme, setTheme, vizMode, setVizMode } = useOps();
+  const [importing, setImporting] = useState(false);
   return (
     <header className="top">
-      <h1><Airplane24Regular /> <span>{tr('AI Operations Control Tower')}<small>{tr('Changi ground handling · prototype')}</small></span></h1>
+      <h1><Airplane24Regular /> <span>{tr('AI Operations Control Tower')}<small className="airport-name"><b>{airportName(getLang())}</b> ({activeCustomer().airport.iata}) · {tr('ground handling · prototype')}</small></span></h1>
       <ClockBar />
       <div className="row">
+        <button onClick={() => setImporting(true)}><Globe24Regular /> {tr('Import airport')}</button>
+        {importing && <AirportImporter onClose={() => setImporting(false)} />}
         <PresentationMenu />
         <LangSwitch />
         <div role="group" aria-label={tr('2D / 3D toggle')} className="seg">
@@ -300,12 +318,18 @@ function FilterBar() {
 
 function Main() {
   const { tab, setTab } = useOps();
-  const plain = tab !== 'executive' && tab !== 'agent' && tab !== 'value' && tab !== 'overview' && tab !== 'scenarios' && tab !== 'optimize' && tab !== 'planning' && tab !== 'diagnostics' && tab !== 'kpi';
+  const plain = tab === 'decisions' || tab === 'tasks' || tab === 'turnaround' || tab === 'exceptions' || tab === 'owner';
+  const group = GROUPS.find((g) => g.sections.some((s) => s.tab === tab)) ?? GROUPS[0];
   return (
     <>
       <nav className="tabs" role="tablist" aria-label={tr('Views')}>
-        {TABS.map(([k, l, d, ic]) => <button key={k} role="tab" aria-selected={tab === k} onClick={() => setTab(k)} title={tr(d)}>{ic}<span><strong>{tr(l)}</strong><small>{tr(d)}</small></span></button>)}
+        {GROUPS.map((g) => <button key={g.id} role="tab" aria-selected={g.id === group.id} onClick={() => g.id !== group.id && setTab(g.sections[0].tab)} title={tr(g.desc)}>{g.icon}<span><strong>{tr(g.label)}</strong><small>{tr(g.desc)}</small></span></button>)}
       </nav>
+      {group.sections.length > 1 && (
+        <nav className="subtabs" role="tablist" aria-label={tr('Sections')}>
+          {group.sections.map((s) => <button key={s.tab} role="tab" aria-selected={tab === s.tab} onClick={() => setTab(s.tab)} title={tr(s.desc)}>{s.icon}<span>{tr(s.label)}</span></button>)}
+        </nav>
+      )}
       {tab === 'overview' && <><TimeBar /><FilterBar /><RoleLayout /></>}
       {plain && <><Kpis /><TimeBar /><FilterBar /></>}
       {tab !== 'overview' && <main className={tab === 'turnaround' ? 'grid-main' : 'single'}>
@@ -313,6 +337,7 @@ function Main() {
         {tab === 'agent' && <><AgentView /><DecisionQueue compact /></>}
         {tab === 'value' && <ValueView />}
         {tab === 'kpi' && <KpiView />}
+        {tab === 'analytics' && <AnalyticsView />}
         {tab === 'tasks' && <><TaskList /><WorkflowPanel /></>}
         {tab === 'decisions' && <><WorkflowPanel /><DecisionQueue /><VizPane /></>}
         {tab === 'turnaround' && <><div className="col"><Board /><TurnaroundWorkspace /></div><div className="col"><VizPane /><DetailPanel /></div></>}

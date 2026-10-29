@@ -1,6 +1,29 @@
 # システムコンポーネント図
 
-SkyFlow-AI のアプリケーション層コンポーネント図と Azure コンポーネント図です。
+## 現在の構成: ローカル専用・水平デモ
+
+```mermaid
+flowchart LR
+    user["運用担当者"] --> ui["ローカル React UI<br/>2D / 3D / ダッシュボード"]
+    ui --> advisor["コード化したルール<br/>検知 / 分類 / 解決 / 通知プレビュー"]
+    advisor --> engine["決定論的エンジン<br/>シナリオ / KPI / 最適化 / 計画"]
+    engine --> human["人による承認<br/>派生ビュー / 5W2H タスク"]
+    human --> storage["ブラウザ内保存<br/>IndexedDB / 設定 / 監査"]
+    seed["同梱の顧客設定・シード<br/>模擬フィード / GPS"] --> engine
+```
+
+全機能は一台のローカル端末内で動作します。Vite が localhost でアセットを配信し、ブラウザが処理を実行します。LLM、MCP/API サーバー、Azure、Entra 認証、Fabric、Teams、外部テレメトリは使用しません。推薦はエンジンが算出した有効な選択肢と数値のみを使用します。
+
+提案は権限のある三つのマネージャーロールによる明示的な承認後にのみ適用します。ロール選択はデモ用で本番認証ではありません。決定・監査は IndexedDB、設定は localStorage に保存し、ベースラインは変更しません。依存関係の導入後は localhost の配信のみで動作します。PWA / Service Worker のインストールではありません。
+
+実装: [アドバイザー](../app/src/agent/client.ts)、[承認 UI](../app/src/components/AgentView.tsx)、[エンジン](../app/src/domain)、[保存](../app/src/storage)。
+
+## 過去のクラウド構成 (現在のデモでは使用しない)
+
+<details>
+<summary>過去の Azure / LLM コンポーネント</summary>
+
+以下は旧クラウド実装の参考図です。
 (出典: [azure.yaml](../azure.yaml)、[infra/resources.bicep](../infra/resources.bicep)、`app/`、`services/`)
 
 ## 1. アプリケーション層
@@ -147,3 +170,5 @@ flowchart TB
 - `agent-api` と `scheduler` は同じイメージ/プロジェクト (`services/agent-api`) からビルドされます。scheduler は Container Apps ジョブとして実行されます。
 - 数値の唯一の情報源は決定論的エンジンです。LLM は選択と説明のみを行い、`safety.py` のグラウンディング検査で保護されます。
 - プライベートエンドポイント、Content Safety、アラート、SWA のリンクされたバックエンドは、Bicep パラメーター (`enablePrivateNetworking`、`enableContentSafety`、`enableAlerts`、`linkSwaBackend`) によって有効化される条件付きの構成です。
+
+</details>

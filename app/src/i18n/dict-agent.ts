@@ -1,8 +1,14 @@
 import { register } from './core';
 
 register({
+  'Invalid decision option.': { zh: '无效的决策选项。', ko: '유효하지 않은 결정 옵션입니다.', ja: '無効な決定の選択肢です。' },
+  'Decision save failed: {message}': { zh: '决策保存失败：{message}', ko: '결정 저장 실패: {message}', ja: '決定の保存に失敗しました: {message}' },
+  'Local demo: deterministic rules only. No LLM, cloud services or external notifications.': { zh: '本地演示：仅使用确定性规则，无大语言模型、云服务或外部通知。', ko: '로컬 데모: 결정적 규칙만 사용합니다. LLM, 클라우드 서비스, 외부 알림은 없습니다.', ja: 'ローカルデモ: 決定論的なルールのみ使用します。LLM、クラウドサービス、外部通知は使用しません。' },
+  'An authorized manager must approve proposals.': { zh: '方案须由获授权的经理批准。', ko: '권한이 있는 관리자가 제안을 승인해야 합니다.', ja: '提案の承認には権限のあるマネージャーが必要です。' },
+  'Start the proposed scenario before approving.': { zh: '批准前请先启动所提议的场景。', ko: '승인하기 전에 제안된 시나리오를 시작하세요.', ja: '承認する前に提案対象のシナリオを開始してください。' },
   'Executive': { zh: '管理层', ko: '경영진', ja: 'エグゼクティブ' },
   'What is wrong, what to do, what it saves': { zh: '问题所在、应对措施、节省价值', ko: '문제, 대응, 절감 효과', ja: '課題、対応、削減効果' },
+  'Task Resolver with AI Agent': { zh: '基于 AI 智能体的任务解决器', ko: 'AI 에이전트 기반 작업 해결사', ja: 'AI エージェントによるタスク解決' },
   'AI agent': { zh: 'AI 智能体', ko: 'AI 에이전트', ja: 'AI エージェント' },
   'Agents propose, people approve': { zh: '智能体提出方案，由人批准', ko: '에이전트가 제안하고 사람이 승인', ja: 'エージェントが提案し、人が承認' },
   'Value': { zh: '价值', ko: '가치', ja: '価値' },

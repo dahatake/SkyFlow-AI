@@ -1,4 +1,25 @@
-# Playbook: from an empty folder to a deployed demo (target: under 2 hours)
+# Playbook: local-only rule-based demo
+
+The current demo runs entirely in the browser on localhost. No Python, Azure account, LLM or external service is needed.
+
+```powershell
+cd app
+npm ci --legacy-peer-deps
+npm run dev -- --host 127.0.0.1
+```
+
+Open `http://localhost:5173/?clock=2027-01-11T08:00:00%2B08:00&demo=1`. For a built demo, use `npm run build` followed by `npx vite preview --host 127.0.0.1 --port 4173`. Keep the server running; this is not a PWA installation.
+
+Run the pipeline, inspect the rule-based proposal, then explicitly approve as Control Tower Lead, SIOC Duty Manager or BU Ops Manager. Decisions and audit stay in IndexedDB. Export through Diagnostics before clearing browser data. Comms does not send external notifications. Legacy `VITE_AGENT_API_URL` settings are ignored.
+
+Architecture: [horizontal component diagram](SystemCompornentDiagram.md). Validate in `app/`: `npm test`, `npx tsc --noEmit`, `npm run lint`, `npm run build`, `npm run test:e2e`.
+
+## Historical cloud playbook
+
+The material below is archived. Deployment workflows are disabled; do not run the old Azure provisioning steps for the local demo.
+
+<details>
+<summary>Archived service, deployment and CI/CD setup</summary>
 
 Audience: a Hub SE using GitHub Copilot (or any AI harness) with only this repo.
 
@@ -95,3 +116,5 @@ It prints the repository variables for `.github/workflows/cd.yml`: `AZURE_CLIENT
 ## Tear down
 
 `azd down --purge`
+
+</details>

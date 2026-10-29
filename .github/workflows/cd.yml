@@ -1,8 +1,6 @@
 name: CD
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
     inputs:
       ref:
@@ -20,6 +18,7 @@ concurrency:
 
 jobs:
   staging:
+    if: ${{ false }} # Archived: the current application is a local-only demo.
     uses: ./.github/workflows/deploy-env.yml
     with:
       environment: staging

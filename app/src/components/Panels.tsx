@@ -3,6 +3,7 @@ import { useOps } from '../storage/store';
 import { ExceptionQueue } from './Board';
 import { Scene3D } from './Scene3D';
 import { GpsMap } from './GpsMap';
+import { OsmAirportMap, useImportedMap } from './OsmAirportMap';
 import { Badge, Tag } from './ui';
 import { ExceptionStepper } from './Workflow';
 import { tr } from '../i18n';
@@ -15,6 +16,7 @@ const LAYERS: [string, string][] = [
 
 export function VizPane() {
   const { vizMode, setVizMode, layers, toggleLayer, view } = useOps();
+  const osm = useImportedMap();
   return (
     <section className="card"     aria-label={tr('Operational map')}>
       <div className="row between">
@@ -27,7 +29,7 @@ export function VizPane() {
       {vizMode === '3d' && <details className="layers">      <summary>{tr('Layers')}</summary>
               {LAYERS.map(([k, l]) => <label key={k}><input type="checkbox" checked={!!layers[k]} onChange={() => toggleLayer(k)} /> {tr(l)}</label>)}
       </details>}
-      {vizMode === '2d' ? <GpsMap /> : <Scene3D />}
+      {vizMode === '2d' ? (osm ? <OsmAirportMap map={osm} /> : <GpsMap />) : <Scene3D />}
       <p className="legend">{tr('Risk:')} <Badge level="Normal" /> <Badge level="Watch" /> <Badge level="AtRisk" /> <Badge level="Breach" /> · {tr('Layers hide rendering only; KPIs are unaffected.')}</p>
     </section>
   );

@@ -1,11 +1,11 @@
 const DB_NAME = 'aoct-prototype';
-const STORES = ['baseline', 'scenarios', 'audit', 'diagnostics', 'workflow', 'gps'];
+const STORES = ['baseline', 'scenarios', 'audit', 'diagnostics', 'workflow', 'gps', 'airports'];
 
 let dbPromise: Promise<IDBDatabase> | undefined;
 
 export function openDB(): Promise<IDBDatabase> {
   dbPromise ??= new Promise((resolve, reject) => {
-    const req = indexedDB.open(DB_NAME, 3);
+    const req = indexedDB.open(DB_NAME, 4);
     req.onupgradeneeded = () => {
       STORES.forEach((s) => {
         if (!req.result.objectStoreNames.contains(s)) req.result.createObjectStore(s, s === 'baseline' ? undefined : { keyPath: 'id' });

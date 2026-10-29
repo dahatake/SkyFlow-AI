@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { Pause24Regular, Play24Regular, ArrowReset24Regular } from '@fluentui/react-icons';
 import { fmt } from '../domain/seed';
 import { useOps } from '../storage/store';
-import { tr } from '../i18n';
+import { getLang, tr } from '../i18n';
+import { airportName } from '../customers';
 import { now as clockNow } from '../domain/clock';
 
 const SPEEDS: [number, string, string][] = [[1, '×1', 'update every 1 min'], [15, '×15', 'every 4 s (demo)'], [60, '×60', 'every 1 s (demo)']];
@@ -26,7 +27,7 @@ export function LiveBar() {
                     <div role="group" aria-label={tr('Feed speed')} className="seg small">
                       {SPEEDS.map(([n, l, d]) => <button key={n} aria-pressed={live.speed === n} title={tr(d)} onClick={() => live.setSpeed(n)}>{l}</button>)}
           </div>
-                    <button onClick={live.restart} title={tr('Restart the simulated feed from the current Changi time')}><ArrowReset24Regular /> {tr('Restart feed')}</button>
+                    <button onClick={live.restart} title={tr('Restart the simulated feed from the current {airport} time', { airport: airportName(getLang()) })}><ArrowReset24Regular /> {tr('Restart feed')}</button>
         </div>
       </div>
       <ul className="ticker" aria-live="polite">

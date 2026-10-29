@@ -338,6 +338,11 @@ button.link{min-height:0;font-weight:400}
 select,input:not([type=checkbox]){min-height:32px;border:1px solid var(--line-strong);border-bottom-color:var(--mut);border-radius:var(--r-sm)}
 select:hover,input:hover{border-color:var(--mut)}
 /* Tabs */
+.subtabs{display:flex;flex-wrap:wrap;gap:4px;padding:6px 16px;background:var(--card);border-bottom:1px solid var(--line)}
+.subtabs button{display:inline-flex;align-items:center;gap:6px;border:0;border-radius:16px;padding:4px 14px;min-height:32px;background:none;color:var(--fg);cursor:pointer}
+.subtabs button:hover{background:var(--hover)}
+.subtabs button[aria-selected=true]{background:var(--acc);color:#fff;font-weight:600}
+.subtabs button svg{width:18px;height:18px}
 .tabs{gap:4px;padding:0 16px;background:var(--card)}
 .tabs button{border:0;border-radius:0;min-height:44px;font-weight:400;border-bottom:2px solid transparent}
 .tabs button:hover:not(:disabled){background:var(--hover)}
@@ -350,3 +355,17 @@ tr.sel,li.sel,.g-row.sel,.opt.on,.role-card.on,.step.current{background:var(--se
 th{font-weight:600;color:var(--mut)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 @media (forced-colors:active){button,.card{border:1px solid ButtonText}}
+.import-scrim{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:1000;display:grid;place-items:center}
+.import-card{background:var(--card);color:var(--fg);border-radius:var(--r);padding:20px 24px;min-width:340px;max-width:90vw;box-shadow:var(--sh);display:grid;gap:10px}
+.import-bar{height:14px;border-radius:7px;background:var(--line);overflow:hidden}
+.import-bar .fill{display:block;height:100%;background:var(--acc);transition:width .4s ease}
+.import-bar .fill.run{background-image:linear-gradient(45deg,rgba(255,255,255,.3) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.3) 50%,rgba(255,255,255,.3) 75%,transparent 75%);background-size:24px 24px;animation:imp-stripe 1s linear infinite}
+@keyframes imp-stripe{to{background-position:24px 0}}
+@media (prefers-reduced-motion:reduce){.import-bar .fill,.import-bar .fill.run{animation:none;transition:none}}
+.import-panel{position:fixed;top:64px;right:16px;width:420px;max-width:calc(100vw - 32px);z-index:900;display:grid;gap:8px;box-shadow:var(--sh)}
+.import-list{list-style:none;margin:0;padding:0;max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:6px}
+.import-list li{padding:6px 8px;cursor:pointer;border-bottom:1px solid var(--line)}
+.import-list li.sel{background:var(--acc);color:#fff}
+.import-list li small{opacity:.8;margin-left:6px}
+.airport-name b{font-size:15px;color:var(--acc)}
+.osm-map{margin:0}.osm-map svg{width:100%;height:auto;max-height:520px;border-radius:6px}.osm-bg{fill:var(--card)}
