@@ -189,7 +189,7 @@ azd provision --preview
 azd up
 ```
 
-On Linux/macOS, use `./scripts/preflight.sh` instead; see its options for the equivalent subscription and region flags. If you override model settings, pass matching model, SKU, and capacity options to preflight (or export the corresponding environment variables); `azd env set` does not export them into your shell.
+On Linux/macOS, install `jq` and run `AZURE_LOCATION=eastasia FOUNDRY_LOCATION=eastus2 ./scripts/preflight.sh <your-subscription-id>` instead, substituting your selected regions. If you override model settings, pass matching model, SKU, and capacity options to PowerShell preflight (or export the corresponding environment variables for either script); `azd env set` does not export them into your shell.
 
 `azd up` provisions the Bicep infrastructure in [infra/](infra/) and deploys the services in [azure.yaml](azure.yaml). Container images use remote builds in Azure Container Registry, so local Docker is not required.
 

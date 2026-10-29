@@ -19,9 +19,26 @@ export function DemoGuide() {
   const [open, setOpen] = useState(() => typeof location !== 'undefined' && new URLSearchParams(location.search).has('demo'));
   const [n, setN] = useState(0);
   useEffect(() => { if (open) { const s = STEPS[n]; setTab(s.tab); if (s.run === 'start') runDemo('demo-weather'); } }, [open, n]); // eslint-disable-line react-hooks/exhaustive-deps
+  const [rect, setRect] = useState<DOMRect | null>(null);
+  useEffect(() => {
+    if (!open) { setRect(null); return; }
+    const measure = () => {
+      const el = document.querySelector<HTMLElement>('main section.card, main .card, main');
+      if (!el) { setRect(null); return; }
+      el.scrollIntoView({ block: 'nearest' });
+      setRect(el.getBoundingClientRect());
+    };
+    const t = window.setInterval(measure, 300);
+    measure();
+    window.addEventListener('resize', measure);
+    window.addEventListener('scroll', measure, true);
+    return () => { clearInterval(t); window.removeEventListener('resize', measure); window.removeEventListener('scroll', measure, true); };
+  }, [open, n]);
   if (!open) return <button className="demo-start" onClick={() => { setN(0); setOpen(true); }}><PlayCircle24Regular /> {tr('Guided demo')}</button>;
   const s = STEPS[n];
   return (
+    <>
+    {rect && <div className="demo-spot" aria-hidden="true" style={{ top: rect.top - 6, left: rect.left - 6, width: rect.width + 12, height: rect.height + 12 }} />}
     <aside className="demo-guide" aria-label={tr('Guided demo')}>
       <button aria-label={tr('Close')} onClick={() => setOpen(false)}><Dismiss24Regular /></button>
       <strong>{tr(s.title)}</strong>
@@ -33,5 +50,6 @@ export function DemoGuide() {
         <span className="muted">{n + 1}/{STEPS.length}</span>
       </div>
     </aside>
+    </>
   );
 }

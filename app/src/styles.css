@@ -287,6 +287,7 @@ th{font-weight:600;color:var(--mut);position:sticky;top:0;background:var(--card)
 .demo-start{position:fixed;right:16px;bottom:16px;z-index:20;display:inline-flex;gap:6px;align-items:center}
 .demo-guide{position:fixed;right:16px;bottom:16px;z-index:20;width:320px;background:var(--card);border:1px solid var(--acc);border-radius:8px;padding:12px;box-shadow:var(--sh)}
 .demo-guide>button[aria-label]{float:right}
+.demo-spot{position:fixed;z-index:15;pointer-events:none;border-radius:10px;border:2px solid var(--acc);box-shadow:0 0 0 9999px rgba(0,0,0,.62);transition:all .25s ease}
 
 /* Microsoft Design / Fluent 2 alignment: tokens, type ramp, elevation, shape, motion, focus */
 :root{
